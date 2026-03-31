@@ -234,7 +234,7 @@ def compare_elements(elem1, elem2, opts, path='', diffs=None):
 
 
 def _compare_ordered(children1, children2, opts, path, diffs):
-    max_len = max(len(children1), len(children2)) if (children1 or children2) else 0
+    max_len = max(len(children1), len(children2))
     for i in range(max_len):
         if i >= len(children1):
             tag = get_tag(children2[i], opts)
@@ -531,7 +531,7 @@ def main(argv=None):
     if args.config:
         try:
             config = load_config(args.config)
-        except FileNotFoundError:
+        except OSError:
             print(f"Error: config file not found: {args.config}", file=sys.stderr)
             sys.exit(2)
         except Exception as exc:
