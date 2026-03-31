@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Same logical content as catalog_ns_a.xml, but using a different namespace URI.
+  Without -ignore-namespaces this will show tag mismatches.
+  With    -ignore-namespaces this will be reported as equal.
+-->
+<c:catalog xmlns:c="http://example.com/catalog/v2"
+           xmlns:p="http://example.com/product/v2">
+  <c:product id="P100">
+    <p:name>Laptop Pro</p:name>
+    <p:price currency="USD">1299.00</p:price>
+    <p:inStock>true</p:inStock>
+  </c:product>
+  <c:product id="P101">
+    <p:name>Wireless Mouse</p:name>
+    <p:price currency="USD">29.99</p:price>
+    <p:inStock>false</p:inStock>
+  </c:product>
+</c:catalog>

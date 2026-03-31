@@ -475,3 +475,328 @@ class TestCLI:
             xc.main(['--files', f1, f2, '--output-format', 'html'])
         captured = capsys.readouterr()
         assert '<html>' in captured.out
+
+    def test_verbose_cli(self, tmp_path, capsys):
+        f1 = write(tmp_path / 'a.xml', '<r><v>1</v></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><v>1</v></r>')
+        with pytest.raises(SystemExit) as exc_info:
+            xc.main(['--files', f1, f2, '--verbose', '--quiet'])
+        # Files are equal → exit 0; --quiet suppresses output even with --verbose
+        assert exc_info.value.code == 0
+
+    def test_unordered_cli(self, tmp_path):
+        f1 = write(tmp_path / 'a.xml', '<r><a/><b/></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><b/><a/></r>')
+        self._run(['--files', f1, f2, '--unordered', '--quiet'], 0)
+
+    def test_skip_keys_cli(self, tmp_path):
+        f1 = write(tmp_path / 'a.xml', '<r><ts>2024-01-01</ts><v>1</v></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><ts>2024-12-31</ts><v>1</v></r>')
+        self._run(['--files', f1, f2, '--skip-keys', '//ts', '--quiet'], 0)
+
+    def test_dirs_text_output(self, tmp_path, capsys):
+        """Exercises the dirs branch of text-format output (format_text_report with key)."""
+        d1 = tmp_path / 'd1'
+        d2 = tmp_path / 'd2'
+        d1.mkdir()
+        d2.mkdir()
+        write(d1 / 'f.xml', '<r><v>1</v></r>')
+        write(d2 / 'f.xml', '<r><v>2</v></r>')
+        with pytest.raises(SystemExit):
+            xc.main(['--dirs', str(d1), str(d2)])
+
+    def test_dirs_error_string_text_output(self, tmp_path, capsys):
+        """Exercises error-string branch in text output when a file is invalid XML."""
+        d1 = tmp_path / 'd1'
+        d2 = tmp_path / 'd2'
+        d1.mkdir()
+        d2.mkdir()
+        write(d1 / 'bad.xml', '<unclosed>')
+        write(d2 / 'bad.xml', '<r/>')
+        with pytest.raises(SystemExit):
+            xc.main(['--dirs', str(d1), str(d2)])
+        captured = capsys.readouterr()
+        assert 'ERROR' in captured.out
+
+    def test_dir1_not_a_directory(self, tmp_path):
+        """main() exits 2 when dir1 is not a real directory."""
+        f = write(tmp_path / 'a.xml', '<r/>')
+        d2 = tmp_path / 'd2'
+        d2.mkdir()
+        with pytest.raises(SystemExit) as exc_info:
+            xc.main(['--dirs', f, str(d2), '--quiet'])
+        assert exc_info.value.code == 2
+
+    def test_dir2_not_a_directory(self, tmp_path):
+        """main() exits 2 when dir2 is not a real directory."""
+        d1 = tmp_path / 'd1'
+        d1.mkdir()
+        f = write(tmp_path / 'b.xml', '<r/>')
+        with pytest.raises(SystemExit) as exc_info:
+            xc.main(['--dirs', str(d1), f, '--quiet'])
+        assert exc_info.value.code == 2
+
+    def test_config_file_not_found(self, tmp_path):
+        """main() exits 2 when the --config file does not exist."""
+        f1 = write(tmp_path / 'a.xml', '<r/>')
+        f2 = write(tmp_path / 'b.xml', '<r/>')
+        with pytest.raises(SystemExit) as exc_info:
+            xc.main(['--files', f1, f2, '--config', str(tmp_path / 'missing.json')])
+        assert exc_info.value.code == 2
+
+    def test_config_invalid_content(self, tmp_path):
+        """main() exits 2 when the --config file contains invalid JSON."""
+        cfg = tmp_path / 'bad.json'
+        cfg.write_text('not valid json {{{')
+        f1 = write(tmp_path / 'a.xml', '<r/>')
+        f2 = write(tmp_path / 'b.xml', '<r/>')
+        with pytest.raises(SystemExit) as exc_info:
+            xc.main(['--files', f1, f2, '--config', str(cfg)])
+        assert exc_info.value.code == 2
+
+    def test_output_file_write_error(self, tmp_path):
+        """main() exits 2 when the output file cannot be written."""
+        f1 = write(tmp_path / 'a.xml', '<r/>')
+        f2 = write(tmp_path / 'b.xml', '<r/>')
+        bad_dir = tmp_path / 'nonexistent_dir' / 'report.txt'
+        with pytest.raises(SystemExit) as exc_info:
+            xc.main(['--files', f1, f2, '--output-file', str(bad_dir)])
+        assert exc_info.value.code == 2
+
+
+# ---------------------------------------------------------------------------
+# Additional coverage for low-coverage paths
+# ---------------------------------------------------------------------------
+
+class TestCoverageGaps:
+    """Tests targeting specific uncovered branches to push coverage >90%."""
+
+    def test_difference_repr(self):
+        d = xc.Difference('root/a', 'text', 'Text mismatch', 'foo', 'bar')
+        r = repr(d)
+        assert 'root/a' in r
+        assert 'text' in r
+        assert 'Text mismatch' in r
+
+    def test_strip_namespace_no_ns(self):
+        """strip_namespace should return the tag unchanged when there is no namespace."""
+        assert xc.strip_namespace('myTag') == 'myTag'
+        assert xc.strip_namespace('') == ''
+
+    def test_ignore_namespaces_plain_tags(self, tmp_path):
+        """ignore_namespaces=True on plain (non-namespaced) XML should still work."""
+        f1 = write(tmp_path / 'a.xml', '<r><v>x</v></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><v>x</v></r>')
+        opts = xc.CompareOptions()
+        opts.ignore_namespaces = True
+        assert xc.compare_xml_files(f1, f2, opts) == []
+
+    def test_verbose_mode(self, tmp_path, capsys):
+        """verbose=True should print element paths to stderr."""
+        f1 = write(tmp_path / 'a.xml', '<r><v>1</v></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><v>1</v></r>')
+        opts = xc.CompareOptions()
+        opts.verbose = True
+        xc.compare_xml_files(f1, f2, opts)
+        captured = capsys.readouterr()
+        assert 'Comparing' in captured.err
+
+    def test_attr_missing_in_first(self, tmp_path):
+        """Attribute present in second but absent in first should be detected."""
+        f1 = write(tmp_path / 'a.xml', '<r><v>x</v></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><v id="1">x</v></r>')
+        diffs = xc.compare_xml_files(f1, f2, xc.CompareOptions())
+        assert any(d.kind == 'attr' for d in diffs)
+
+    def test_attr_missing_in_first_fail_fast(self, tmp_path):
+        """fail_fast should stop after an attr-missing-in-first difference."""
+        f1 = write(tmp_path / 'a.xml', '<r><v>x</v></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><v id="1" class="c">x</v></r>')
+        opts = xc.CompareOptions()
+        opts.fail_fast = True
+        diffs = xc.compare_xml_files(f1, f2, opts)
+        assert len(diffs) == 1
+
+    def test_attr_missing_in_second_fail_fast(self, tmp_path):
+        """fail_fast should stop after an attr-missing-in-second difference."""
+        f1 = write(tmp_path / 'a.xml', '<r><v id="1" class="c">x</v></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><v>x</v></r>')
+        opts = xc.CompareOptions()
+        opts.fail_fast = True
+        diffs = xc.compare_xml_files(f1, f2, opts)
+        assert len(diffs) == 1
+
+    def test_attr_value_mismatch_fail_fast(self, tmp_path):
+        """fail_fast should stop after an attribute-value mismatch."""
+        f1 = write(tmp_path / 'a.xml', '<r><v id="1" x="a">t</v></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><v id="2" x="b">t</v></r>')
+        opts = xc.CompareOptions()
+        opts.fail_fast = True
+        diffs = xc.compare_xml_files(f1, f2, opts)
+        assert len(diffs) == 1
+
+    def test_fail_fast_after_text_before_children(self, tmp_path):
+        """fail_fast should stop after a text difference without descending into children."""
+        f1 = write(tmp_path / 'a.xml', '<r>X<a>1</a></r>')
+        f2 = write(tmp_path / 'b.xml', '<r>Y<a>2</a></r>')
+        opts = xc.CompareOptions()
+        opts.fail_fast = True
+        diffs = xc.compare_xml_files(f1, f2, opts)
+        assert len(diffs) == 1
+
+    def test_ordered_missing_in_first_fail_fast(self, tmp_path):
+        """_compare_ordered: element present in second but not first, with fail_fast."""
+        f1 = write(tmp_path / 'a.xml', '<r><a/></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><a/><b/><c/></r>')
+        opts = xc.CompareOptions()
+        opts.fail_fast = True
+        diffs = xc.compare_xml_files(f1, f2, opts)
+        assert len(diffs) == 1
+        assert diffs[0].kind == 'missing'
+
+    def test_ordered_extra_in_first_fail_fast(self, tmp_path):
+        """_compare_ordered: element present in first but not second, with fail_fast."""
+        f1 = write(tmp_path / 'a.xml', '<r><a/><b/><c/></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><a/></r>')
+        opts = xc.CompareOptions()
+        opts.fail_fast = True
+        diffs = xc.compare_xml_files(f1, f2, opts)
+        assert len(diffs) == 1
+        assert diffs[0].kind == 'extra'
+
+    def test_unordered_missing_in_first(self, tmp_path):
+        """_compare_unordered: tag present in second but missing in first."""
+        f1 = write(tmp_path / 'a.xml', '<r><a/></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><a/><b/></r>')
+        opts = xc.CompareOptions()
+        opts.unordered = True
+        diffs = xc.compare_xml_files(f1, f2, opts)
+        assert any(d.kind == 'missing' for d in diffs)
+
+    def test_unordered_missing_in_first_fail_fast(self, tmp_path):
+        """_compare_unordered: fail_fast stops after first missing element."""
+        f1 = write(tmp_path / 'a.xml', '<r></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><a/><b/></r>')
+        opts = xc.CompareOptions()
+        opts.unordered = True
+        opts.fail_fast = True
+        diffs = xc.compare_xml_files(f1, f2, opts)
+        assert len(diffs) == 1
+
+    def test_unordered_extra_fail_fast(self, tmp_path):
+        """_compare_unordered: fail_fast stops when tag present in first but not second."""
+        f1 = write(tmp_path / 'a.xml', '<r><a/><b/></r>')
+        f2 = write(tmp_path / 'b.xml', '<r></r>')
+        opts = xc.CompareOptions()
+        opts.unordered = True
+        opts.fail_fast = True
+        diffs = xc.compare_xml_files(f1, f2, opts)
+        assert len(diffs) == 1
+        assert diffs[0].kind == 'extra'
+
+    def test_unordered_child_diff_fail_fast(self, tmp_path):
+        """_compare_unordered: fail_fast stops after first differing child element."""
+        f1 = write(tmp_path / 'a.xml', '<r><a>1</a><b>1</b></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><b>2</b><a>2</a></r>')
+        opts = xc.CompareOptions()
+        opts.unordered = True
+        opts.fail_fast = True
+        diffs = xc.compare_xml_files(f1, f2, opts)
+        assert len(diffs) == 1
+
+    def test_invalid_second_file(self, tmp_path):
+        """compare_xml_files raises ValueError when the second file is invalid XML."""
+        f1 = write(tmp_path / 'a.xml', '<r/>')
+        f2 = write(tmp_path / 'b.xml', '<bad><unclosed></bad>')
+        with pytest.raises(ValueError, match='Failed to parse'):
+            xc.compare_xml_files(f1, f2, xc.CompareOptions())
+
+    def test_second_file_not_found(self, tmp_path):
+        """compare_xml_files raises FileNotFoundError when the second file is missing."""
+        f1 = write(tmp_path / 'a.xml', '<r/>')
+        with pytest.raises(FileNotFoundError):
+            xc.compare_xml_files(f1, str(tmp_path / 'nope.xml'), xc.CompareOptions())
+
+    def test_invalid_filter_xpath(self, tmp_path):
+        """compare_xml_files raises ValueError for an invalid filter XPath."""
+        f1 = write(tmp_path / 'a.xml', '<r><v>1</v></r>')
+        f2 = write(tmp_path / 'b.xml', '<r><v>1</v></r>')
+        opts = xc.CompareOptions()
+        opts.filter_xpath = '[-invalid-'
+        with pytest.raises((ValueError, SyntaxError, Exception)):
+            xc.compare_xml_files(f1, f2, opts)
+
+    def test_compare_dirs_invalid_xml_file(self, tmp_path):
+        """compare_dirs stores error string when a file in the directory is invalid XML."""
+        d1 = tmp_path / 'd1'
+        d2 = tmp_path / 'd2'
+        d1.mkdir()
+        d2.mkdir()
+        write(d1 / 'bad.xml', '<unclosed>')
+        write(d2 / 'bad.xml', '<r/>')
+        results = xc.compare_dirs(str(d1), str(d2), xc.CompareOptions())
+        assert isinstance(results['bad.xml'], str)
+
+    def test_compare_dirs_fail_fast(self, tmp_path):
+        """compare_dirs stops after the first file with differences when fail_fast=True."""
+        d1 = tmp_path / 'd1'
+        d2 = tmp_path / 'd2'
+        d1.mkdir()
+        d2.mkdir()
+        write(d1 / 'a.xml', '<r><v>1</v></r>')
+        write(d2 / 'a.xml', '<r><v>2</v></r>')
+        write(d1 / 'b.xml', '<r><v>3</v></r>')
+        write(d2 / 'b.xml', '<r><v>4</v></r>')
+        opts = xc.CompareOptions()
+        opts.fail_fast = True
+        results = xc.compare_dirs(str(d1), str(d2), opts)
+        assert len(results) == 1
+
+    def test_format_html_report_error(self):
+        """format_html_report should render error entries with the error CSS class."""
+        result = xc.format_html_report({'file.xml': 'some parse error'})
+        assert 'ERROR' in result
+        assert 'error' in result
+        assert '<html>' in result
+
+    def test_colorize_with_color(self, monkeypatch):
+        """_colorize should wrap text in ANSI codes when _use_color() returns True."""
+        monkeypatch.setattr(xc, '_use_color', lambda: True)
+        colored = xc._colorize('hello', xc.RED)
+        assert xc.RED in colored
+        assert 'hello' in colored
+        assert xc.RESET in colored
+
+    def test_no_yaml_raises_import_error(self, monkeypatch, tmp_path):
+        """load_config raises ImportError when pyyaml is unavailable."""
+        monkeypatch.setattr(xc, 'HAS_YAML', False)
+        cfg = tmp_path / 'cfg.yaml'
+        cfg.write_text('tolerance: 0.1\n')
+        with pytest.raises(ImportError, match='pyyaml'):
+            xc.load_config(str(cfg))
+
+    def test_format_text_report_labels(self):
+        """format_text_report should include labels when provided."""
+        result = xc.format_text_report([], label1='file1.xml', label2='file2.xml')
+        assert 'file1.xml' in result
+        assert 'file2.xml' in result
+
+    def test_colorize_no_color(self):
+        """_colorize returns plain text when _use_color() is False (no tty in tests)."""
+        # In a test environment sys.stdout is not a tty, so _use_color() returns False.
+        result = xc._colorize('hello', xc.RED)
+        assert result == 'hello'
+
+    def test_fail_fast_before_children_with_preexisting_diffs(self):
+        """Line 217: fail_fast returns early when diffs are already present from caller."""
+        import xml.etree.ElementTree as ET
+        elem1 = ET.fromstring('<r><a>x</a></r>')
+        elem2 = ET.fromstring('<r><a>x</a></r>')
+        opts = xc.CompareOptions()
+        opts.fail_fast = True
+        opts.ignore_attributes = True
+        pre_existing = [xc.Difference('other', 'text', 'earlier diff')]
+        result = xc.compare_elements(elem1, elem2, opts, path='r', diffs=pre_existing)
+        # Should have returned early due to fail_fast + pre-existing diffs
+        assert result is pre_existing
+        assert len(result) == 1
