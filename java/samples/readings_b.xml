@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Same sensors as readings_a.xml but recorded at a different time with
+  slightly different values (within 0.005 of the originals).
+  Timestamps are different (expected; use -skip-pattern "timestamp").
+-->
+<sensorData>
+  <reading id="S01">
+    <sensor>temperature</sensor>
+    <value unit="C">22.503</value>
+    <timestamp>2024-06-01T12:05:00Z</timestamp>
+  </reading>
+  <reading id="S02">
+    <sensor>humidity</sensor>
+    <value unit="%">55.1</value>
+    <timestamp>2024-06-01T12:05:01Z</timestamp>
+  </reading>
+  <reading id="S03">
+    <sensor>pressure</sensor>
+    <value unit="hPa">1013.252</value>
+    <timestamp>2024-06-01T12:05:02Z</timestamp>
+  </reading>
+</sensorData>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sample "expected" order document.
+  Use with orders_actual_equal.xml (no differences) or
+  orders_actual_diff.xml (with differences) to demonstrate xmlcompare.
+-->
+<orders>
+  <order id="ORD-001" status="shipped">
+    <customer>
+      <name>Alice Smith</name>
+      <email>alice@example.com</email>
+    </customer>
+    <items>
+      <item sku="WIDGET-A" qty="2">
+        <description>Blue Widget</description>
+        <price>9.99</price>
+      </item>
+      <item sku="GADGET-X" qty="1">
+        <description>Super Gadget</description>
+        <price>49.95</price>
+      </item>
+    </items>
+    <total>69.93</total>
+    <timestamp>2024-01-15T10:30:00Z</timestamp>
+  </order>
+
+  <order id="ORD-002" status="pending">
+    <customer>
+      <name>Bob Jones</name>
+      <email>bob@example.com</email>
+    </customer>
+    <items>
+      <item sku="WIDGET-B" qty="5">
+        <description>Red Widget</description>
+        <price>7.50</price>
+      </item>
+    </items>
+    <total>37.50</total>
+    <timestamp>2024-01-16T08:00:00Z</timestamp>
+  </order>
+</orders>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Sensor readings with numeric values and timestamps.
+  Pair with readings_b.xml.
+
+  Interesting comparisons to try:
+    Basic compare (timestamps differ, so failures):
+    python xmlcompare.py -files readings_a.xml readings_b.xml
+
+    Skip timestamps, tolerate tiny float differences:
+    python xmlcompare.py -files readings_a.xml readings_b.xml
+        -skip-pattern "timestamp" -tolerance 0.005
+
+    Show as JSON:
+    python xmlcompare.py -files readings_a.xml readings_b.xml
+        -skip-pattern "timestamp" -output-format json
+-->
+<sensorData>
+  <reading id="S01">
+    <sensor>temperature</sensor>
+    <value unit="C">22.500</value>
+    <timestamp>2024-06-01T12:00:00Z</timestamp>
+  </reading>
+  <reading id="S02">
+    <sensor>humidity</sensor>
+    <value unit="%">55.1</value>
+    <timestamp>2024-06-01T12:00:01Z</timestamp>
+  </reading>
+  <reading id="S03">
+    <sensor>pressure</sensor>
+    <value unit="hPa">1013.25</value>
+    <timestamp>2024-06-01T12:00:02Z</timestamp>
+  </reading>
+</sensorData>

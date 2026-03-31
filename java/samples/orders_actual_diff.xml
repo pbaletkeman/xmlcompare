@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Modified version of orders_expected.xml with intentional differences:
+    - ORD-001 status changed from "shipped" to "processing"
+    - Alice's email changed
+    - WIDGET-A qty changed from 2 to 3
+    - ORD-002 total is wrong
+  Run: python xmlcompare.py -files orders_expected.xml orders_actual_diff.xml
+-->
+<orders>
+  <order id="ORD-001" status="processing">
+    <customer>
+      <name>Alice Smith</name>
+      <email>alice.smith@example.com</email>
+    </customer>
+    <items>
+      <item sku="WIDGET-A" qty="3">
+        <description>Blue Widget</description>
+        <price>9.99</price>
+      </item>
+      <item sku="GADGET-X" qty="1">
+        <description>Super Gadget</description>
+        <price>49.95</price>
+      </item>
+    </items>
+    <total>69.93</total>
+    <timestamp>2024-01-15T10:30:00Z</timestamp>
+  </order>
+
+  <order id="ORD-002" status="pending">
+    <customer>
+      <name>Bob Jones</name>
+      <email>bob@example.com</email>
+    </customer>
+    <items>
+      <item sku="WIDGET-B" qty="5">
+        <description>Red Widget</description>
+        <price>7.50</price>
+      </item>
+    </items>
+    <total>99.99</total>
+    <timestamp>2024-01-16T08:00:00Z</timestamp>
+  </order>
+</orders>
