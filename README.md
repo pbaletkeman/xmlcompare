@@ -10,18 +10,21 @@ A command-line tool for comparing XML files and directories, available in both *
 xmlcompare/
 ├── python/          # Python 3.8+ implementation
 │   ├── xmlcompare.py
+│   ├── pyproject.toml
+│   ├── requirements.txt
 │   ├── tests/
 │   ├── samples/
-│   ├── requirements.txt
-│   ├── build.sh / build.bat / build.ps1
-│   ├── run.sh   / run.bat   / run.ps1
+│   ├── build.sh  / build.bat  / build.ps1
+│   ├── wheel.sh  / wheel.bat  / wheel.ps1
+│   ├── run.sh    / run.bat    / run.ps1
 │   └── README.md
 ├── java/            # Java 21 implementation (Gradle + Maven)
 │   ├── src/
 │   ├── samples/
 │   ├── build.gradle / pom.xml
-│   ├── build.sh / build.bat / build.ps1
-│   ├── run.sh   / run.bat   / run.ps1
+│   ├── build.sh    / build.bat    / build.ps1
+│   ├── fatjar.sh   / fatjar.bat   / fatjar.ps1
+│   ├── run.sh      / run.bat      / run.ps1
 │   └── README.md
 └── samples/         # Original shared XML sample files
 ```
@@ -48,6 +51,16 @@ run.bat --files samples\orders_expected.xml samples\orders_actual_diff.xml
 .\run.ps1 --files samples\orders_expected.xml samples\orders_actual_diff.xml
 ```
 
+#### Build a wheel
+
+```bash
+cd python
+
+./wheel.sh          # Linux / macOS  → dist/xmlcompare-1.0.0-py3-none-any.whl
+wheel.bat           # Windows CMD
+.\wheel.ps1         # Windows PowerShell
+```
+
 See [`python/README.md`](python/README.md) for full Python documentation.
 
 ---
@@ -68,6 +81,22 @@ run.bat --files samples\orders_expected.xml samples\orders_actual_diff.xml
 # Windows PowerShell
 .\build.ps1
 .\run.ps1 --files samples\orders_expected.xml samples\orders_actual_diff.xml
+```
+
+#### Build a fat JAR
+
+```bash
+cd java
+
+# Maven (default) — target/xmlcompare-1.0.0.jar
+./fatjar.sh             # Linux / macOS
+fatjar.bat              # Windows CMD
+.\fatjar.ps1            # Windows PowerShell
+
+# Gradle — build/libs/xmlcompare-1.0.0.jar
+./fatjar.sh gradle
+fatjar.bat gradle
+.\fatjar.ps1 -BuildTool gradle
 ```
 
 See [`java/README.md`](java/README.md) for full Java documentation.

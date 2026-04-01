@@ -8,11 +8,12 @@ A command-line tool for comparing XML files and directories, with flexible optio
 
 1. [Quick Start](#quick-start)
 2. [Build and Run Scripts](#build-and-run-scripts)
-3. [All Switches Reference](#all-switches-reference)
-4. [Sample Files](#sample-files)
-5. [Exit Codes](#exit-codes)
-6. [Config File Support](#config-file-support)
-7. [Running the Tests](#running-the-tests)
+3. [Building a Wheel](#building-a-wheel)
+4. [All Switches Reference](#all-switches-reference)
+5. [Sample Files](#sample-files)
+6. [Exit Codes](#exit-codes)
+7. [Config File Support](#config-file-support)
+8. [Running the Tests](#running-the-tests)
 
 ---
 
@@ -79,6 +80,48 @@ run.bat --dirs samples\ samples\ --summary
 # Windows PowerShell
 .\run.ps1 --files samples\orders_expected.xml samples\orders_actual_diff.xml
 .\run.ps1 --dirs samples\ samples\ --summary
+```
+
+---
+
+## Building a Wheel
+
+`pyproject.toml` defines the package metadata, entry point (`xmlcompare` CLI), and build backend. Use the dedicated wheel scripts to produce a distributable `.whl` file.
+
+### Prerequisites
+
+- Python 3.8 or newer
+- Internet access on first run (to download `build` and `wheel` packages)
+
+### Scripts
+
+| Script | Platform | Usage |
+|--------|----------|-------|
+| `wheel.sh` | Linux / macOS | `./wheel.sh` |
+| `wheel.bat` | Windows CMD | `wheel.bat` |
+| `wheel.ps1` | Windows PowerShell | `.\wheel.ps1` |
+
+Each script:
+1. Creates (or reuses) a `.venv` virtual environment
+2. Upgrades `pip`, `build`, and `wheel` inside the venv
+3. Cleans any previous `dist/` and `xmlcompare.egg-info/` artefacts
+4. Runs `python -m build --wheel`
+5. Prints the path of the produced `.whl` file
+
+### Output
+
+```
+dist/xmlcompare-1.0.0-py3-none-any.whl
+```
+
+### Installing the wheel
+
+```bash
+# Into the current Python environment
+pip install dist/xmlcompare-1.0.0-py3-none-any.whl
+
+# Then run directly
+xmlcompare --files file1.xml file2.xml
 ```
 
 ---

@@ -2,6 +2,20 @@
 
 A Java 21 port of the Python `xmlcompare` tool for comparing XML files and directories.
 
+## Table of Contents
+
+1. [Prerequisites](#prerequisites)
+2. [Building](#building)
+3. [Building a Fat JAR](#building-a-fat-jar)
+4. [Running](#running)
+5. [CLI Options](#cli-options)
+6. [Sample Commands](#sample-commands)
+7. [Config File Format](#config-file-format)
+8. [Exit Codes](#exit-codes)
+9. [Running Tests](#running-tests)
+
+---
+
 ## Prerequisites
 
 - Java 21 or later
@@ -27,14 +41,61 @@ mvn clean package
 ```bash
 ./build.sh        # Linux/macOS
 build.bat         # Windows CMD
-./build.ps1       # PowerShell
+.\build.ps1       # PowerShell
 ```
+
+---
+
+## Building a Fat JAR
+
+A fat JAR (uber JAR) bundles the application and all its dependencies into a single self-contained `.jar` file.
+
+Both build tools are pre-configured:
+- **Maven** uses `maven-shade-plugin` (runs automatically during `mvn package`)
+- **Gradle** uses a custom `jar` task with `configurations.runtimeClasspath`
+
+### Dedicated fat JAR scripts
+
+| Script | Platform | Usage |
+|--------|----------|-------|
+| `fatjar.sh` | Linux / macOS | `./fatjar.sh [maven\|gradle]` |
+| `fatjar.bat` | Windows CMD | `fatjar.bat [maven\|gradle]` |
+| `fatjar.ps1` | Windows PowerShell | `.\fatjar.ps1 [-BuildTool maven\|gradle]` |
+
+The default build tool is **maven**. Pass `gradle` as the argument to use Gradle instead.
+
+### Output locations
+
+| Build tool | Fat JAR path |
+|------------|-------------|
+| Maven | `target/xmlcompare-1.0.0.jar` |
+| Gradle | `build/libs/xmlcompare-1.0.0.jar` |
+
+### Examples
+
+```bash
+# Maven (default)
+./fatjar.sh
+fatjar.bat
+.\fatjar.ps1
+
+# Gradle
+./fatjar.sh gradle
+fatjar.bat gradle
+.\fatjar.ps1 -BuildTool gradle
+```
+
+---
 
 ## Running
 
 After building, run with:
 
 ```bash
+# Maven fat JAR
+java -jar target/xmlcompare-1.0.0.jar [OPTIONS]
+
+# Gradle fat JAR
 java -jar build/libs/xmlcompare-1.0.0.jar [OPTIONS]
 ```
 
@@ -144,3 +205,9 @@ skip_keys:
 ```
 
 Test reports are generated in `build/reports/tests/test/index.html`.
+
+Maven tests run automatically during `mvn package`; to run tests only:
+
+```bash
+mvn test
+```
