@@ -1,5 +1,7 @@
 # xmlcompare
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A command-line tool for comparing XML files and directories, available in both **Python** and **Java 21** implementations with identical behaviour.
 
 ---
@@ -203,3 +205,9 @@ output_format: json
 ```bash
 ./run.sh --files file1.xml file2.xml --config config.yaml
 ```
+
+---
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
