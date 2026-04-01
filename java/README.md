@@ -4,15 +4,23 @@ A Java 21 port of the Python `xmlcompare` tool for comparing XML files and direc
 
 ## Table of Contents
 
-1. [Prerequisites](#prerequisites)
-2. [Building](#building)
-3. [Building a Fat JAR](#building-a-fat-jar)
-4. [Running](#running)
-5. [CLI Options](#cli-options)
-6. [Sample Commands](#sample-commands)
-7. [Config File Format](#config-file-format)
-8. [Exit Codes](#exit-codes)
-9. [Running Tests](#running-tests)
+- [xmlcompare — Java Edition](#xmlcompare--java-edition)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+  - [Building](#building)
+    - [With Gradle (recommended)](#with-gradle-recommended)
+    - [With Maven](#with-maven)
+    - [With the build script (both Gradle and Maven)](#with-the-build-script-both-gradle-and-maven)
+  - [Building a Fat JAR](#building-a-fat-jar)
+    - [Dedicated fat JAR scripts](#dedicated-fat-jar-scripts)
+    - [Output locations](#output-locations)
+    - [Examples](#examples)
+  - [Running](#running)
+  - [CLI Options](#cli-options)
+  - [Sample Commands](#sample-commands)
+  - [Config File Format](#config-file-format)
+  - [Exit Codes](#exit-codes)
+  - [Running Tests](#running-tests)
 
 ---
 

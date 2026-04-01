@@ -1,5 +1,20 @@
 # xmlcompare
 
+- [xmlcompare](#xmlcompare)
+  - [Repository Structure](#repository-structure)
+  - [Quick Start](#quick-start)
+    - [Python](#python)
+      - [Build a wheel](#build-a-wheel)
+    - [Java](#java)
+      - [Build a fat JAR](#build-a-fat-jar)
+  - [Features](#features)
+  - [Exit Codes](#exit-codes)
+  - [Sample Files](#sample-files)
+  - [Example Commands](#example-commands)
+  - [Config File Support](#config-file-support)
+  - [License](#license)
+
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A command-line tool for comparing XML files and directories, available in both **Python** and **Java 21** implementations with identical behaviour.

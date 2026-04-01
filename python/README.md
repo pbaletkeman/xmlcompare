@@ -4,16 +4,30 @@ A command-line tool for comparing XML files and directories, with flexible optio
 
 ---
 
-## Table of Contents
-
-1. [Quick Start](#quick-start)
-2. [Build and Run Scripts](#build-and-run-scripts)
-3. [Building a Wheel](#building-a-wheel)
-4. [All Switches Reference](#all-switches-reference)
-5. [Sample Files](#sample-files)
-6. [Exit Codes](#exit-codes)
-7. [Config File Support](#config-file-support)
-8. [Running the Tests](#running-the-tests)
+- [xmlcompare – Python](#xmlcompare--python)
+  - [Quick Start](#quick-start)
+    - [Prerequisites](#prerequisites)
+  - [Build and Run Scripts](#build-and-run-scripts)
+    - [Linux / macOS (bash)](#linux--macos-bash)
+    - [Windows Command Prompt (batch)](#windows-command-prompt-batch)
+    - [Windows PowerShell](#windows-powershell)
+    - [Example run commands](#example-run-commands)
+  - [Building a Wheel](#building-a-wheel)
+    - [Prerequisites](#prerequisites-1)
+    - [Scripts](#scripts)
+    - [Output](#output)
+    - [Installing the wheel](#installing-the-wheel)
+  - [All Switches Reference](#all-switches-reference)
+    - [Primary Input (one required)](#primary-input-one-required)
+    - [Directory Options](#directory-options)
+    - [Configuration File](#configuration-file)
+    - [Comparison Behaviour](#comparison-behaviour)
+    - [Skip / Filter](#skip--filter)
+    - [Output](#output-1)
+  - [Sample Files](#sample-files)
+  - [Exit Codes](#exit-codes)
+  - [Config File Support](#config-file-support)
+  - [Running the Tests](#running-the-tests)
 
 ---
 
