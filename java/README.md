@@ -189,7 +189,8 @@ java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --config myconfig.
 
 ## Config File Format
 
-All options (including `structure_only` and `max_depth`) can be set in JSON or YAML config files:
+
+All options (including `structure_only` and `max_depth`) are standard and can be set in JSON or YAML config files:
 
 **JSON Example:**
 ```json

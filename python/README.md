@@ -27,7 +27,7 @@ A command-line tool for comparing XML files and directories, with flexible optio
   - [Sample Files](#sample-files)
   - [Exit Codes](#exit-codes)
   - [Config File Support](#config-file-support)
-  - [New Feature Examples](#new-feature-examples)
+  - [Option Usage Examples](#option-usage-examples)
   - [Running the Tests](#running-the-tests)
 
 ---
@@ -257,21 +257,24 @@ Run with:
 
 ---
 
-## New Feature Examples
 
-- **Structure-only comparison:**
+---
+
+## Option Usage Examples
+
+- Structure-only comparison:
   ```bash
   ./run.sh --files file1.xml file2.xml --structure-only
   ```
-- **Max-depth limiting:**
+- Max-depth limiting:
   ```bash
   ./run.sh --files file1.xml file2.xml --max-depth 2
   ```
-- **Combine both:**
+- Combine both:
   ```bash
   ./run.sh --files file1.xml file2.xml --structure-only --max-depth 1
   ```
-- **With unordered:**
+- With unordered:
   ```bash
   ./run.sh --files file1.xml file2.xml --unordered --max-depth 2
   ```
