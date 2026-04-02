@@ -17,9 +17,17 @@
     - [Java: Checkstyle](#java-checkstyle)
     - [Python: Ruff](#python-ruff)
     - [XSD Schema Validation](#xsd-schema-validation)
+  - [Edge Cases and Advanced Topics](#edge-cases-and-advanced-topics)
+  - [Contributing](#contributing)
   - [License](#license)
 
 
+---
+
+[![CI](https://github.com/pbaletkeman/xmlcompare/workflows/CI/badge.svg)](https://github.com/pbaletkeman/xmlcompare/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/pbaletkeman/xmlcompare/branch/main/graph/badge.svg)](https://codecov.io/gh/pbaletkeman/xmlcompare)
+[![Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![Java 21+](https://img.shields.io/badge/Java-21+-orange.svg)](https://www.oracle.com/java/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A command-line tool for comparing XML files and directories, available in both **Python** and **Java 21** implementations with identical behaviour.
@@ -376,6 +384,144 @@ Python:
 from validate_xsd import validate_xml
 validate_xml("document.xml", "schema.xsd")  # Raises ValueError if invalid
 ```
+
+---
+
+## Edge Cases and Advanced Topics
+
+### Numeric Normalization
+
+xmlcompare normalizes numeric values for robust comparison:
+
+```bash
+# These are considered equal (trailing zeros ignored)
+./run.sh --files <(echo '<r><v>1.0</v></r>') <(echo '<r><v>1</v></r>')
+
+# Floating-point precision is handled
+./run.sh --files <(echo '<r><v>0.1 + 0.2</v></r>') <(echo '<r><v>0.30000001</v></r>') --tolerance 0.00001
+```
+
+### Large Files
+
+For very large XML files (>100MB), consider:
+
+```bash
+# Use structure-only comparison to skip text values
+./run.sh --files large1.xml large2.xml --structure-only
+
+# Limit depth to avoid deep recursion
+./run.sh --files large1.xml large2.xml --max-depth 5
+
+# Use fail-fast to stop at first difference
+./run.sh --files large1.xml large2.xml --fail-fast
+```
+
+### Complex Namespaces
+
+When dealing with multiple namespace prefixes:
+
+```bash
+# Default: namespace-aware (will report differences)
+./run.sh --files ns1.xml ns2.xml  # May fail if ns prefixes differ
+
+# With --ignore-namespaces: all namespace URIs stripped
+./run.sh --files ns1.xml ns2.xml --ignore-namespaces  # Will pass
+```
+
+### Deeply Nested XML
+
+For XML with deep nesting (100+ levels), use `--max-depth`:
+
+```bash
+# Compare only first 3 levels of hierarchy
+./run.sh --files deep1.xml deep2.xml --max-depth 3
+```
+
+### Special Characters and Encoding
+
+- **UTF-8**: Fully supported
+- **XML entities**: `&lt;`, `&gt;`, `&amp;` handled correctly
+- **CDATA sections**: Treated as text content
+- **Comments**: Ignored by default (not compared)
+
+```bash
+# CDATA is compared as text
+./run.sh --files <(echo '<r><![CDATA[test]]></r>') <(echo '<r><![CDATA[test]]></r>')
+```
+
+### Mixed Content
+
+Elements with mixed text and child elements:
+
+```xml
+<!-- file1.xml -->
+<p>Hello <b>world</b>!</p>
+
+<!-- file2.xml -->
+<p>Hello<b>world</b>!</p>
+```
+
+Differences in whitespace between mixed content will be detected (unless whitespace normalization applies).
+
+### Config File with Complex Options
+
+```yaml
+# config.yaml
+structure_only: false
+max_depth: 10
+unordered: true
+tolerance: 0.001
+ignore_case: true
+ignore_namespaces: true
+ignore_attributes: false
+skip_keys:
+  - //timestamp
+  - //random-id
+skip_pattern: "temp.*"
+output_format: json
+output_file: report.json
+fail_fast: true
+```
+
+```bash
+./run.sh --files file1.xml file2.xml --config config.yaml
+```
+
+### Performance Tips
+
+1. **Skip unnecessary checks**: Use `--ignore-attributes`, `--ignore-namespaces` if not needed
+2. **Use `--structure-only`**: Much faster than full comparison
+3. **Limit depth**: `--max-depth 2` for top-level comparison only
+4. **Pattern matching**: Use efficient regex patterns in `--skip-pattern`
+5. **Directory comparison**: Use `--summary` for large directory comparisons
+
+### Error Handling
+
+All implementations use consistent exit codes:
+
+```bash
+./run.sh --files file1.xml file2.xml
+echo "Exit code: $?"  # 0 = equal, 1 = different, 2 = error
+```
+
+### XML Security (XXE Prevention)
+
+Both implementations are secure by default:
+- XXE (XML External Entity) attacks are prevented
+- Billion laughs attack protection enabled
+- External DTDs are not loaded
+
+---
+
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
+
+- Setting up development environment
+- Writing tests
+- Code style standards
+- Submitting pull requests
+- Reporting bugs and suggesting features
 
 ---
 
