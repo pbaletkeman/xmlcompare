@@ -128,6 +128,8 @@ run.bat [OPTIONS]           # Windows CMD
 | `--unordered` | Compare child elements in any order |
 | `--ignore-namespaces` | Ignore XML namespace URIs |
 | `--ignore-attributes` | Ignore XML attributes entirely |
+| `--structure-only` | Compare only XML structure, ignoring text and attribute values |
+| `--max-depth INT` | Limit comparison to elements at or above this depth (0=root only) |
 | `--skip-keys PATH,...` | Skip elements by path or `//tagname` |
 | `--skip-pattern REGEX` | Skip elements whose tag matches a regex |
 | `--filter XPATH` | Compare only elements matching an XPath expression |
@@ -140,17 +142,30 @@ run.bat [OPTIONS]           # Windows CMD
 | `-h`, `--help` | Show help message |
 | `-V`, `--version` | Print version information |
 
+
 ## Sample Commands
 
 ```bash
 # Compare two XML files
 java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml
 
+# Structure-only comparison
+java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --structure-only
+
+# Max-depth limiting
+java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --max-depth 2
+
+# Combine both
+java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --structure-only --max-depth 1
+
 # Compare with numeric tolerance
 java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --tolerance 0.001
 
 # Compare directories, ignoring element order
 java -jar build/libs/xmlcompare-1.0.0.jar --dirs dir1/ dir2/ --unordered
+
+# Unordered with max-depth
+java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --unordered --max-depth 2
 
 # Recursive directory comparison
 java -jar build/libs/xmlcompare-1.0.0.jar --dirs dir1/ dir2/ --recursive
@@ -171,16 +186,19 @@ java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --ignore-case --ig
 java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --config myconfig.json
 ```
 
+
 ## Config File Format
 
-JSON:
+All options (including `structure_only` and `max_depth`) can be set in JSON or YAML config files:
+
+**JSON Example:**
 ```json
 {
+  "structure_only": true,
+  "max_depth": 2,
+  "unordered": true,
   "tolerance": 0.001,
   "ignore_case": true,
-  "unordered": false,
-  "ignore_namespaces": false,
-  "ignore_attributes": false,
   "skip_keys": ["//timestamp", "root/version"],
   "skip_pattern": "temp.*",
   "output_format": "text",
@@ -188,11 +206,13 @@ JSON:
 }
 ```
 
-YAML:
+**YAML Example:**
 ```yaml
+structure_only: true
+max_depth: 2
+unordered: true
 tolerance: 0.001
 ignore_case: true
-unordered: false
 skip_keys:
   - //timestamp
   - root/version

@@ -18,4 +18,6 @@ public class CompareOptions {
     public boolean verbose = false;
     public boolean quiet = false;
     public boolean failFast = false;
+    public boolean structureOnly = false;
+    public Integer maxDepth = null;
 }

@@ -1,0 +1,22 @@
+<catalog>
+  <book isbn="001">
+    <title>Python Guide</title>
+    <author>Alice</author>
+    <price>29.99</price>
+  </book>
+  <movie id="m1">
+    <title>The Matrix</title>
+    <year>1999</year>
+    <rating>8.7</rating>
+  </movie>
+  <game sku="g1">
+    <title>Elden Ring</title>
+    <platform>PlayStation</platform>
+    <score>96</score>
+  </game>
+  <album upc="a1">
+    <title>Abbey Road</title>
+    <artist>The Beatles</artist>
+    <tracks>17</tracks>
+  </album>
+</catalog>

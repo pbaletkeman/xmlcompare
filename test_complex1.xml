@@ -1,0 +1,24 @@
+<root version="1.0" timestamp="2024-01-01">
+  <users>
+    <user id="1" active="yes">
+      <name>Alice</name>
+      <email>alice@example.com</email>
+      <metadata>
+        <created_date>2020-01-01</created_date>
+        <last_login>2024-03-15</last_login>
+      </metadata>
+    </user>
+    <user id="2" active="no">
+      <name>Bob</name>
+      <email>bob@example.com</email>
+      <metadata>
+        <created_date>2021-06-15</created_date>
+        <last_login>2023-12-01</last_login>
+      </metadata>
+    </user>
+  </users>
+  <config>
+    <database host="localhost" port="5432">PostgreSQL</database>
+    <cache host="redis" port="6379">In-Memory</cache>
+  </config>
+</root>

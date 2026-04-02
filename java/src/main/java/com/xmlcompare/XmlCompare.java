@@ -127,6 +127,10 @@ public class XmlCompare {
     }
 
     public static List<Difference> compareElements(Element elem1, Element elem2, CompareOptions opts, String path, List<Difference> diffs) {
+        return compareElements(elem1, elem2, opts, path, diffs, 0);
+    }
+
+    public static List<Difference> compareElements(Element elem1, Element elem2, CompareOptions opts, String path, List<Difference> diffs, int depth) {
         if (diffs == null) diffs = new ArrayList<>();
 
         String tag1 = getTag(elem1, opts);
@@ -134,7 +138,12 @@ public class XmlCompare {
         String currentPath = (path == null || path.isEmpty()) ? tag1 : path;
 
         if (opts.verbose) {
-            System.err.println("  Comparing: " + currentPath);
+            System.err.println("  Comparing: " + currentPath + " (depth=" + depth + ")");
+        }
+
+        // Check if we've exceeded max depth
+        if (opts.maxDepth != null && depth > opts.maxDepth) {
+            return diffs;
         }
 
         if (!tag1.equals(tag2)) {
@@ -143,16 +152,20 @@ public class XmlCompare {
             return diffs;
         }
 
-        String text1 = normalizeText(getDirectTextContent(elem1));
-        String text2 = normalizeText(getDirectTextContent(elem2));
-        if (!valuesEqual(text1, text2, opts)) {
-            diffs.add(new Difference(currentPath, "text",
-                "Text mismatch at '" + currentPath + "': '" + text1 + "' != '" + text2 + "'",
-                text1, text2));
-            if (opts.failFast) return diffs;
+        // Text content (skip if structure_only)
+        if (!opts.structureOnly) {
+            String text1 = normalizeText(getDirectTextContent(elem1));
+            String text2 = normalizeText(getDirectTextContent(elem2));
+            if (!valuesEqual(text1, text2, opts)) {
+                diffs.add(new Difference(currentPath, "text",
+                    "Text mismatch at '" + currentPath + "': '" + text1 + "' != '" + text2 + "'",
+                    text1, text2));
+                if (opts.failFast) return diffs;
+            }
         }
 
-        if (!opts.ignoreAttributes) {
+        // Attributes (skip if structure_only)
+        if (!opts.ignoreAttributes && !opts.structureOnly) {
             Map<String, String> attrs1 = getAttributes(elem1, opts);
             Map<String, String> attrs2 = getAttributes(elem2, opts);
             List<String> allKeys = new ArrayList<>(new TreeSet<>(
@@ -179,25 +192,28 @@ public class XmlCompare {
 
         if (opts.failFast && !diffs.isEmpty()) return diffs;
 
-        final String cp = currentPath;
-        List<Element> children1 = getChildElements(elem1).stream()
-            .filter(c -> {
-                String ctag = getTag(c, opts);
-                String cpath = buildPath(cp, ctag);
-                return !shouldSkip(cpath, ctag, opts);
-            }).collect(Collectors.toList());
+        // Only compare children if we haven't reached max depth limit
+        if (opts.maxDepth == null || depth < opts.maxDepth) {
+            final String cp = currentPath;
+            List<Element> children1 = getChildElements(elem1).stream()
+                .filter(c -> {
+                    String ctag = getTag(c, opts);
+                    String cpath = buildPath(cp, ctag);
+                    return !shouldSkip(cpath, ctag, opts);
+                }).collect(Collectors.toList());
 
-        List<Element> children2 = getChildElements(elem2).stream()
-            .filter(c -> {
-                String ctag = getTag(c, opts);
-                String cpath = buildPath(cp, ctag);
-                return !shouldSkip(cpath, ctag, opts);
-            }).collect(Collectors.toList());
+            List<Element> children2 = getChildElements(elem2).stream()
+                .filter(c -> {
+                    String ctag = getTag(c, opts);
+                    String cpath = buildPath(cp, ctag);
+                    return !shouldSkip(cpath, ctag, opts);
+                }).collect(Collectors.toList());
 
-        if (opts.unordered) {
-            compareUnordered(children1, children2, opts, currentPath, diffs);
-        } else {
-            compareOrdered(children1, children2, opts, currentPath, diffs);
+            if (opts.unordered) {
+                compareUnordered(children1, children2, opts, currentPath, diffs, depth);
+            } else {
+                compareOrdered(children1, children2, opts, currentPath, diffs, depth);
+            }
         }
 
         return diffs;
@@ -220,6 +236,10 @@ public class XmlCompare {
     }
 
     public static void compareOrdered(List<Element> children1, List<Element> children2, CompareOptions opts, String path, List<Difference> diffs) {
+        compareOrdered(children1, children2, opts, path, diffs, 0);
+    }
+
+    public static void compareOrdered(List<Element> children1, List<Element> children2, CompareOptions opts, String path, List<Difference> diffs, int depth) {
         int maxLen = Math.max(children1.size(), children2.size());
         for (int i = 0; i < maxLen; i++) {
             if (i >= children1.size()) {
@@ -234,13 +254,17 @@ public class XmlCompare {
                 if (opts.failFast) return;
             } else {
                 String childPath = buildPath(path, getTag(children1.get(i), opts));
-                compareElements(children1.get(i), children2.get(i), opts, childPath, diffs);
+                compareElements(children1.get(i), children2.get(i), opts, childPath, diffs, depth + 1);
                 if (opts.failFast && !diffs.isEmpty()) return;
             }
         }
     }
 
     public static void compareUnordered(List<Element> children1, List<Element> children2, CompareOptions opts, String path, List<Difference> diffs) {
+        compareUnordered(children1, children2, opts, path, diffs, 0);
+    }
+
+    public static void compareUnordered(List<Element> children1, List<Element> children2, CompareOptions opts, String path, List<Difference> diffs, int depth) {
         Map<String, List<Element>> groups1 = new LinkedHashMap<>();
         Map<String, List<Element>> groups2 = new LinkedHashMap<>();
 
@@ -270,7 +294,7 @@ public class XmlCompare {
                         "Element '" + tag + "' occurrence " + (i + 1) + " missing in second document"));
                     if (opts.failFast) return;
                 } else {
-                    compareElements(elems1.get(i), elems2.get(i), opts, childPath, diffs);
+                    compareElements(elems1.get(i), elems2.get(i), opts, childPath, diffs, depth + 1);
                     if (opts.failFast && !diffs.isEmpty()) return;
                 }
             }

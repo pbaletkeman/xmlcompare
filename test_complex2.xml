@@ -1,0 +1,24 @@
+<root version="2.0" timestamp="2024-04-01">
+  <users>
+    <user id="10" active="true">
+      <name>Charlie</name>
+      <email>charlie@example.com</email>
+      <metadata>
+        <created_date>2022-03-20</created_date>
+        <last_login>2024-03-20</last_login>
+      </metadata>
+    </user>
+    <user id="20" active="false">
+      <name>Diana</name>
+      <email>diana@example.com</email>
+      <metadata>
+        <created_date>2023-01-10</created_date>
+        <last_login>2024-01-15</last_login>
+      </metadata>
+    </user>
+  </users>
+  <config>
+    <database host="prod-db" port="3306">MySQL</database>
+    <cache host="memcached" port="11211">In-Memory</cache>
+  </config>
+</root>

@@ -45,6 +45,12 @@ public class Main implements Callable<Integer> {
     @Option(names = "--ignore-attributes", description = "Ignore XML attributes")
     private boolean ignoreAttributes;
 
+    @Option(names = "--structure-only", description = "Compare only XML structure, ignore text and attribute values")
+    private boolean structureOnly;
+
+    @Option(names = "--max-depth", description = "Maximum depth for comparison", paramLabel = "INT")
+    private Integer maxDepth;
+
     @Option(names = "--skip-keys", description = "Paths or //tags to skip", split = ",", paramLabel = "PATH")
     private List<String> skipKeys;
 
@@ -106,6 +112,8 @@ public class Main implements Callable<Integer> {
         if (verbose) opts.verbose = true;
         if (quiet) opts.quiet = true;
         if (failFast) opts.failFast = true;
+        if (structureOnly) opts.structureOnly = true;
+        if (maxDepth != null) opts.maxDepth = maxDepth;
 
         try {
             if (files != null) {
@@ -222,5 +230,7 @@ public class Main implements Callable<Integer> {
         if (cfg.containsKey("filter_xpath")) opts.filterXpath = (String) cfg.get("filter_xpath");
         if (cfg.containsKey("output_format")) opts.outputFormat = (String) cfg.get("output_format");
         if (cfg.containsKey("fail_fast")) opts.failFast = (Boolean) cfg.get("fail_fast");
+        if (cfg.containsKey("structure_only")) opts.structureOnly = (Boolean) cfg.get("structure_only");
+        if (cfg.containsKey("max_depth")) opts.maxDepth = ((Number) cfg.get("max_depth")).intValue();
     }
 }

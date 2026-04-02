@@ -8,6 +8,7 @@
     - [Java](#java)
       - [Build a fat JAR](#build-a-fat-jar)
   - [Features](#features)
+    - [New Feature Details](#new-feature-details)
   - [Exit Codes](#exit-codes)
   - [Sample Files](#sample-files)
   - [Example Commands](#example-commands)
@@ -120,6 +121,7 @@ See [`java/README.md`](java/README.md) for full Java documentation.
 
 ---
 
+
 ## Features
 
 Both implementations share the same feature set:
@@ -144,6 +146,40 @@ Both implementations share the same feature set:
 | Quiet mode | `--quiet` |
 | Stop on first difference | `--fail-fast` |
 | Load options from config file | `--config FILE` |
+| **Structure-only comparison** | `--structure-only` |
+| **Limit comparison depth** | `--max-depth INT` |
+
+---
+
+### New Feature Details
+
+- **`--structure-only`**: Compares only XML element structure, ignoring all text and attribute values. Detects missing/extra elements, tag mismatches, and hierarchy differences.
+    - Example:
+      ```bash
+      python xmlcompare.py --files file1.xml file2.xml --structure-only
+      java -jar xmlcompare.jar --files file1.xml file2.xml --structure-only
+      ```
+
+- **`--max-depth INT`**: Limits comparison to elements at or above the specified depth (0=root only, 1=root+children, etc). Still validates values/structure at the depth limit.
+    - Example:
+      ```bash
+      python xmlcompare.py --files file1.xml file2.xml --max-depth 2
+      java -jar xmlcompare.jar --files file1.xml file2.xml --max-depth=2
+      ```
+
+- **Combine both**:
+    - Example:
+      ```bash
+      python xmlcompare.py --files file1.xml file2.xml --structure-only --max-depth 1
+      ```
+
+- **Works with unordered**:
+    - Example:
+      ```bash
+      python xmlcompare.py --files file1.xml file2.xml --unordered --max-depth 2
+      ```
+
+---
 
 ---
 
@@ -206,10 +242,16 @@ The `samples/` directory (mirrored in `python/samples/` and `java/samples/`) con
 
 ---
 
+
 ## Config File Support
 
+All options (including `structure_only` and `max_depth`) can be set in YAML or JSON config files:
+
+**YAML Example:**
 ```yaml
-# config.yaml
+structure_only: true
+max_depth: 2
+unordered: true
 tolerance: 0.01
 ignore_case: true
 skip_keys:
@@ -217,8 +259,23 @@ skip_keys:
 output_format: json
 ```
 
+**JSON Example:**
+```json
+{
+  "structure_only": true,
+  "max_depth": 2,
+  "unordered": true,
+  "tolerance": 0.01,
+  "ignore_case": true,
+  "skip_keys": ["//timestamp"],
+  "output_format": "json"
+}
+```
+
+Run with:
 ```bash
 ./run.sh --files file1.xml file2.xml --config config.yaml
+java -jar xmlcompare.jar --files file1.xml file2.xml --config config.yaml
 ```
 
 ---

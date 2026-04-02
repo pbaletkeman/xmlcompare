@@ -27,6 +27,7 @@ A command-line tool for comparing XML files and directories, with flexible optio
   - [Sample Files](#sample-files)
   - [Exit Codes](#exit-codes)
   - [Config File Support](#config-file-support)
+  - [New Feature Examples](#new-feature-examples)
   - [Running the Tests](#running-the-tests)
 
 ---
@@ -170,6 +171,8 @@ xmlcompare --files file1.xml file2.xml
 | `--unordered` | — | off | Compare child elements as an unordered set |
 | `--ignore-namespaces` | — | off | Strip XML namespace URIs before comparing tag names |
 | `--ignore-attributes` | — | off | Skip attribute comparison entirely |
+| `--structure-only` | — | off | Compare only XML structure, ignoring text and attribute values |
+| `--max-depth` | `INT` | unlimited | Limit comparison to elements at or above this depth (0=root only) |
 
 ### Skip / Filter
 
@@ -216,10 +219,16 @@ xmlcompare --files file1.xml file2.xml
 
 ---
 
+
 ## Config File Support
 
+All options (including `structure_only` and `max_depth`) can be set in YAML or JSON config files:
+
+**YAML Example:**
 ```yaml
-# config.yaml
+structure_only: true
+max_depth: 2
+unordered: true
 tolerance: 0.01
 ignore_case: true
 skip_keys:
@@ -228,8 +237,12 @@ skip_keys:
 output_format: json
 ```
 
+**JSON Example:**
 ```json
 {
+  "structure_only": true,
+  "max_depth": 2,
+  "unordered": true,
   "tolerance": 0.01,
   "ignore_case": true,
   "skip_keys": ["//timestamp", "//createdAt"],
@@ -237,9 +250,31 @@ output_format: json
 }
 ```
 
+Run with:
 ```bash
 ./run.sh --files file1.xml file2.xml --config config.yaml
 ```
+
+---
+
+## New Feature Examples
+
+- **Structure-only comparison:**
+  ```bash
+  ./run.sh --files file1.xml file2.xml --structure-only
+  ```
+- **Max-depth limiting:**
+  ```bash
+  ./run.sh --files file1.xml file2.xml --max-depth 2
+  ```
+- **Combine both:**
+  ```bash
+  ./run.sh --files file1.xml file2.xml --structure-only --max-depth 1
+  ```
+- **With unordered:**
+  ```bash
+  ./run.sh --files file1.xml file2.xml --unordered --max-depth 2
+  ```
 
 | Key | Type | CLI equivalent |
 |-----|------|----------------|

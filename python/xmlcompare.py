@@ -51,6 +51,8 @@ class CompareOptions:
         self.verbose = False
         self.quiet = False
         self.fail_fast = False
+        self.structure_only = False
+        self.max_depth = None
 
 
 class Difference:
@@ -146,7 +148,7 @@ def should_skip(path, tag, opts):
 # Core comparison
 # ---------------------------------------------------------------------------
 
-def compare_elements(elem1, elem2, opts, path='', diffs=None):
+def compare_elements(elem1, elem2, opts, path='', diffs=None, depth=0):
     """Recursively compare two XML elements, appending Difference objects to *diffs*."""
     if diffs is None:
         diffs = []
@@ -156,7 +158,11 @@ def compare_elements(elem1, elem2, opts, path='', diffs=None):
     current_path = path or tag1
 
     if opts.verbose:
-        print(f"  Comparing: {current_path}", file=sys.stderr)
+        print(f"  Comparing: {current_path} (depth={depth})", file=sys.stderr)
+
+    # Check if we've exceeded max depth
+    if opts.max_depth is not None and depth > opts.max_depth:
+        return diffs
 
     # Tag mismatch
     if tag1 != tag2:
@@ -167,20 +173,21 @@ def compare_elements(elem1, elem2, opts, path='', diffs=None):
         ))
         return diffs  # Cannot proceed if tags differ
 
-    # Text content
-    text1 = normalize_text(elem1.text)
-    text2 = normalize_text(elem2.text)
-    if not values_equal(text1, text2, opts):
-        diffs.append(Difference(
-            current_path, 'text',
-            f"Text mismatch at {current_path!r}: {text1!r} != {text2!r}",
-            text1, text2,
-        ))
-        if opts.fail_fast:
-            return diffs
+    # Text content (skip if structure_only)
+    if not opts.structure_only:
+        text1 = normalize_text(elem1.text)
+        text2 = normalize_text(elem2.text)
+        if not values_equal(text1, text2, opts):
+            diffs.append(Difference(
+                current_path, 'text',
+                f"Text mismatch at {current_path!r}: {text1!r} != {text2!r}",
+                text1, text2,
+            ))
+            if opts.fail_fast:
+                return diffs
 
-    # Attributes
-    if not opts.ignore_attributes:
+    # Attributes (skip if structure_only)
+    if not opts.ignore_attributes and not opts.structure_only:
         attrs1 = dict(elem1.attrib)
         attrs2 = dict(elem2.attrib)
         if opts.ignore_namespaces:
@@ -217,23 +224,25 @@ def compare_elements(elem1, elem2, opts, path='', diffs=None):
         return diffs
 
     # Children — filter out skipped elements
-    def _keep(child, parent_path):
-        ctag = get_tag(child, opts)
-        cpath = build_path(parent_path, ctag)
-        return not should_skip(cpath, ctag, opts)
+    # Only compare children if we haven't reached max depth limit
+    if opts.max_depth is None or depth < opts.max_depth:
+        def _keep(child, parent_path):
+            ctag = get_tag(child, opts)
+            cpath = build_path(parent_path, ctag)
+            return not should_skip(cpath, ctag, opts)
 
-    children1 = [c for c in list(elem1) if _keep(c, current_path)]
-    children2 = [c for c in list(elem2) if _keep(c, current_path)]
+        children1 = [c for c in list(elem1) if _keep(c, current_path)]
+        children2 = [c for c in list(elem2) if _keep(c, current_path)]
 
-    if opts.unordered:
-        _compare_unordered(children1, children2, opts, current_path, diffs)
-    else:
-        _compare_ordered(children1, children2, opts, current_path, diffs)
+        if opts.unordered:
+            _compare_unordered(children1, children2, opts, current_path, diffs, depth)
+        else:
+            _compare_ordered(children1, children2, opts, current_path, diffs, depth)
 
     return diffs
 
 
-def _compare_ordered(children1, children2, opts, path, diffs):
+def _compare_ordered(children1, children2, opts, path, diffs, depth=0):
     max_len = max(len(children1), len(children2))
     for i in range(max_len):
         if i >= len(children1):
@@ -254,12 +263,12 @@ def _compare_ordered(children1, children2, opts, path, diffs):
                 return
         else:
             child_path = build_path(path, get_tag(children1[i], opts))
-            compare_elements(children1[i], children2[i], opts, child_path, diffs)
+            compare_elements(children1[i], children2[i], opts, child_path, diffs, depth + 1)
             if opts.fail_fast and diffs:
                 return
 
 
-def _compare_unordered(children1, children2, opts, path, diffs):
+def _compare_unordered(children1, children2, opts, path, diffs, depth=0):
     groups1 = defaultdict(list)
     groups2 = defaultdict(list)
     for c in children1:
@@ -289,7 +298,7 @@ def _compare_unordered(children1, children2, opts, path, diffs):
                 if opts.fail_fast:
                     return
             else:
-                compare_elements(elems1[i], elems2[i], opts, child_path, diffs)
+                compare_elements(elems1[i], elems2[i], opts, child_path, diffs, depth + 1)
                 if opts.fail_fast and diffs:
                     return
 
@@ -452,6 +461,10 @@ def _opts_from_dict(config):
     opts.verbose = bool(config.get('verbose', False))
     opts.quiet = bool(config.get('quiet', False))
     opts.fail_fast = bool(config.get('fail_fast', False))
+    opts.structure_only = bool(config.get('structure_only', False))
+    opts.max_depth = config.get('max_depth')
+    if opts.max_depth is not None:
+        opts.max_depth = int(opts.max_depth)
     return opts
 
 
@@ -471,6 +484,8 @@ def _opts_from_args(args):
     opts.verbose = args.verbose
     opts.quiet = args.quiet
     opts.fail_fast = args.fail_fast
+    opts.structure_only = args.structure_only
+    opts.max_depth = args.max_depth
     return opts
 
 
@@ -502,6 +517,10 @@ def build_parser():
                         help='Strip namespaces before comparing')
     parser.add_argument('--ignore-attributes', action='store_true',
                         help='Skip attribute comparison')
+    parser.add_argument('--structure-only', action='store_true',
+                        help='Compare only XML structure, ignore text and attribute values')
+    parser.add_argument('--max-depth', type=int, metavar='INT',
+                        help='Maximum depth for comparison (compare elements up to specified depth only)')
     parser.add_argument('--skip-keys', nargs='+', metavar='PATH',
                         help='XPath-style element paths to skip')
     parser.add_argument('--skip-pattern', metavar='REGEX',
