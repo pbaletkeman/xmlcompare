@@ -7,6 +7,8 @@ import os
 import re
 import sys
 import xml.etree.ElementTree as ET
+from collections import defaultdict
+from pathlib import Path
 
 
 try:

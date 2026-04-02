@@ -533,6 +533,18 @@ Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines
 - Submitting pull requests
 - Reporting bugs and suggesting features
 
+**Community Standards**: This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). We expect all contributors, maintainers, and community members to treat each other with respect and kindness.
+
+---
+
+## Security
+
+We take security seriously. If you discover a security vulnerability, please report it responsibly:
+
+- **Do NOT** create a public issue
+- See [SECURITY.md](SECURITY.md) for responsible disclosure procedures
+- Includes information on supported versions, how to report vulnerabilities, and security best practices
+
 ---
 
 ## License

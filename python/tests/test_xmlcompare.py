@@ -1,5 +1,7 @@
 """Tests for xmlcompare."""
 
+import json
+import os
 import sys
 from pathlib import Path
 
