@@ -1,3 +1,20 @@
+// Checkstyle plugin for Google Java Style (120 char lines)
+apply plugin: 'checkstyle'
+
+checkstyle {
+    toolVersion = '10.12.4'
+    configFile = file('checkstyle.xml')
+    configProperties = [ 'checkstyle.suppressions.file': file('suppressions.xml') ]
+}
+
+tasks.withType(Checkstyle) {
+    reports {
+        xml.required = false
+        html.required = true
+    }
+}
+
+check.dependsOn 'checkstyleMain', 'checkstyleTest'
 plugins {
     id 'java'
     id 'application'

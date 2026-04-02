@@ -7,8 +7,7 @@ import os
 import re
 import sys
 import xml.etree.ElementTree as ET
-from collections import defaultdict
-from pathlib import Path
+
 
 try:
     import yaml
@@ -29,7 +28,7 @@ def _use_color():
 
 def _colorize(text, color):
     if _use_color():
-        return f"{color}{text}{RESET}"
+        return color + text + RESET
     return text
 
 

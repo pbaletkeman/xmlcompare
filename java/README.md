@@ -21,12 +21,15 @@ A Java 21 port of the Python `xmlcompare` tool for comparing XML files and direc
   - [Config File Format](#config-file-format)
   - [Exit Codes](#exit-codes)
   - [Running Tests](#running-tests)
+  - [Code Quality](#code-quality)
+    - [Checkstyle (Code Style Validation)](#checkstyle-code-style-validation)
+    - [XSD Validation](#xsd-validation)
 
 ---
 
 ## Prerequisites
 
-- Java 21 or later
+- Java 21 or later (Gradle 8.x requires Java 21+ for compatibility)
 - Gradle 8.x (or use the included `gradlew` wrapper)
 - Maven 3.8+ (optional, for Maven builds)
 
@@ -239,4 +242,65 @@ Maven tests run automatically during `mvn package`; to run tests only:
 
 ```bash
 mvn test
+```
+
+---
+
+## Code Quality
+
+### Checkstyle (Code Style Validation)
+
+The project enforces Google-style coding standards with a 120-character line length limit via [Checkstyle](https://checkstyle.sourceforge.io/).
+
+**Run Checkstyle:**
+
+Using Maven:
+```bash
+mvn checkstyle:check
+```
+
+Using Gradle:
+```bash
+./gradlew checkstyleMain checkstyleTest
+```
+
+**Configuration:**
+- `checkstyle.xml` — Main Google-style ruleset
+- `suppressions.xml` — Suppresses specific violations for third-party or generated code
+- Line length: 120 characters (Google style default is 80; configured to 120 for readability)
+- Indentation: 2 spaces (Google style standard)
+
+**Violations reported by Checkstyle:**
+- Import statement issues (wildcard imports forbidden)
+- Naming conventions (TypeName, MethodName, ParameterName, etc.)
+- Whitespace rules (spacing around operators, method params, casts, etc.)
+- File-level rules (tabs forbidden, trailing whitespace, etc.)
+
+All production and test code must pass Checkstyle checks.
+
+### XSD Validation
+
+XSD (XML Schema Definition) validation is available as part of the testing suite. The `XsdValidator` class provides schema validation for both production and test code.
+
+**Test XSD validation:**
+
+Using Maven:
+```bash
+mvn clean test -Dtest=XsdValidatorTest
+```
+
+Using Gradle:
+```bash
+./gradlew test --tests XsdValidatorTest
+```
+
+**XSD Validation Files:**
+- `src/test/resources/schema.xsd` — Example XSD schema
+- `src/test/resources/valid.xml` — Example XML valid against the schema
+- `src/test/resources/invalid.xml` — Example XML invalid against the schema
+
+The `XsdValidator` class can be used programmatically:
+```java
+XsdValidator validator = new XsdValidator("path/to/schema.xsd");
+validator.validate("path/to/document.xml");  // Throws IOException if invalid
 ```

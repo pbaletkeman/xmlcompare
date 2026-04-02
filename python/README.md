@@ -29,6 +29,9 @@ A command-line tool for comparing XML files and directories, with flexible optio
   - [Config File Support](#config-file-support)
   - [Option Usage Examples](#option-usage-examples)
   - [Running the Tests](#running-the-tests)
+  - [Code Quality](#code-quality)
+    - [Ruff (Linting and Code Style)](#ruff-linting-and-code-style)
+    - [XSD Validation](#xsd-validation)
 
 ---
 
@@ -313,4 +316,63 @@ pytest tests/ -v
 
 # With coverage report
 pytest tests/ --cov=xmlcompare --cov-report=term-missing
+```
+
+---
+
+## Code Quality
+
+### Ruff (Linting and Code Style)
+
+The project uses [Ruff](https://github.com/astral-sh/ruff) for fast Python linting and code style validation with flake8-compatible rules and a 120-character line length limit.
+
+**Run Ruff:**
+
+```bash
+# Lint the entire python/ directory
+python -m ruff check python/
+
+# Lint a specific file
+python -m ruff check python/xmlcompare.py
+
+# Auto-fix common issues (where possible)
+python -m ruff check python/ --fix
+```
+
+**Configuration:**
+- `ruff.toml` — Ruff configuration in the project root
+- Enabled rule sets: `E` (pycodestyle errors), `F` (Pyflakes), `W` (pycodestyle warnings), `C90` (McCabe complexity)
+- Line length: 120 characters (flake8 default is 79; configured to 120 for readability)
+- Detects: unused imports, extraneous f-strings, code complexity, trailing whitespace, blank lines, and more
+
+**Common violations:**
+- `F401` — Unused imports
+- `E701` — Multiple statements on one line
+- `W291` — Trailing whitespace
+- `C901` — Function too complex (McCabe complexity)
+
+All production and test code must pass Ruff checks.
+
+### XSD Validation
+
+XSD (XML Schema Definition) validation is available as part of the testing suite. The `validate_xsd` module provides schema validation for both production and test code.
+
+**Test XSD validation:**
+
+```bash
+# Run XSD validation tests
+pytest tests/test_xsd_validation.py -v
+```
+
+**XSD Validation Files:**
+- `tests/schema.xsd` — Example XSD schema
+- `tests/valid.xml` — Example XML valid against the schema
+- `tests/invalid.xml` — Example XML invalid against the schema
+
+The `validate_xsd` module can be used programmatically:
+```python
+from validate_xsd import validate_xml
+
+# Validates and raises ValueError if invalid
+validate_xml("path/to/document.xml", "path/to/schema.xsd")
 ```

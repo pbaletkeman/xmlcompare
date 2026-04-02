@@ -13,6 +13,10 @@
   - [Sample Files](#sample-files)
   - [Example Commands](#example-commands)
   - [Config File Support](#config-file-support)
+  - [Code Quality Standards](#code-quality-standards)
+    - [Java: Checkstyle](#java-checkstyle)
+    - [Python: Ruff](#python-ruff)
+    - [XSD Schema Validation](#xsd-schema-validation)
   - [License](#license)
 
 
@@ -277,6 +281,100 @@ Run with:
 ```bash
 ./run.sh --files file1.xml file2.xml --config config.yaml
 java -jar xmlcompare.jar --files file1.xml file2.xml --config config.yaml
+```
+
+---
+
+## Code Quality Standards
+
+Both implementations maintain high code quality through automated style checking, linting, and validation.
+
+### Java: Checkstyle
+
+The Java implementation enforces **Google-style** code standards with a **120-character line length limit** via [Checkstyle](https://checkstyle.sourceforge.io/).
+
+**Run code style checks:**
+
+Using Maven:
+```bash
+cd java
+mvn checkstyle:check
+```
+
+Using Gradle:
+```bash
+cd java
+./gradlew checkstyleMain checkstyleTest
+```
+
+**Configuration:**
+- File: `java/checkstyle.xml` (Google style ruleset)
+- Suppresses: `java/suppressions.xml` (specific exclusions)
+- Key checks: imports (no wildcards), naming conventions, whitespace, indentation (2 spaces), line length (120 chars)
+
+### Python: Ruff
+
+The Python implementation uses [Ruff](https://github.com/astral-sh/ruff) for fast linting with **flake8-compatible rules** and a **120-character line length limit**.
+
+**Run code style checks:**
+
+```bash
+cd python
+
+# Lint all code
+python -m ruff check .
+
+# Fix common issues automatically
+python -m ruff check . --fix
+```
+
+**Configuration:**
+- File: `python/ruff.toml`
+- Rule sets: `E` (pycodestyle errors), `F` (Pyflakes), `W` (warnings), `C90` (McCabe complexity)
+- Line length: 120 characters (flake8 default is 79)
+- Detects: unused imports, complex functions, trailing whitespace, and more
+
+### XSD Schema Validation
+
+Both implementations include XSD (XML Schema Definition) validation to verify XML documents conform to a schema. This is tested as part of the standard test suite.
+
+**Java XSD Validation:**
+
+- Class: `XsdValidator` (`src/main/java/com/xmlcompare/XsdValidator.java`)
+- Tests: `src/test/java/XsdValidatorTest.java`
+- Schemas: `src/test/resources/schema.xsd`
+
+Run tests:
+```bash
+cd java
+./gradlew test --tests XsdValidatorTest   # Gradle
+mvn test -Dtest=XsdValidatorTest         # Maven
+```
+
+**Python XSD Validation:**
+
+- Module: `validate_xsd.py` (`python/validate_xsd.py`)
+- Tests: `python/tests/test_xsd_validation.py`
+- Schemas: `python/tests/schema.xsd`
+
+Run tests:
+```bash
+cd python
+pytest tests/test_xsd_validation.py -v
+```
+
+**Usage (Programmatic):**
+
+Java:
+```java
+XsdValidator validator = new XsdValidator("schema.xsd");
+validator.validate("document.xml");  // Throws IOException if invalid
+```
+
+Python:
+```python
+from validate_xsd import validate_xml
+validate_xml("document.xml", "schema.xsd")  # Raises ValueError if invalid
 ```
 
 ---
