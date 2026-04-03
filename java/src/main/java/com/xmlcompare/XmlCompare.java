@@ -1,6 +1,9 @@
 package com.xmlcompare;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.xmlcompare.schema.SchemaAnalyzer;
+import com.xmlcompare.schema.SchemaMetadata;
+import com.xmlcompare.schema.TypeAwareComparator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -73,6 +76,25 @@ public class XmlCompare {
     }
 
     public static boolean valuesEqual(String a, String b, CompareOptions opts) {
+        return valuesEqual(a, b, opts, null);
+    }
+
+    /**
+     * Compare two string values with optional XSD type awareness.
+     *
+     * @param a      first value
+     * @param b      second value
+     * @param opts   comparison options
+     * @param xsType XSD simple type (e.g. {@code "xs:date"}), or {@code null}
+     * @return {@code true} if the values are considered equal
+     */
+    public static boolean valuesEqual(String a, String b, CompareOptions opts, String xsType) {
+        // Type-aware comparison via schema hints
+        if (xsType != null && opts.typeAware) {
+            Optional<Boolean> result = TypeAwareComparator.typeAwareEqual(a, b, xsType);
+            if (result.isPresent()) return result.get();
+        }
+
         String na = normalizeText(a);
         String nb = normalizeText(b);
         Optional<Double> fa = toNumeric(na);
@@ -135,10 +157,28 @@ public class XmlCompare {
     }
 
     public static List<Difference> compareElements(Element elem1, Element elem2, CompareOptions opts, String path, List<Difference> diffs) {
-        return compareElements(elem1, elem2, opts, path, diffs, 0);
+        return compareElements(elem1, elem2, opts, path, diffs, 0, null);
     }
 
     public static List<Difference> compareElements(Element elem1, Element elem2, CompareOptions opts, String path, List<Difference> diffs, int depth) {
+        return compareElements(elem1, elem2, opts, path, diffs, depth, null);
+    }
+
+    /**
+     * Recursively compare two XML elements, optionally using schema metadata.
+     *
+     * @param elem1      first element
+     * @param elem2      second element
+     * @param opts       comparison options
+     * @param path       current XPath-style path
+     * @param diffs      accumulator list for differences
+     * @param depth      current recursion depth
+     * @param schemaMeta optional {@link SchemaMetadata} for type-aware comparison
+     * @return the {@code diffs} list
+     */
+    public static List<Difference> compareElements(Element elem1, Element elem2,
+            CompareOptions opts, String path, List<Difference> diffs, int depth,
+            SchemaMetadata schemaMeta) {
         if (diffs == null) diffs = new ArrayList<>();
 
         String tag1 = getTag(elem1, opts);
@@ -160,11 +200,17 @@ public class XmlCompare {
             return diffs;
         }
 
+        // Resolve XSD type for type-aware comparison
+        String xsType = null;
+        if (schemaMeta != null && opts.typeAware) {
+            xsType = schemaMeta.getXsType(tag1, currentPath);
+        }
+
         // Text content (skip if structure_only)
         if (!opts.structureOnly) {
             String text1 = normalizeText(getDirectTextContent(elem1));
             String text2 = normalizeText(getDirectTextContent(elem2));
-            if (!valuesEqual(text1, text2, opts)) {
+            if (!valuesEqual(text1, text2, opts, xsType)) {
                 diffs.add(new Difference(currentPath, "text",
                     "Text mismatch at '" + currentPath + "': '" + text1 + "' != '" + text2 + "'",
                     text1, text2));
@@ -217,10 +263,13 @@ public class XmlCompare {
                     return !shouldSkip(cpath, ctag, opts);
                 }).collect(Collectors.toList());
 
-            if (opts.unordered) {
-                compareUnordered(children1, children2, opts, currentPath, diffs, depth);
+            // Use schema-driven ordering hint when available
+            boolean schemaUnordered = schemaMeta != null && opts.typeAware
+                && schemaMeta.isUnorderedChildren(currentPath);
+            if (opts.unordered || schemaUnordered) {
+                compareUnordered(children1, children2, opts, currentPath, diffs, depth, schemaMeta);
             } else {
-                compareOrdered(children1, children2, opts, currentPath, diffs, depth);
+                compareOrdered(children1, children2, opts, currentPath, diffs, depth, schemaMeta);
             }
         }
 
@@ -244,10 +293,16 @@ public class XmlCompare {
     }
 
     public static void compareOrdered(List<Element> children1, List<Element> children2, CompareOptions opts, String path, List<Difference> diffs) {
-        compareOrdered(children1, children2, opts, path, diffs, 0);
+        compareOrdered(children1, children2, opts, path, diffs, 0, null);
     }
 
     public static void compareOrdered(List<Element> children1, List<Element> children2, CompareOptions opts, String path, List<Difference> diffs, int depth) {
+        compareOrdered(children1, children2, opts, path, diffs, depth, null);
+    }
+
+    public static void compareOrdered(List<Element> children1, List<Element> children2,
+            CompareOptions opts, String path, List<Difference> diffs, int depth,
+            SchemaMetadata schemaMeta) {
         int maxLen = Math.max(children1.size(), children2.size());
         for (int i = 0; i < maxLen; i++) {
             if (i >= children1.size()) {
@@ -262,17 +317,24 @@ public class XmlCompare {
                 if (opts.failFast) return;
             } else {
                 String childPath = buildPath(path, getTag(children1.get(i), opts));
-                compareElements(children1.get(i), children2.get(i), opts, childPath, diffs, depth + 1);
+                compareElements(children1.get(i), children2.get(i), opts, childPath, diffs,
+                    depth + 1, schemaMeta);
                 if (opts.failFast && !diffs.isEmpty()) return;
             }
         }
     }
 
     public static void compareUnordered(List<Element> children1, List<Element> children2, CompareOptions opts, String path, List<Difference> diffs) {
-        compareUnordered(children1, children2, opts, path, diffs, 0);
+        compareUnordered(children1, children2, opts, path, diffs, 0, null);
     }
 
     public static void compareUnordered(List<Element> children1, List<Element> children2, CompareOptions opts, String path, List<Difference> diffs, int depth) {
+        compareUnordered(children1, children2, opts, path, diffs, depth, null);
+    }
+
+    public static void compareUnordered(List<Element> children1, List<Element> children2,
+            CompareOptions opts, String path, List<Difference> diffs, int depth,
+            SchemaMetadata schemaMeta) {
         Map<String, List<Element>> groups1 = new LinkedHashMap<>();
         Map<String, List<Element>> groups2 = new LinkedHashMap<>();
 
@@ -302,7 +364,8 @@ public class XmlCompare {
                         "Element '" + tag + "' occurrence " + (i + 1) + " missing in second document"));
                     if (opts.failFast) return;
                 } else {
-                    compareElements(elems1.get(i), elems2.get(i), opts, childPath, diffs, depth + 1);
+                    compareElements(elems1.get(i), elems2.get(i), opts, childPath, diffs,
+                        depth + 1, schemaMeta);
                     if (opts.failFast && !diffs.isEmpty()) return;
                 }
             }
@@ -326,6 +389,12 @@ public class XmlCompare {
     }
 
     public static List<Difference> compareXmlFiles(String file1, String file2, CompareOptions opts) throws IOException {
+        // Load schema metadata if specified
+        SchemaMetadata schemaMeta = null;
+        if (opts.schema != null && !opts.schema.isEmpty()) {
+            schemaMeta = new SchemaAnalyzer().analyze(opts.schema);
+        }
+
         Document doc1, doc2;
         try {
             doc1 = parseXmlFile(file1);
@@ -353,14 +422,14 @@ public class XmlCompare {
                 List<Element> elems1 = nodeListToElements(nl1);
                 List<Element> elems2 = nodeListToElements(nl2);
                 List<Difference> diffs = new ArrayList<>();
-                compareOrdered(elems1, elems2, opts, "", diffs);
+                compareOrdered(elems1, elems2, opts, "", diffs, 0, schemaMeta);
                 return diffs;
             } catch (XPathExpressionException e) {
                 throw new IOException("Invalid filter XPath '" + opts.filterXpath + "': " + e.getMessage(), e);
             }
         }
 
-        return compareElements(root1, root2, opts, "", new ArrayList<>());
+        return compareElements(root1, root2, opts, "", new ArrayList<>(), 0, schemaMeta);
     }
 
     private static List<Element> nodeListToElements(NodeList nl) {

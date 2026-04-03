@@ -16,4 +16,4 @@ dependencies = [
 xmlcompare = "xmlcompare:main"
 
 [tool.setuptools]
-py-modules = ["xmlcompare"]
+py-modules = ["xmlcompare", "plugin_interface", "schema_analyzer", "validate_xsd"]

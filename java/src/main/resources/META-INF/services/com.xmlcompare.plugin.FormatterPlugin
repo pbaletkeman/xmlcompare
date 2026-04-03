@@ -1,0 +1,4 @@
+# Add fully-qualified class names of FormatterPlugin implementations here,
+# one per line.  These will be discovered automatically via ServiceLoader.
+# Example:
+# com.example.myplugin.MyUnifiedDiffFormatter

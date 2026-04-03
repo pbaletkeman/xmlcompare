@@ -136,14 +136,14 @@ class TestNamespaces:
         assert xc.compare_xml_files(f1, f2, _opts()) == []
 
     def test_namespace_mismatch(self, tmp_path):
-        f1 = write(tmp_path / 'a.xml', f'<r xmlns="http://a.com"><v>x</v></r>')
-        f2 = write(tmp_path / 'b.xml', f'<r xmlns="http://b.com"><v>x</v></r>')
+        f1 = write(tmp_path / 'a.xml', '<r xmlns="http://a.com"><v>x</v></r>')
+        f2 = write(tmp_path / 'b.xml', '<r xmlns="http://b.com"><v>x</v></r>')
         diffs = xc.compare_xml_files(f1, f2, _opts())
         assert len(diffs) > 0
 
     def test_ignore_namespaces(self, tmp_path):
-        f1 = write(tmp_path / 'a.xml', f'<r xmlns="http://a.com"><v>x</v></r>')
-        f2 = write(tmp_path / 'b.xml', f'<r xmlns="http://b.com"><v>x</v></r>')
+        f1 = write(tmp_path / 'a.xml', '<r xmlns="http://a.com"><v>x</v></r>')
+        f2 = write(tmp_path / 'b.xml', '<r xmlns="http://b.com"><v>x</v></r>')
         assert xc.compare_xml_files(f1, f2, _opts(ignore_namespaces=True)) == []
 
 
