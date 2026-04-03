@@ -1,8 +1,8 @@
 """Tests for Phase 1: Plugin Architecture & Schema Integration (Python)."""
 
 import sys
-import os
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -199,9 +199,41 @@ class EchoFormatter(FormatterPlugin):
         assert "Warning" in captured.err or captured.err == ""  # graceful degradation
 
     def test_entry_points_discovery_does_not_crash(self):
-        """load_entry_points runs without error even with no plugins installed."""
+        """load_entry_points runs without error even with no plugins installed.
+
+        Uses mock to bypass any firewall-blocked or environment-specific
+        importlib.metadata calls.
+        """
         registry = pi.PluginRegistry()
-        registry.load_entry_points()  # Should not raise
+        # Mock entry_points to return empty groups — no network/classpath needed
+        with patch('importlib.metadata.entry_points', return_value=[]):
+            registry.load_entry_points()
+
+    def test_entry_points_discovery_registers_mock_formatter(self):
+        """load_entry_points registers a formatter from a mocked entry_point."""
+        class MockFormatter(pi.FormatterPlugin):
+            @property
+            def name(self):
+                return "mock-fmt"
+            def format(self, all_results, **kwargs):
+                return "mock"
+
+        mock_ep = type('EP', (), {
+            'name': 'mock-fmt',
+            'group': 'xmlcompare.formatters',
+            'load': lambda self: MockFormatter,
+        })()
+
+        registry = pi.PluginRegistry()
+        # Simulate entry_points returning our mock endpoint
+        with patch('importlib.metadata.entry_points') as mock_eps:
+            mock_eps_obj = type('EPS', (), {
+                'select': lambda self, group: [mock_ep] if group == 'xmlcompare.formatters' else [],
+            })()
+            mock_eps.return_value = mock_eps_obj
+            registry.load_entry_points()
+
+        assert registry.get_formatter("mock-fmt") is not None
 
 
 # ---------------------------------------------------------------------------

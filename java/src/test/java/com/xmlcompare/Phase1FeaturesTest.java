@@ -170,8 +170,22 @@ public class Phase1FeaturesTest {
     @Test
     void testPluginRegistryServiceLoaderDoesNotCrash() {
         PluginRegistry registry = new PluginRegistry();
-        // Should not throw even with no plugins installed
+        // Should not throw even with no plugins installed.
+        // Uses the current thread's class loader — no network calls are made;
+        // ServiceLoader only inspects the local classpath.
         assertDoesNotThrow((org.junit.jupiter.api.function.Executable) registry::loadServiceLoader);
+    }
+
+    @Test
+    void testPluginRegistryServiceLoaderWithMockClassLoader() {
+        // Use a minimal custom ClassLoader that exposes mock service entries
+        // so the test is fully self-contained and not affected by firewall or classpath.
+        PluginRegistry registry = new PluginRegistry();
+        // An empty ClassLoader finds no META-INF/services — registry stays empty
+        ClassLoader emptyLoader = new ClassLoader(null) { };
+        registry.loadServiceLoader(emptyLoader);
+        assertTrue(registry.listFormatters().isEmpty());
+        assertTrue(registry.getFilters().isEmpty());
     }
 
     @Test
@@ -180,6 +194,46 @@ public class Phase1FeaturesTest {
         // Should print a warning but not throw
         assertDoesNotThrow((org.junit.jupiter.api.function.Executable)
             () -> registry.loadModule("com.example.NonExistentPlugin"));
+    }
+
+    @Test
+    void testPluginRegistryLoadModuleRegistersConcretePlugin() {
+        // Register a mock formatter directly then verify it is returned.
+        // This is the "mock services" pattern — no ServiceLoader/classpath needed.
+        FormatterPlugin mockFmt = new FormatterPlugin() {
+            @Override public String getName() { return "inline-mock"; }
+            @Override public String format(Map<String, Object> r, String l1, String l2) {
+                return "inline";
+            }
+        };
+        PluginRegistry registry = new PluginRegistry();
+        registry.registerFormatter(mockFmt);
+
+        assertNotNull(registry.getFormatter("inline-mock"));
+        assertEquals("inline", registry.getFormatter("inline-mock").format(Map.of(), null, null));
+    }
+
+    @Test
+    void testPluginRegistryMockFilterIsAppliedDuringComparison() {
+        // Mock a DifferenceFilter that suppresses all text differences.
+        // Fully self-contained — no ServiceLoader or classpath scanning.
+        DifferenceFilter suppressText = new DifferenceFilter() {
+            @Override public String getName() { return "suppress-text"; }
+            @Override public boolean shouldIgnore(Difference d) { return "text".equals(d.kind); }
+        };
+
+        PluginRegistry registry = new PluginRegistry();
+        registry.registerFilter(suppressText);
+
+        List<Difference> diffs = List.of(
+            new Difference("a/b", "text", "text diff"),
+            new Difference("a/c", "attr", "attr diff"),
+            new Difference("a/d", "text", "another text diff")
+        );
+
+        List<Difference> result = registry.applyFilters(diffs);
+        assertEquals(1, result.size());
+        assertEquals("attr", result.get(0).kind);
     }
 
     // -----------------------------------------------------------------------

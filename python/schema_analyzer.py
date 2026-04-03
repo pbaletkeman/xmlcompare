@@ -197,46 +197,68 @@ def _parse_complex_type_or_sequence(node, meta: SchemaMetadata,
                                     parent_path: str, parent_tag: str) -> None:
     """Walk xs:sequence, xs:all, xs:choice, xs:complexType nodes."""
     tag = node.tag
-
-    if tag in (f'{_XSD}all',):
-        # xs:all → children may appear in any order
-        if parent_path:
-            meta.path_elements[f'_all:{parent_path}'] = True
-        for child in node:
-            if child.tag == f'{_XSD}element':
-                _parse_element(child, meta, parent_path)
-
+    if tag == f'{_XSD}all':
+        _parse_all_group(node, meta, parent_path, parent_tag)
     elif tag in (f'{_XSD}sequence', f'{_XSD}choice'):
-        for child in node:
-            if child.tag == f'{_XSD}element':
-                _parse_element(child, meta, parent_path)
-            elif child.tag in (f'{_XSD}sequence', f'{_XSD}all', f'{_XSD}choice'):
-                _parse_complex_type_or_sequence(child, meta, parent_path, parent_tag)
-
+        _parse_sequence_or_choice(node, meta, parent_path, parent_tag)
     elif tag == f'{_XSD}complexType':
-        for child in node:
-            if child.tag in (
-                f'{_XSD}sequence', f'{_XSD}all', f'{_XSD}choice',
-                f'{_XSD}complexContent', f'{_XSD}simpleContent',
-            ):
-                _parse_complex_type_or_sequence(child, meta, parent_path, parent_tag)
-
+        _parse_complex_type_children(node, meta, parent_path, parent_tag)
     elif tag in (f'{_XSD}complexContent', f'{_XSD}simpleContent'):
-        for child in node:
-            if child.tag in (f'{_XSD}extension', f'{_XSD}restriction'):
-                _parse_complex_type_or_sequence(child, meta, parent_path, parent_tag)
-
+        _parse_content_children(node, meta, parent_path, parent_tag)
     elif tag in (f'{_XSD}extension', f'{_XSD}restriction'):
-        for child in node:
-            if child.tag in (f'{_XSD}sequence', f'{_XSD}all', f'{_XSD}choice'):
-                _parse_complex_type_or_sequence(child, meta, parent_path, parent_tag)
-
+        _parse_extension_or_restriction(node, meta, parent_path, parent_tag)
     elif tag == f'{_XSD}schema':
-        for child in node:
-            if child.tag == f'{_XSD}element':
-                _parse_element(child, meta, parent_path='')
-            elif child.tag in (f'{_XSD}complexType', f'{_XSD}simpleType'):
-                pass  # Named global types – handled via ref resolution (future)
+        _parse_schema_root(node, meta)
+
+
+def _parse_all_group(node, meta: SchemaMetadata, parent_path: str, parent_tag: str) -> None:
+    """Handle xs:all — children may appear in any order."""
+    if parent_path:
+        meta.path_elements[f'_all:{parent_path}'] = True
+    for child in node:
+        if child.tag == f'{_XSD}element':
+            _parse_element(child, meta, parent_path)
+
+
+def _parse_sequence_or_choice(node, meta: SchemaMetadata, parent_path: str, parent_tag: str) -> None:
+    """Handle xs:sequence or xs:choice children."""
+    for child in node:
+        if child.tag == f'{_XSD}element':
+            _parse_element(child, meta, parent_path)
+        elif child.tag in (f'{_XSD}sequence', f'{_XSD}all', f'{_XSD}choice'):
+            _parse_complex_type_or_sequence(child, meta, parent_path, parent_tag)
+
+
+def _parse_complex_type_children(node, meta: SchemaMetadata, parent_path: str, parent_tag: str) -> None:
+    """Handle children of xs:complexType."""
+    _COMPLEX_CHILDREN = (
+        f'{_XSD}sequence', f'{_XSD}all', f'{_XSD}choice',
+        f'{_XSD}complexContent', f'{_XSD}simpleContent',
+    )
+    for child in node:
+        if child.tag in _COMPLEX_CHILDREN:
+            _parse_complex_type_or_sequence(child, meta, parent_path, parent_tag)
+
+
+def _parse_content_children(node, meta: SchemaMetadata, parent_path: str, parent_tag: str) -> None:
+    """Handle children of xs:complexContent or xs:simpleContent."""
+    for child in node:
+        if child.tag in (f'{_XSD}extension', f'{_XSD}restriction'):
+            _parse_complex_type_or_sequence(child, meta, parent_path, parent_tag)
+
+
+def _parse_extension_or_restriction(node, meta: SchemaMetadata, parent_path: str, parent_tag: str) -> None:
+    """Handle children of xs:extension or xs:restriction."""
+    for child in node:
+        if child.tag in (f'{_XSD}sequence', f'{_XSD}all', f'{_XSD}choice'):
+            _parse_complex_type_or_sequence(child, meta, parent_path, parent_tag)
+
+
+def _parse_schema_root(node, meta: SchemaMetadata) -> None:
+    """Handle top-level xs:schema children."""
+    for child in node:
+        if child.tag == f'{_XSD}element':
+            _parse_element(child, meta, parent_path='')
 
 
 # ---------------------------------------------------------------------------
