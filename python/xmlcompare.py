@@ -54,6 +54,10 @@ class CompareOptions:
         self.fail_fast = False
         self.structure_only = False
         self.max_depth = None
+        # Phase 1 additions
+        self.schema = None          # Path to XSD schema file
+        self.type_aware = False     # Enable type-aware comparison from schema
+        self.plugins = []           # List of plugin module paths to load
 
 
 class Difference:
@@ -111,8 +115,23 @@ def _to_numeric(text):
         return None
 
 
-def values_equal(a, b, opts):
-    """Return True if two text values are considered equal under opts."""
+def values_equal(a, b, opts, xs_type=None):
+    """Return True if two text values are considered equal under opts.
+
+    When *xs_type* is provided and ``opts.type_aware`` is True, attempts
+    type-aware comparison (date, numeric, boolean) before falling back to
+    the standard comparison logic.
+    """
+    # Type-aware comparison using schema hints
+    if xs_type and getattr(opts, 'type_aware', False):
+        try:
+            from schema_analyzer import type_aware_equal
+            result = type_aware_equal(a or '', b or '', xs_type)
+            if result is not None:
+                return result
+        except ImportError:
+            pass
+
     na = normalize_text(a)
     nb = normalize_text(b)
     # Numeric comparison
@@ -149,8 +168,17 @@ def should_skip(path, tag, opts):
 # Core comparison
 # ---------------------------------------------------------------------------
 
-def compare_elements(elem1, elem2, opts, path='', diffs=None, depth=0):
-    """Recursively compare two XML elements, appending Difference objects to *diffs*."""
+def compare_elements(elem1, elem2, opts, path='', diffs=None, depth=0,
+                     schema_meta=None):
+    """Recursively compare two XML elements, appending Difference objects to *diffs*.
+
+    Parameters
+    ----------
+    schema_meta:
+        Optional :class:`~schema_analyzer.SchemaMetadata` instance.  When
+        provided (and ``opts.type_aware`` is True), used to apply
+        type-aware comparison and schema-driven ordering hints.
+    """
     if diffs is None:
         diffs = []
 
@@ -174,11 +202,16 @@ def compare_elements(elem1, elem2, opts, path='', diffs=None, depth=0):
         ))
         return diffs  # Cannot proceed if tags differ
 
+    # Resolve XSD type for this element (used for type-aware comparison)
+    xs_type = None
+    if schema_meta is not None and getattr(opts, 'type_aware', False):
+        xs_type = schema_meta.get_xs_type(tag1, current_path)
+
     # Text content (skip if structure_only)
     if not opts.structure_only:
         text1 = normalize_text(elem1.text)
         text2 = normalize_text(elem2.text)
-        if not values_equal(text1, text2, opts):
+        if not values_equal(text1, text2, opts, xs_type=xs_type):
             diffs.append(Difference(
                 current_path, 'text',
                 f"Text mismatch at {current_path!r}: {text1!r} != {text2!r}",
@@ -235,15 +268,24 @@ def compare_elements(elem1, elem2, opts, path='', diffs=None, depth=0):
         children1 = [c for c in list(elem1) if _keep(c, current_path)]
         children2 = [c for c in list(elem2) if _keep(c, current_path)]
 
-        if opts.unordered:
-            _compare_unordered(children1, children2, opts, current_path, diffs, depth)
+        # Use schema-driven ordering hint when available
+        schema_unordered = (
+            schema_meta is not None
+            and getattr(opts, 'type_aware', False)
+            and schema_meta.is_unordered_children(current_path)
+        )
+        if opts.unordered or schema_unordered:
+            _compare_unordered(children1, children2, opts, current_path, diffs,
+                               depth, schema_meta=schema_meta)
         else:
-            _compare_ordered(children1, children2, opts, current_path, diffs, depth)
+            _compare_ordered(children1, children2, opts, current_path, diffs,
+                             depth, schema_meta=schema_meta)
 
     return diffs
 
 
-def _compare_ordered(children1, children2, opts, path, diffs, depth=0):
+def _compare_ordered(children1, children2, opts, path, diffs, depth=0,
+                     schema_meta=None):
     max_len = max(len(children1), len(children2))
     for i in range(max_len):
         if i >= len(children1):
@@ -264,12 +306,14 @@ def _compare_ordered(children1, children2, opts, path, diffs, depth=0):
                 return
         else:
             child_path = build_path(path, get_tag(children1[i], opts))
-            compare_elements(children1[i], children2[i], opts, child_path, diffs, depth + 1)
+            compare_elements(children1[i], children2[i], opts, child_path, diffs,
+                             depth + 1, schema_meta=schema_meta)
             if opts.fail_fast and diffs:
                 return
 
 
-def _compare_unordered(children1, children2, opts, path, diffs, depth=0):
+def _compare_unordered(children1, children2, opts, path, diffs, depth=0,
+                       schema_meta=None):
     groups1 = defaultdict(list)
     groups2 = defaultdict(list)
     for c in children1:
@@ -299,13 +343,44 @@ def _compare_unordered(children1, children2, opts, path, diffs, depth=0):
                 if opts.fail_fast:
                     return
             else:
-                compare_elements(elems1[i], elems2[i], opts, child_path, diffs, depth + 1)
+                compare_elements(elems1[i], elems2[i], opts, child_path, diffs,
+                                 depth + 1, schema_meta=schema_meta)
                 if opts.fail_fast and diffs:
                     return
 
 
 def compare_xml_files(file1, file2, opts):
-    """Parse and compare two XML files. Returns a list of Difference objects."""
+    """Parse and compare two XML files. Returns a list of Difference objects.
+
+    When ``opts.schema`` is set, performs pre-flight schema validation (if lxml
+    is available) and loads schema metadata for smarter comparison.
+    Loaded plugins' difference filters are applied to the final result.
+    """
+    # Load schema metadata if requested
+    schema_meta = None
+    if getattr(opts, 'schema', None):
+        try:
+            from schema_analyzer import analyze_schema
+            schema_meta = analyze_schema(opts.schema)
+        except ImportError:
+            pass
+
+        # Pre-flight validation (requires lxml; warnings only if unavailable)
+        if getattr(opts, 'type_aware', False) or schema_meta is not None:
+            try:
+                from validate_xsd import get_validation_errors
+                for xml_path in (file1, file2):
+                    errors = get_validation_errors(xml_path, opts.schema)
+                    if errors is None:
+                        break  # lxml unavailable – skip
+                    if errors:
+                        raise ValueError(
+                            f"Schema validation failed for {xml_path}: "
+                            + "; ".join(errors[:3])
+                        )
+            except ImportError:
+                pass
+
     try:
         tree1 = ET.parse(file1)
     except ET.ParseError as exc:
@@ -330,10 +405,27 @@ def compare_xml_files(file1, file2, opts):
         except ET.ParseError as exc:
             raise ValueError(f"Invalid filter XPath {opts.filter_xpath!r}: {exc}") from exc
         diffs = []
-        _compare_ordered(elems1, elems2, opts, '', diffs)
-        return diffs
+        _compare_ordered(elems1, elems2, opts, '', diffs, schema_meta=schema_meta)
+        return _apply_filters(diffs, opts)
 
-    return compare_elements(root1, root2, opts)
+    diffs = compare_elements(root1, root2, opts, schema_meta=schema_meta)
+    return _apply_filters(diffs, opts)
+
+
+def _apply_filters(diffs, opts):
+    """Apply registered DifferenceFilter plugins to the list of differences."""
+    plugin_paths = getattr(opts, 'plugins', [])
+    if not plugin_paths:
+        return diffs
+    try:
+        from plugin_interface import get_registry
+        registry = get_registry()
+        filters = registry.get_filters()
+        if not filters:
+            return diffs
+        return [d for d in diffs if not any(f.should_ignore(d) for f in filters)]
+    except ImportError:
+        return diffs
 
 
 def compare_dirs(dir1, dir2, opts, recursive=False):
@@ -466,6 +558,10 @@ def _opts_from_dict(config):
     opts.max_depth = config.get('max_depth')
     if opts.max_depth is not None:
         opts.max_depth = int(opts.max_depth)
+    # Phase 1 additions
+    opts.schema = config.get('schema') or None
+    opts.type_aware = bool(config.get('type_aware', False))
+    opts.plugins = list(config.get('plugins', []))
     return opts
 
 
@@ -487,6 +583,10 @@ def _opts_from_args(args):
     opts.fail_fast = args.fail_fast
     opts.structure_only = args.structure_only
     opts.max_depth = args.max_depth
+    # Phase 1 additions
+    opts.schema = args.schema
+    opts.type_aware = args.type_aware
+    opts.plugins = args.plugins or []
     return opts
 
 
@@ -540,6 +640,13 @@ def build_parser():
                         help='Suppress all output')
     parser.add_argument('--fail-fast', action='store_true',
                         help='Stop on first detected difference')
+    # Phase 1: plugin and schema options
+    parser.add_argument('--plugins', nargs='+', metavar='MODULE',
+                        help='Python module paths for plugins to load (e.g. mypkg.mymodule)')
+    parser.add_argument('--schema', metavar='XSD',
+                        help='Path to XSD schema for pre-validation and type hints')
+    parser.add_argument('--type-aware', action='store_true',
+                        help='Use schema type hints for smarter comparison (requires --schema)')
     return parser
 
 
@@ -569,6 +676,17 @@ def main(argv=None):
 
     if not files and not dirs:
         parser.error("One of --files or --dirs is required.")
+
+    # Load plugins
+    if opts.plugins:
+        try:
+            from plugin_interface import get_registry
+            registry = get_registry()
+            registry.load_entry_points()
+            for module_path in opts.plugins:
+                registry.load_module(module_path)
+        except ImportError:
+            pass
 
     # Run comparison
     all_results = {}
@@ -607,22 +725,37 @@ def main(argv=None):
             line = (f"Total: {total} | Equal: {equal} | "
                     f"Different: {different} | Errors: {errors}")
             output_str = line
-        elif opts.output_format == 'json':
-            output_str = format_json_report(all_results)
-        elif opts.output_format == 'html':
-            output_str = format_html_report(all_results)
         else:
-            parts = []
-            for key, val in all_results.items():
-                if isinstance(val, str):
-                    msg = f"ERROR: {key}: {val}"
-                    parts.append(_colorize(msg, YELLOW) if _use_color() else msg)
-                else:
-                    if files:
-                        parts.append(format_text_report(val, files[0], files[1]))
+            # Check for plugin-provided formatter
+            plugin_formatter = None
+            if opts.plugins:
+                try:
+                    from plugin_interface import get_registry
+                    plugin_formatter = get_registry().get_formatter(opts.output_format)
+                except ImportError:
+                    pass
+
+            if plugin_formatter is not None:
+                output_str = plugin_formatter.format(
+                    all_results, label1=files[0] if files else None,
+                    label2=files[1] if files else None,
+                )
+            elif opts.output_format == 'json':
+                output_str = format_json_report(all_results)
+            elif opts.output_format == 'html':
+                output_str = format_html_report(all_results)
+            else:
+                parts = []
+                for key, val in all_results.items():
+                    if isinstance(val, str):
+                        msg = f"ERROR: {key}: {val}"
+                        parts.append(_colorize(msg, YELLOW) if _use_color() else msg)
                     else:
-                        parts.append(format_text_report(val, key, ''))
-            output_str = '\n'.join(parts)
+                        if files:
+                            parts.append(format_text_report(val, files[0], files[1]))
+                        else:
+                            parts.append(format_text_report(val, key, ''))
+                output_str = '\n'.join(parts)
 
         if opts.output_file:
             try:

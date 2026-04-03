@@ -2,6 +2,7 @@ package com.xmlcompare;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.xmlcompare.plugin.PluginRegistry;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -81,6 +82,15 @@ public class Main implements Callable<Integer> {
     @Option(names = "--fail-fast", description = "Stop on first difference")
     private boolean failFast;
 
+    @Option(names = "--plugins", description = "Fully-qualified plugin class names to load", split = ",", paramLabel = "CLASS")
+    private List<String> plugins;
+
+    @Option(names = "--schema", description = "Path to XSD schema for pre-validation and type hints", paramLabel = "XSD")
+    private String schema;
+
+    @Option(names = "--type-aware", description = "Use schema type hints for smarter comparison (requires --schema)")
+    private boolean typeAware;
+
     public static void main(String[] args) {
         int exitCode = new CommandLine(new Main()).execute(args);
         System.exit(exitCode);
@@ -117,6 +127,18 @@ public class Main implements Callable<Integer> {
         if (failFast) opts.failFast = true;
         if (structureOnly) opts.structureOnly = true;
         if (maxDepth != null) opts.maxDepth = maxDepth;
+        if (schema != null) opts.schema = schema;
+        if (typeAware) opts.typeAware = true;
+        if (plugins != null && !plugins.isEmpty()) opts.plugins = plugins;
+
+        // Load plugins
+        PluginRegistry registry = new PluginRegistry();
+        if (opts.plugins != null && !opts.plugins.isEmpty()) {
+            registry.loadServiceLoader();
+            for (String className : opts.plugins) {
+                registry.loadModule(className);
+            }
+        }
 
         try {
             if (files != null) {
@@ -235,5 +257,9 @@ public class Main implements Callable<Integer> {
         if (cfg.containsKey("fail_fast")) opts.failFast = (Boolean) cfg.get("fail_fast");
         if (cfg.containsKey("structure_only")) opts.structureOnly = (Boolean) cfg.get("structure_only");
         if (cfg.containsKey("max_depth")) opts.maxDepth = ((Number) cfg.get("max_depth")).intValue();
+        // Phase 1 additions
+        if (cfg.containsKey("schema")) opts.schema = (String) cfg.get("schema");
+        if (cfg.containsKey("type_aware")) opts.typeAware = (Boolean) cfg.get("type_aware");
+        if (cfg.containsKey("plugins")) opts.plugins = (List<String>) cfg.get("plugins");
     }
 }

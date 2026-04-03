@@ -2,7 +2,13 @@ import xml.etree.ElementTree as ET
 import os
 import sys
 
+
 def validate_xml_with_xsd(xml_path, xsd_path):
+    """Validate *xml_path* against *xsd_path* using lxml.
+
+    Returns ``True`` if valid, ``False`` otherwise.
+    Prints a human-readable result / error message to stdout/stderr.
+    """
     try:
         from lxml import etree
     except ImportError:
@@ -20,6 +26,30 @@ def validate_xml_with_xsd(xml_path, xsd_path):
     except etree.XMLSyntaxError as e:
         print(f"Validation error in {xml_path}: {e}")
         return False
+
+
+def get_validation_errors(xml_path, xsd_path):
+    """Return a list of validation error strings for *xml_path* against *xsd_path*.
+
+    Returns an empty list if the document is valid.
+    Returns ``None`` if lxml is unavailable (caller should handle gracefully).
+    """
+    try:
+        from lxml import etree
+    except ImportError:
+        return None
+
+    try:
+        with open(xsd_path, 'rb') as f:
+            schema_root = etree.XML(f.read())
+        schema = etree.XMLSchema(schema_root)
+        with open(xml_path, 'rb') as f:
+            doc = etree.parse(f)
+        schema.validate(doc)
+        return [str(e) for e in schema.error_log]
+    except Exception as exc:
+        return [str(exc)]
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
