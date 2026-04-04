@@ -2,28 +2,30 @@
 
 A Java 21 port of the Python `xmlcompare` tool for comparing XML files and directories.
 
+---
+
+## Quick Navigation
+
+- **[Master Features Guide](../docs/FEATURES.md)** - All features and examples
+- **[Complete CLI Reference](docs/CLI_REFERENCE.md)** - All switches documented
+- **[Advanced Features](docs/FEATURES.md)** - Parallel processing, streaming, plugins
+- **[Root README](../README.md)** - Project overview
+- **[Python Implementation](../python/README.md)** - Python version
+
+---
+
 ## Table of Contents
 
-- [xmlcompare — Java Edition](#xmlcompare--java-edition)
-  - [Table of Contents](#table-of-contents)
-  - [Prerequisites](#prerequisites)
-  - [Building](#building)
-    - [With Gradle (recommended)](#with-gradle-recommended)
-    - [With Maven](#with-maven)
-    - [With the build script (both Gradle and Maven)](#with-the-build-script-both-gradle-and-maven)
-  - [Building a Fat JAR](#building-a-fat-jar)
-    - [Dedicated fat JAR scripts](#dedicated-fat-jar-scripts)
-    - [Output locations](#output-locations)
-    - [Examples](#examples)
-  - [Running](#running)
-  - [CLI Options](#cli-options)
-  - [Sample Commands](#sample-commands)
-  - [Config File Format](#config-file-format)
-  - [Exit Codes](#exit-codes)
-  - [Running Tests](#running-tests)
-  - [Code Quality](#code-quality)
-    - [Checkstyle (Code Style Validation)](#checkstyle-code-style-validation)
-    - [XSD Validation](#xsd-validation)
+- [Prerequisites](#prerequisites)
+- [Building](#building)
+- [Building a Fat JAR](#building-a-fat-jar)
+- [Running](#running)
+- [CLI Options](#cli-options)
+- [Sample Commands](#sample-commands)
+- [Config File Format](#config-file-format)
+- [Exit Codes](#exit-codes)
+- [Running Tests](#running-tests)
+- [Code Quality](#code-quality)
 
 ---
 

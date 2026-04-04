@@ -200,3 +200,22 @@ _default_registry = PluginRegistry()
 def get_registry() -> PluginRegistry:
     """Return the module-level default :class:`PluginRegistry`."""
     return _default_registry
+
+
+# Register built-in formatters on module load
+def _register_builtin_formatters():
+    """Register the built-in output formatters."""
+    try:
+        from format_unified_diff import UnifiedDiffFormatter
+        _default_registry.register_formatter(UnifiedDiffFormatter())
+    except ImportError:
+        pass
+
+    try:
+        from format_html_sidebyside import HtmlSideBySideFormatter
+        _default_registry.register_formatter(HtmlSideBySideFormatter())
+    except ImportError:
+        pass
+
+
+_register_builtin_formatters()

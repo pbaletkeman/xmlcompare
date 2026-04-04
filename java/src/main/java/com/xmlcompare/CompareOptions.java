@@ -27,4 +27,12 @@ public class CompareOptions {
     public boolean typeAware = false;
     /** List of fully-qualified plugin class names to load. */
     public List<String> plugins = new ArrayList<>();
+
+    // Phase 3 additions
+    /** Use streaming parser for memory-efficient processing of large files. */
+    public boolean streaming = false;
+    /** Use parallel comparison for multi-core speed improvement. */
+    public boolean parallel = false;
+    /** Number of threads for parallel mode (0 = auto-detect). */
+    public Integer parallelThreads = 0;
 }

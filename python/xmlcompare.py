@@ -639,8 +639,9 @@ def build_parser():
                         help='Skip elements whose tag matches regex')
     parser.add_argument('--filter', metavar='XPATH',
                         help='Compare only elements matching XPath')
-    parser.add_argument('--output-format', choices=['text', 'json', 'html'],
-                        default='text', help='Output format (default: text)')
+    parser.add_argument('--output-format', metavar='FORMAT',
+                        default='text',
+                        help='Output format: text, json, html, unified-diff, html-diff (default: text)')
     parser.add_argument('--output-file', metavar='FILE',
                         help='Write report to file instead of stdout')
     parser.add_argument('--summary', action='store_true',
@@ -658,6 +659,11 @@ def build_parser():
                         help='Path to XSD schema for pre-validation and type hints')
     parser.add_argument('--type-aware', action='store_true',
                         help='Use schema type hints for smarter comparison (requires --schema)')
+    # Phase 3: Performance and Phase 4: Interactive
+    parser.add_argument('--stream', action='store_true',
+                        help='Use streaming parser for large files (memory-efficient, slower)')
+    parser.add_argument('--interactive', action='store_true',
+                        help='Interactive mode: menu-based file selection and filtering')
     return parser
 
 
@@ -735,18 +741,19 @@ def _build_output(all_results, opts, files):
 
 def _format_output(all_results, opts, files):
     """Select and apply the appropriate formatter."""
-    if opts.plugins:
-        try:
-            from plugin_interface import get_registry
-            formatter = get_registry().get_formatter(opts.output_format)
-            if formatter is not None:
-                return formatter.format(
-                    all_results,
-                    label1=files[0] if files else None,
-                    label2=files[1] if files else None,
-                )
-        except ImportError:
-            pass
+    try:
+        from plugin_interface import get_registry
+        formatter = get_registry().get_formatter(opts.output_format)
+        if formatter is not None:
+            return formatter.format(
+                all_results,
+                label1=files[0] if files else None,
+                label2=files[1] if files else None,
+            )
+    except (ImportError, AttributeError):
+        pass
+
+    # Fallback to built-in formatters
     if opts.output_format == 'json':
         return format_json_report(all_results)
     if opts.output_format == 'html':
@@ -766,6 +773,12 @@ def _format_output(all_results, opts, files):
 def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
+
+    # Handle interactive mode
+    if args.interactive:
+        from interactive_cli import run_interactive
+        run_interactive()
+        return
 
     opts, files, dirs, recursive = _resolve_config(args)
 

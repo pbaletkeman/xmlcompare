@@ -2,6 +2,10 @@ package com.xmlcompare;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.xmlcompare.format.HtmlSideBySideFormatter;
+import com.xmlcompare.format.UnifiedDiffFormatter;
+import com.xmlcompare.parse.StreamingXmlParser;
+import com.xmlcompare.parallel.ParallelComparison;
 import com.xmlcompare.plugin.PluginRegistry;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -63,6 +67,15 @@ public class Main implements Callable<Integer> {
 
     @Option(names = "--filter", description = "XPath filter", paramLabel = "XPATH")
     private String filter;
+
+    @Option(names = "--stream", description = "Use streaming parser for large files")
+    private boolean stream;
+
+    @Option(names = "--parallel", description = "Use parallel comparison (experimental)")
+    private boolean parallel;
+
+    @Option(names = "--threads", description = "Number of threads for parallel mode", paramLabel = "INT")
+    private Integer threads;
 
     @Option(names = "--output-format", description = "Output format: text, json, html", paramLabel = "FORMAT")
     private String outputFormat;
@@ -130,9 +143,14 @@ public class Main implements Callable<Integer> {
         if (schema != null) opts.schema = schema;
         if (typeAware) opts.typeAware = true;
         if (plugins != null && !plugins.isEmpty()) opts.plugins = plugins;
+        if (stream) opts.streaming = true;
+        if (parallel) opts.parallel = true;
+        if (threads != null) opts.parallelThreads = threads;
 
-        // Load plugins
+        // Load plugins: register built-in formatters first, then customizations
         PluginRegistry registry = new PluginRegistry();
+        registry.registerFormatter(new UnifiedDiffFormatter());
+        registry.registerFormatter(new HtmlSideBySideFormatter());
         if (opts.plugins != null && !opts.plugins.isEmpty()) {
             registry.loadServiceLoader();
             for (String className : opts.plugins) {
@@ -142,9 +160,9 @@ public class Main implements Callable<Integer> {
 
         try {
             if (files != null) {
-                return compareFiles(files[0], files[1], opts);
+                return compareFiles(files[0], files[1], opts, registry);
             } else if (dirs != null) {
-                return compareDirs(dirs[0], dirs[1], opts);
+                return compareDirs(dirs[0], dirs[1], opts, registry);
             } else {
                 System.err.println("Error: specify --files or --dirs");
                 return 2;
@@ -155,12 +173,12 @@ public class Main implements Callable<Integer> {
         }
     }
 
-    private int compareFiles(String file1, String file2, CompareOptions opts) {
+    private int compareFiles(String file1, String file2, CompareOptions opts, PluginRegistry registry) {
         try {
             List<Difference> diffs = XmlCompare.compareXmlFiles(file1, file2, opts);
             Map<String, Object> allResults = new LinkedHashMap<>();
             allResults.put(file1 + " vs " + file2, diffs);
-            String report = generateReport(allResults, opts, file1, file2);
+            String report = generateReport(allResults, opts, file1, file2, registry);
             writeOutput(report, opts);
             return diffs.isEmpty() ? 0 : 1;
         } catch (IOException e) {
@@ -169,9 +187,9 @@ public class Main implements Callable<Integer> {
         }
     }
 
-    private int compareDirs(String dir1, String dir2, CompareOptions opts) {
+    private int compareDirs(String dir1, String dir2, CompareOptions opts, PluginRegistry registry) {
         Map<String, Object> results = XmlCompare.compareDirs(dir1, dir2, opts, recursive);
-        String report = generateReport(results, opts, null, null);
+        String report = generateReport(results, opts, null, null, registry);
         writeOutput(report, opts);
         boolean hasDiffs = results.values().stream().anyMatch(v -> {
             if (v instanceof String) return true;
@@ -182,7 +200,8 @@ public class Main implements Callable<Integer> {
     }
 
     @SuppressWarnings("unchecked")
-    private String generateReport(Map<String, Object> allResults, CompareOptions opts, String label1, String label2) {
+    private String generateReport(Map<String, Object> allResults, CompareOptions opts, String label1,
+                                   String label2, PluginRegistry registry) {
         if (opts.summary) {
             StringBuilder sb = new StringBuilder();
             int equalCount = 0, diffCount = 0, errorCount = 0;
@@ -197,7 +216,18 @@ public class Main implements Callable<Integer> {
             return sb.toString();
         }
 
-        return switch (opts.outputFormat) {
+        // Use plugin registry to get formatter
+        String format = opts.outputFormat != null ? opts.outputFormat : "text";
+        if (("text".equals(format) || "unified-diff".equals(format) || "html-diff".equals(format))
+            && registry != null) {
+            com.xmlcompare.plugin.FormatterPlugin plugin = registry.getFormatter(format);
+            if (plugin != null) {
+                return plugin.format(allResults, label1, label2);
+            }
+        }
+
+        // Fallback for built-in text/json/html formats
+        return switch (format) {
             case "json" -> XmlCompare.formatJsonReport(allResults);
             case "html" -> XmlCompare.formatHtmlReport(allResults);
             default -> {

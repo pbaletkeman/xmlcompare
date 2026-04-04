@@ -1,0 +1,321 @@
+{
+  "description": "xmlcompare Configuration File Examples",
+  "comment": "This file demonstrates all available configuration options for xmlcompare.",
+  "note": "JSON does not support comments natively. Use this file as a reference and remove the 'description', 'comment', and 'note' fields when creating your actual config file.",
+
+  "examples": {
+    "basic_comparison": {
+      "description": "Basic numeric tolerance and whitespace normalization",
+      "tolerance": 0.01,
+      "ignore_case": false,
+      "unordered": false
+    },
+
+    "strict_comparison": {
+      "description": "Strict comparison - zero tolerance for any difference",
+      "tolerance": 0.0,
+      "ignore_case": false,
+      "unordered": false,
+      "ignore_namespaces": false,
+      "ignore_attributes": false,
+      "structure_only": false
+    },
+
+    "flexible_comparison": {
+      "description": "Flexible comparison - ignoring namespaces, order, and case",
+      "tolerance": 0.001,
+      "ignore_case": true,
+      "unordered": true,
+      "ignore_namespaces": true,
+      "ignore_attributes": false
+    },
+
+    "attribute_focused": {
+      "description": "Focus on attribute differences only",
+      "structure_only": true,
+      "ignore_attributes": false,
+      "ignore_namespaces": true
+    },
+
+    "with_skip_keys": {
+      "description": "Skip specific elements and paths",
+      "skip_keys": [
+        "//timestamp",
+        "//version",
+        "/root/metadata/lastModified",
+        "//uuid"
+      ],
+      "skip_pattern": "^(timestamp|version|id)$"
+    },
+
+    "with_xpath_filter": {
+      "description": "Compare only specific elements using XPath",
+      "filter_xpath": "/root/orders/order[status='active']",
+      "unordered": true
+    },
+
+    "deep_structure_only": {
+      "description": "Compare only first 5 levels of structure",
+      "max_depth": 5,
+      "structure_only": true
+    },
+
+    "performance_optimized": {
+      "description": "Optimized for large file comparison",
+      "stream": true,
+      "parallel": true,
+      "threads": 4,
+      "fail_fast": true,
+      "tolerance": 0.001
+    },
+
+    "output_json": {
+      "description": "Output results in JSON format",
+      "output_format": "json",
+      "output_file": "comparison_results.json"
+    },
+
+    "output_html": {
+      "description": "Generate HTML side-by-side comparison report",
+      "output_format": "html",
+      "output_file": "comparison_report.html",
+      "summary": false,
+      "verbose": true
+    },
+
+    "output_diff": {
+      "description": "Output unified diff format",
+      "output_format": "unified-diff",
+      "output_file": "comparison.diff",
+      "summary": true
+    },
+
+    "all_options": {
+      "description": "Example with all available options",
+      "tolerance": 0.001,
+      "ignore_case": false,
+      "unordered": false,
+      "ignore_namespaces": false,
+      "ignore_attributes": false,
+      "structure_only": false,
+      "max_depth": null,
+      "skip_keys": [
+        "//timestamp",
+        "//transactionId"
+      ],
+      "skip_pattern": "^(temp|debug).*$",
+      "filter_xpath": null,
+      "output_format": "text",
+      "output_file": null,
+      "summary": false,
+      "verbose": false,
+      "quiet": false,
+      "fail_fast": false,
+      "stream": false,
+      "parallel": false,
+      "threads": 4,
+      "schema": null,
+      "type_aware": false,
+      "plugins": []
+    }
+  },
+
+  "option_reference": {
+    "tolerance": {
+      "type": "number (float)",
+      "default": 0.0,
+      "description": "Numeric tolerance for comparing numeric values. Example: tolerance of 0.01 means values within 1% are considered equal.",
+      "example": 0.001
+    },
+
+    "ignore_case": {
+      "type": "boolean",
+      "default": false,
+      "description": "Compare text values case-insensitively (A=a, hello=HELLO)",
+      "example": true
+    },
+
+    "unordered": {
+      "type": "boolean",
+      "default": false,
+      "description": "Compare child elements in any order (elements matched by tag, not position)",
+      "example": true
+    },
+
+    "ignore_namespaces": {
+      "type": "boolean",
+      "default": false,
+      "description": "Ignore XML namespace URIs when comparing elements ({http://...}tag = tag)",
+      "example": true
+    },
+
+    "ignore_attributes": {
+      "type": "boolean",
+      "default": false,
+      "description": "Ignore all attributes; compare only element structure and text",
+      "example": false
+    },
+
+    "structure_only": {
+      "type": "boolean",
+      "default": false,
+      "description": "Compare only XML structure and element names, ignore text content and attributes",
+      "example": false
+    },
+
+    "max_depth": {
+      "type": "integer or null",
+      "default": null,
+      "description": "Limit comparison depth. null = unlimited, 1 = root level only",
+      "example": 5
+    },
+
+    "skip_keys": {
+      "type": "array of strings",
+      "default": [],
+      "description": "Elements to skip in comparison. Use '//tag' to skip by tag name anywhere, or '/root/path/to/element' for exact path.",
+      "examples": [
+        "//timestamp",
+        "//uuid",
+        "/root/metadata/version"
+      ]
+    },
+
+    "skip_pattern": {
+      "type": "string (regex) or null",
+      "default": null,
+      "description": "Regular expression pattern. Skip elements with tags matching this pattern.",
+      "example": "^(temporary|debug|test).*$"
+    },
+
+    "filter_xpath": {
+      "type": "string (XPath) or null",
+      "default": null,
+      "description": "XPath expression to filter which elements to compare. Only matching elements will be included.",
+      "example": "/root/orders/order[status='active']"
+    },
+
+    "output_format": {
+      "type": "string",
+      "default": "text",
+      "description": "Output format for results. Options: text (human-readable), json (structured), html (interactive report), unified-diff (unified diff format)",
+      "allowed_values": ["text", "json", "html", "html-diff", "unified-diff"],
+      "example": "json"
+    },
+
+    "output_file": {
+      "type": "string (file path) or null",
+      "default": null,
+      "description": "If specified, write output to this file instead of stdout",
+      "example": "results.json"
+    },
+
+    "summary": {
+      "type": "boolean",
+      "default": false,
+      "description": "Print only summary (total differences count) instead of detailed differences",
+      "example": true
+    },
+
+    "verbose": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable verbose output with additional diagnostic information",
+      "example": false
+    },
+
+    "quiet": {
+      "type": "boolean",
+      "default": false,
+      "description": "Suppress all output except exit code",
+      "example": false
+    },
+
+    "fail_fast": {
+      "type": "boolean",
+      "default": false,
+      "description": "Stop comparison on first difference found",
+      "example": false
+    },
+
+    "stream": {
+      "type": "boolean",
+      "default": false,
+      "description": "Use streaming parser for large files (Java only, experimental) - reduces memory usage but slower",
+      "example": false
+    },
+
+    "parallel": {
+      "type": "boolean",
+      "default": false,
+      "description": "Use parallel processing for comparison (experimental)",
+      "example": false
+    },
+
+    "threads": {
+      "type": "integer",
+      "default": 4,
+      "description": "Number of threads for parallel processing. Only used if parallel=true",
+      "example": 8
+    },
+
+    "schema": {
+      "type": "string (file path) or null",
+      "default": null,
+      "description": "Path to XSD schema file for schema-aware comparison and type validation",
+      "example": "schema.xsd"
+    },
+
+    "type_aware": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable type-aware comparison using schema information (requires schema parameter)",
+      "example": false
+    },
+
+    "plugins": {
+      "type": "array of strings",
+      "default": [],
+      "description": "List of plugin class names or module paths to load at runtime",
+      "example": ["com.example.CustomFilter", "com.example.SchemaValidator"]
+    }
+  },
+
+  "usage_examples": {
+    "command_line_from_config": {
+      "description": "Using a config file from command line",
+      "python": "python xmlcompare.py --files file1.xml file2.xml --config config.json",
+      "java": "java -jar xmlcompare.jar --files file1.xml file2.xml --config config.json"
+    },
+
+    "override_config_on_cmdline": {
+      "description": "Override config values with command line options",
+      "python": "python xmlcompare.py --files file1.xml file2.xml --config config.json --tolerance 0.05 --output-format json",
+      "java": "java -jar xmlcompare.jar --files file1.xml file2.xml --config config.json --tolerance 0.05 --output-format json"
+    },
+
+    "create_config_file": {
+      "description": "Steps to create a configuration file:",
+      "steps": [
+        "1. Take values from the 'examples' or 'option_reference' sections above",
+        "2. Create a new JSON file (e.g., my-config.json)",
+        "3. Remove the 'description', 'comment', 'note', 'examples', and 'option_reference' keys (those are just for reference)",
+        "4. Keep only the actual configuration options you need",
+        "5. Pass it to xmlcompare using --config my-config.json"
+      ],
+      "sample_config_file": {
+        "comment": "Sample production config file",
+        "tolerance": 0.001,
+        "ignore_case": false,
+        "unordered": true,
+        "ignore_namespaces": true,
+        "skip_keys": [
+          "//timestamp",
+          "//lastModified"
+        ],
+        "output_format": "json",
+        "output_file": "results.json"
+      }
+    }
+  }
+}
