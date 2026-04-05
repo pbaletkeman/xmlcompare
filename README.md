@@ -1,5 +1,36 @@
 # Overview
 
+- [Overview](#overview)
+  - [Quick Navigation](#quick-navigation)
+  - [Repository Structure](#repository-structure)
+  - [Quick Start](#quick-start)
+    - [🐍 Python](#-python)
+      - [Build and test (Linux/macOS)](#build-and-test-linuxmacos)
+      - [Build and test (Windows)](#build-and-test-windows)
+    - [☕ Java](#-java)
+  - [Feature Matrix](#feature-matrix)
+  - [Basic Usage](#basic-usage)
+    - [Simple File Comparison](#simple-file-comparison)
+    - [Flexible Comparison](#flexible-comparison)
+    - [Directory Comparison](#directory-comparison)
+    - [Generate Report](#generate-report)
+    - [Configuration File](#configuration-file)
+  - [Command Reference](#command-reference)
+  - [Exit Codes](#exit-codes)
+  - [Configuration Files](#configuration-files)
+  - [Performance](#performance)
+    - [Python](#python)
+    - [Java](#java)
+  - [Code Quality](#code-quality)
+    - [Python: Ruff Linting](#python-ruff-linting)
+    - [Java: Checkstyle](#java-checkstyle)
+  - [Testing](#testing)
+  - [Documentation](#documentation)
+  - [Common Use Cases](#common-use-cases)
+  - [Getting Help](#getting-help)
+  - [Contributing](#contributing)
+  - [License](#license)
+
 A powerful command-line tool for comparing XML files and directories with flexible options, available in both **Python 3.8+** and **Java 21 LTS** implementations with identical behavior.
 
 [![CI](https://github.com/pbaletkeman/xmlcompare/workflows/CI/badge.svg)](https://github.com/pbaletkeman/xmlcompare/actions/workflows/ci.yml)
@@ -47,14 +78,14 @@ xmlcompare/
 
 cd python
 
-# Build and test (Linux/macOS)
+#### Build and test (Linux/macOS)
 
 ```shell
 ./build.sh
 ./run.sh --files samples/orders_expected.xml samples/orders_actual_diff.xml
 ```
 
-# Build and test (Windows)
+#### Build and test (Windows)
 
 ```shell
 build.bat
@@ -68,8 +99,6 @@ run.bat --files samples\orders_expected.xml samples\orders_actual_diff.xml
 ```
 
 See [Python README](python/README.md) for full documentation.
-
-### 🐍 Python
 
 ---
 
@@ -183,7 +212,7 @@ See [config.json.example](config.json.example) for more examples.
 
 **Quick Reference:**
 
-```
+```plaintext
 --files FILE1 FILE2           Compare two files
 --dirs DIR1 DIR2              Compare directories
 --recursive                   Recursive directory scan
@@ -334,7 +363,7 @@ cd java && ./gradlew test
 | [config.json.example](config.json.example)                  | Working config examples              |
 | [CONTRIBUTING.md](CONTRIBUTING.md)                          | How to contribute                    |
 | [PLUGINS.md](PLUGINS.md)                                    | Plugin development guide             |
-| [PERFORMANCE.md](PERFORMANCE.md) | Performance optimization |
+| [PERFORMANCE.md](PERFORMANCE.md)                            | Performance optimization             |
 
 ---
 

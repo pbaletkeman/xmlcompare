@@ -1,13 +1,29 @@
 # Security Policy
 
+- [Security Policy](#security-policy)
+  - [Supported Versions](#supported-versions)
+  - [Reporting a Vulnerability](#reporting-a-vulnerability)
+    - [How to Report](#how-to-report)
+    - [What to Expect](#what-to-expect)
+  - [Security Considerations](#security-considerations)
+    - [XML Processing](#xml-processing)
+    - [Best Practices When Using xmlcompare](#best-practices-when-using-xmlcompare)
+    - [Dependencies](#dependencies)
+  - [Security Best Practices](#security-best-practices)
+    - [For Contributors](#for-contributors)
+    - [For Users](#for-users)
+  - [Vulnerability Reporting](#vulnerability-reporting)
+  - [Security Changelog](#security-changelog)
+  - [Third-Party Security Tools](#third-party-security-tools)
+  - [Questions?](#questions)
+
 ## Supported Versions
 
 We release patches for security vulnerabilities for the following versions:
 
-| Version | Supported            |
-|---------|----------------------|
+| Version | Supported              |
+| ------- | ---------------------  |
 | 1.0.x   | ✅ Currently Supported |
-| < 1.0   | ❌ End of Life         |
 
 ## Reporting a Vulnerability
 

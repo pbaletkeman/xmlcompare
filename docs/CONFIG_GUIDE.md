@@ -4,6 +4,41 @@ Complete guide to using configuration files with xmlcompare.
 
 ## Overview
 
+- [Configuration File Guide](#configuration-file-guide)
+  - [Overview](#overview)
+  - [Supported Formats](#supported-formats)
+    - [JSON](#json)
+    - [YAML](#yaml)
+  - [Creating a Configuration File](#creating-a-configuration-file)
+    - [Step 1: Choose Your Settings](#step-1-choose-your-settings)
+    - [Step 2: Create Configuration File](#step-2-create-configuration-file)
+    - [Step 3: Use the Configuration](#step-3-use-the-configuration)
+  - [Configuration Options](#configuration-options)
+  - [Configuration Profiles](#configuration-profiles)
+    - [development.json](#developmentjson)
+    - [production.json](#productionjson)
+    - [performance.json (Java)](#performancejson-java)
+  - [Override Config with Command Line](#override-config-with-command-line)
+  - [Advanced Patterns](#advanced-patterns)
+    - [Batch Processing](#batch-processing)
+    - [Chained Configurations](#chained-configurations)
+    - [Environment-Specific Configs](#environment-specific-configs)
+  - [JSON Syntax Reference](#json-syntax-reference)
+    - [Valid JSON](#valid-json)
+    - [Common Mistakes](#common-mistakes)
+  - [Validation](#validation)
+    - [Python: Validate JSON](#python-validate-json)
+    - [Java: Validate JSON](#java-validate-json)
+    - [YAML Validation](#yaml-validation)
+  - [Best Practices](#best-practices)
+  - [Troubleshooting](#troubleshooting)
+    - ["Config file not found"](#config-file-not-found)
+    - ["Invalid JSON"](#invalid-json)
+    - ["Config seems to be ignored"](#config-seems-to-be-ignored)
+  - [Examples](#examples)
+  - [See Also](#see-also)
+
+
 Configuration files allow you to:
 
 - Save and reuse comparison settings

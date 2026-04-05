@@ -4,6 +4,43 @@ Thank you for your interest in contributing to xmlcompare! This document provide
 
 ## Getting Started
 
+- [Contributing to xmlcompare](#contributing-to-xmlcompare)
+  - [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Cloning and Setup](#cloning-and-setup)
+      - [Python Setup](#python-setup)
+      - [Java Setup](#java-setup)
+  - [Development Workflow](#development-workflow)
+    - [1. Create a Feature Branch](#1-create-a-feature-branch)
+    - [2. Make Your Changes](#2-make-your-changes)
+      - [Python Code](#python-code)
+      - [Java Code](#java-code)
+    - [3. Write Tests](#3-write-tests)
+    - [4. Update Documentation](#4-update-documentation)
+    - [5. Commit Your Changes](#5-commit-your-changes)
+    - [6. Push and Create a Pull Request](#6-push-and-create-a-pull-request)
+  - [Description](#description)
+  - [Changes](#changes)
+  - [Testing](#testing)
+  - [Related Issues](#related-issues)
+  - [Code Review Process](#code-review-process)
+  - [Testing](#testing-1)
+    - [Running Tests Locally](#running-tests-locally)
+      - [Python](#python)
+      - [Java](#java)
+    - [Test Data](#test-data)
+  - [Reporting Issues](#reporting-issues)
+    - [Bug Report](#bug-report)
+    - [Feature Request](#feature-request)
+  - [Project Structure](#project-structure)
+  - [Code Style Guide](#code-style-guide)
+    - [Python](#python-1)
+    - [Java](#java-1)
+  - [Performance Considerations](#performance-considerations)
+  - [Security Considerations](#security-considerations)
+  - [License](#license)
+  - [Questions?](#questions)
+
 ### Prerequisites
 
 - **Python 3.8+** for Python implementation

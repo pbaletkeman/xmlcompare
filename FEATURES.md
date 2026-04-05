@@ -2,13 +2,41 @@
 
 This document describes the advanced features available in xmlcompare, including output formatters, performance optimizations, interactive mode, and schema-aware comparison.
 
-## Table of Contents
+- [xmlcompare Advanced Features Guide](#xmlcompare-advanced-features-guide)
+  - [Output Formatters](#output-formatters)
+    - [Available Formatters](#available-formatters)
+      - [1. Text Format (default)](#1-text-format-default)
+      - [2. JSON Format](#2-json-format)
+      - [3. HTML Format (Side-by-side)](#3-html-format-side-by-side)
+      - [4. Unified Diff Format](#4-unified-diff-format)
+  - [Interactive Mode](#interactive-mode)
+    - [Starting Interactive Mode](#starting-interactive-mode)
+    - [Menu Options](#menu-options)
+    - [Example Interactive Session](#example-interactive-session)
+  - [Streaming Parser](#streaming-parser)
+    - [Why Use Streaming?](#why-use-streaming)
+    - [Using Streaming Mode](#using-streaming-mode)
+    - [Performance Comparison](#performance-comparison)
+    - [Limitations](#limitations)
+  - [Schema-Aware Comparison](#schema-aware-comparison)
+    - [Features](#features)
+    - [Using Schema-Aware Comparison](#using-schema-aware-comparison)
+    - [Example](#example)
+  - [Plugin System](#plugin-system)
+    - [Creating a Custom Formatter Plugin](#creating-a-custom-formatter-plugin)
+    - [Registering Plugins](#registering-plugins)
+    - [Available Plugin Types](#available-plugin-types)
+  - [Combining Features](#combining-features)
+    - [Example: Large File with HTML Output and Filtering](#example-large-file-with-html-output-and-filtering)
+    - [Example: Interactive Exploration with Schema Validation](#example-interactive-exploration-with-schema-validation)
+  - [Performance Tips](#performance-tips)
+  - [Troubleshooting](#troubleshooting)
+    - ["File not found" in interactive mode](#file-not-found-in-interactive-mode)
+    - [HTML report not rendering properly](#html-report-not-rendering-properly)
+    - [Streaming mode seems slow](#streaming-mode-seems-slow)
+    - [Schema validation errors](#schema-validation-errors)
+  - [See Also](#see-also)
 
-1. [Output Formatters](#output-formatters)
-2. [Interactive Mode](#interactive-mode)
-3. [Streaming Parser](#streaming-parser)
-4. [Schema-Aware Comparison](#schema-aware-comparison)
-5. [Plugin System](#plugin-system)
 
 ---
 
@@ -19,6 +47,7 @@ xmlcompare supports multiple output formats for different use cases. Use the `--
 ### Available Formatters
 
 #### 1. Text Format (default)
+
 Human-readable text output with color support (TTY only).
 
 ```bash
@@ -26,6 +55,7 @@ xmlcompare --files file1.xml file2.xml --output-format text
 ```
 
 **Output example:**
+
 ```
 [ATTR] Path: /root/element1 - attribute 'id' value mismatch
   Expected : id="123"
@@ -37,6 +67,7 @@ xmlcompare --files file1.xml file2.xml --output-format text
 ```
 
 #### 2. JSON Format
+
 Structured JSON output suitable for programmatic processing.
 
 ```bash
@@ -44,6 +75,7 @@ xmlcompare --files file1.xml file2.xml --output-format json
 ```
 
 **Output example:**
+
 ```json
 {
   "file1 vs file2": {
@@ -62,6 +94,7 @@ xmlcompare --files file1.xml file2.xml --output-format json
 ```
 
 #### 3. HTML Format (Side-by-side)
+
 Interactive HTML report with side-by-side comparison view.
 
 ```bash
@@ -69,6 +102,7 @@ xmlcompare --files file1.xml file2.xml --output-format html-diff --output-file r
 ```
 
 **Features:**
+
 - Two-column layout (expected vs actual)
 - Color-coded differences (red for removed, green for added)
 - Line numbers
@@ -77,6 +111,7 @@ xmlcompare --files file1.xml file2.xml --output-format html-diff --output-file r
 - Summary statistics
 
 #### 4. Unified Diff Format
+
 Standard unified diff format (like `git diff --unified`).
 
 ```bash
@@ -84,7 +119,8 @@ xmlcompare --files file1.xml file2.xml --output-format unified-diff
 ```
 
 **Output example:**
-```
+
+```shell
 --- file1.xml
 +++ file2.xml
 @@ /root/element1 @@
@@ -120,7 +156,7 @@ python xmlcompare.py --interactive
 
 ### Example Interactive Session
 
-```
+```shell
 ============================================================
 XML Comparison - Interactive Mode
 ============================================================
@@ -177,10 +213,10 @@ xmlcompare --files large_file_1.xml large_file_2.xml --stream
 ### Performance Comparison
 
 | File Size | Memory (DOM) | Memory (Stream) | Speedup |
-|-----------|-------------|-----------------|---------|
-| 10 MB     | 50 MB       | 5 MB            | ~10x    |
-| 100 MB    | 500 MB      | 15 MB           | ~30x    |
-| 1 GB      | 5 GB        | 50 MB           | ~100x   |
+| --------- | ------------ | --------------- | ------- |
+| 10 MB     | 50 MB        | 5 MB            | ~10x    |
+| 100 MB    | 500 MB       | 15 MB           | ~30x    |
+| 1 GB      | 5 GB         | 50 MB           | ~100x   |
 
 ### Limitations
 
@@ -214,14 +250,15 @@ xmlcompare --files data1.xml data2.xml --schema schema.xsd --type-aware
 ### Example
 
 Without schema:
-```
+```shell
 [TEXT] Path: /order/amount - text value mismatch
   Expected : 100.0
   Actual   : 100.00
 ```
 
 With `--type-aware` and schema (amount defined as xs:decimal):
-```
+
+```shell
 [MATCH] Path: /order/amount - values equal (decimal comparison)
 ```
 
@@ -337,15 +374,19 @@ xmlcompare --interactive --schema schema.xsd --type-aware
 ## Troubleshooting
 
 ### "File not found" in interactive mode
+
 Ensure the path exists and is readable. Use absolute paths or relative paths from the current working directory.
 
 ### HTML report not rendering properly
+
 The HTML formatter generates self-contained files with inline CSS. If styles don't show, clear browser cache and revisit the file.
 
 ### Streaming mode seems slow
+
 Streaming has slight overhead for small files. Use streaming only for files > 10MB.
 
 ### Schema validation errors
+
 Ensure the XSD schema is correct and the XML files conform to it. Run with `--schema` and check error messages.
 
 ---

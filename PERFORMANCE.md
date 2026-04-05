@@ -2,6 +2,36 @@
 
 Comprehensive guide to understanding and optimizing xmlcompare performance for your use case.
 
+- [xmlcompare Performance Guide](#xmlcompare-performance-guide)
+  - [Performance Profiles](#performance-profiles)
+    - [File Processing Speed](#file-processing-speed)
+    - [Comparison Options Overhead](#comparison-options-overhead)
+    - [Memory Usage Patterns](#memory-usage-patterns)
+  - [Optimization Strategies](#optimization-strategies)
+    - [For Large Files (\>100 MB)](#for-large-files-100-mb)
+    - [For Frequent Comparisons](#for-frequent-comparisons)
+    - [For Real-Time Monitoring](#for-real-time-monitoring)
+    - [For Report Generation](#for-report-generation)
+  - [Performance Checklist](#performance-checklist)
+    - [Before Running Comparison](#before-running-comparison)
+    - [For Large Files (\>50 MB)](#for-large-files-50-mb)
+    - [For Frequent Comparisons Options](#for-frequent-comparisons-options)
+    - [For Production Deployment](#for-production-deployment)
+  - [Profiling \& Debugging](#profiling--debugging)
+    - [Timing Comparisons](#timing-comparisons)
+    - [Memory Monitoring](#memory-monitoring)
+    - [Finding Slow Comparisons](#finding-slow-comparisons)
+  - [Tuning Parameters](#tuning-parameters)
+    - [Java JVM Tuning](#java-jvm-tuning)
+    - [Python Tuning](#python-tuning)
+  - [Common Performance Issues](#common-performance-issues)
+    - [Issue: Comparison takes too long](#issue-comparison-takes-too-long)
+    - [Issue: Out of memory](#issue-out-of-memory)
+    - [Issue: Slow on network files](#issue-slow-on-network-files)
+    - [Issue: Interactive mode unresponsive](#issue-interactive-mode-unresponsive)
+  - [Benchmarking Your Environment](#benchmarking-your-environment)
+  - [See Also](#see-also)
+
 ## Performance Profiles
 
 ### File Processing Speed
@@ -112,15 +142,13 @@ Any size   ~50 MB (constant)
 ### For Real-Time Monitoring
 
 1. **Use Interactive Mode**
-2.
 
    ```bash
    xmlcompare --interactive
    # Lazy load, filter on demand
    ```
 
-3. **Export for Analysis**
-4.
+2. **Export for Analysis**
 
    ```bash
    xmlcompare --files file1.xml file2.xml --output-format json > results.json
@@ -130,7 +158,6 @@ Any size   ~50 MB (constant)
 ### For Report Generation
 
 1. **Generate Once, Filter Many**
-2.
 
    ```bash
    # Generate full report once
@@ -157,7 +184,7 @@ Any size   ~50 MB (constant)
 - [ ] Comparison time acceptable (might take minutes)?
 - [ ] Consider `--structure-only` if possible?
 
-### For Frequent Comparisons
+### For Frequent Comparisons Options
 
 - [ ] Batch operations where possible?
 - [ ] Cache schemas?

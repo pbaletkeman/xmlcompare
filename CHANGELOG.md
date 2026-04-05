@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2024-04-02
+## [1.0.0] - 2026-04-02
 
 ### Added
 
@@ -71,42 +71,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Technical Details
 
 #### Exit Codes
+
 - `0` — Files are equal
 - `1` — Differences found
 - `2` — Error (file not found, invalid XML, etc.)
 
 #### Numeric Normalization
+
 - `10.10` == `10.1` (trailing zero)
 - `10.0` == `10` (integer vs float)
 - `1.001` ≈ `1.002` with tolerance
 
 #### Whitespace Normalization
+
 - Leading/trailing whitespace is trimmed
 - Multiple spaces are normalized to single space
 - Newlines are normalized
 
 #### Namespace Handling
+
 - By default, namespaces are compared
 - With `--ignore-namespaces`, stripped before comparison
 - QName prefixes are handled correctly
 
 #### Ordering
+
 - By default, child elements must be in same order
 - With `--unordered`, order is ignored
 - Attributes are unordered by default
 
-## [Unreleased]
-
-### Planned Features
-- [ ] Diff-style output format (side-by-side)
-- [ ] Performance optimizations for large files
-- [ ] Custom comparison rules via plugins
-- [ ] Docker container distribution
-- [ ] Maven Central Repository publishing
-- [ ] Interactive mode for CLI exploration
-- [ ] Schema-aware comparison
-
 ### Known Limitations
+
 - XPath filtering limited to basic expressions
 - Large files (>1GB) may require streaming optimization
 - Performance not optimized for deeply nested XML (100+ levels)

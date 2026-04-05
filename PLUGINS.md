@@ -2,16 +2,49 @@
 
 Complete guide for creating and integrating custom FormatterPlugins and DifferenceFilters with xmlcompare.
 
-## Table of Contents
-
-1. [Plugin Architecture](#plugin-architecture)
-2. [Creating a Formatter Plugin](#creating-a-formatter-plugin)
-3. [Creating a Difference Filter](#creating-a-difference-filter)
-4. [Python Implementation](#python-implementation)
-5. [Java Implementation](#java-implementation)
-6. [Testing Plugins](#testing-plugins)
-7. [Registering Plugins](#registering-plugins)
-8. [Distributing Plugins](#distributing-plugins)
+- [Plugin Development Guide](#plugin-development-guide)
+  - [Plugin Architecture](#plugin-architecture)
+    - [Core Concepts](#core-concepts)
+    - [Plugin Lifecycle](#plugin-lifecycle)
+    - [Plugin Interfaces](#plugin-interfaces)
+      - [FormatterPlugin](#formatterplugin)
+      - [DifferenceFilter](#differencefilter)
+  - [Creating a Formatter Plugin](#creating-a-formatter-plugin)
+    - [Python Example: CSV Formatter](#python-example-csv-formatter)
+    - [Python Example: Markdown Formatter](#python-example-markdown-formatter)
+    - [Java Example: Markdown Formatter](#java-example-markdown-formatter)
+  - [Creating a Difference Filter](#creating-a-difference-filter)
+    - [Python Example: Type Filter](#python-example-type-filter)
+    - [Java Example: Severity Filter](#java-example-severity-filter)
+  - [Python Implementation](#python-implementation)
+    - [Setting Up Plugin Module](#setting-up-plugin-module)
+    - [Registering Plugin in Python](#registering-plugin-in-python)
+      - [Method 1: Programmatic Registration](#method-1-programmatic-registration)
+      - [Method 2: Entry Points (setuptools)](#method-2-entry-points-setuptools)
+  - [Java Implementation](#java-implementation)
+    - [Setting Up Plugin Module Structure](#setting-up-plugin-module-structure)
+    - [service manifest](#service-manifest)
+    - [Registering Plugin in Java](#registering-plugin-in-java)
+      - [Method One: Programmatic Registration](#method-one-programmatic-registration)
+      - [Method Two: Service Loader (Automatic)](#method-two-service-loader-automatic)
+  - [Testing Plugins](#testing-plugins)
+    - [Python Test Example](#python-test-example)
+    - [Java Test Example](#java-test-example)
+  - [Registering Plugins](#registering-plugins)
+    - [Python Auto-Registration](#python-auto-registration)
+    - [Java Service Loader](#java-service-loader)
+  - [Distributing Plugins](#distributing-plugins)
+    - [Python Package](#python-package)
+    - [Java Package](#java-package)
+  - [Plugin Best Practices](#plugin-best-practices)
+    - [Do](#do)
+    - [Don't](#dont)
+  - [Troubleshooting](#troubleshooting)
+    - [Plugin Not Found](#plugin-not-found)
+    - [ClassNotFoundException (Java)](#classnotfoundexception-java)
+    - [ImportError (Python)](#importerror-python)
+  - [Example: Complete Plugin Package](#example-complete-plugin-package)
+  - [See Also](#see-also)
 
 ---
 
@@ -311,7 +344,7 @@ my_plugins/
 
 ### Registering Plugin in Python
 
-**Method 1: Programmatic Registration**
+#### Method 1: Programmatic Registration
 
 ```python
 from plugin_interface import get_registry
@@ -326,7 +359,7 @@ results = compare_xml_files("file1.xml", "file2.xml")
 formatted = registry.get_formatter("csv").format(results)
 ```
 
-**Method 2: Entry Points (setuptools)**
+#### Method 2: Entry Points (setuptools)
 
 Add to `setup.py`:
 
@@ -359,7 +392,7 @@ registry = get_registry()
 
 ## Java Implementation
 
-### Setting Up Plugin Module
+### Setting Up Plugin Module Structure
 
 ```shell
 my-plugins/
@@ -386,7 +419,8 @@ com.example.xmlcompare.plugin.SeverityFilter
 
 ### Registering Plugin in Java
 
-**Method 1: Programmatic Registration**
+#### Method One: Programmatic Registration
+
 ```java
 
 PluginRegistry registry = new PluginRegistry();
@@ -394,7 +428,7 @@ registry.registerFormatter(new MarkdownFormatter());
 registry.registerFormatter(new CsvFormatter());
 ```
 
-**Method 2: Service Loader (Automatic)**
+#### Method Two: Service Loader (Automatic)
 
 ```java
 PluginRegistry registry = new PluginRegistry();

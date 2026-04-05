@@ -12,6 +12,30 @@ Python 3.8+ implementation of xmlcompare with flexible XML comparison options.
 - **[Root README](../README.md)** - Project overview
 - **[Java Implementation](../java/README.md)** - Java version
 
+- [xmlcompare – Python](#xmlcompare--python)
+  - [Quick Navigation](#quick-navigation)
+  - [Quick Start](#quick-start)
+  - [Usage](#usage)
+    - [Basic file comparison](#basic-file-comparison)
+    - [Directory comparison](#directory-comparison)
+    - [With configuration file](#with-configuration-file)
+    - [Output formats](#output-formats)
+  - [Command-Line Reference](#command-line-reference)
+  - [Configuration](#configuration)
+  - [Features](#features)
+  - [Testing](#testing)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Sample XML Files](#sample-xml-files)
+  - [Examples](#examples)
+  - [Testing with Python](#testing-with-python)
+  - [Code Quality](#code-quality)
+    - [Ruff Linting](#ruff-linting)
+    - [XSD Validation](#xsd-validation)
+  - [Documentation](#documentation)
+  - [Next Steps](#next-steps)
+
+
 ---
 
 ## Quick Start
