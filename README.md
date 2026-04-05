@@ -197,9 +197,9 @@ python xmlcompare.py --files file1.xml file2.xml \
 cat > config.json <<EOF
 {
   "tolerance": 0.001,
-  "ignoreCase": true,
-  "ignoreNamespaces": true,
-  "skipKeys": ["//timestamp", "//uuid"]
+  "ignore_case": true,
+  "ignore_namespaces": true,
+  "skip_keys": ["//timestamp", "//uuid"]
 }
 EOF
 
@@ -265,11 +265,11 @@ Load settings from JSON or YAML config files:
 ```json
 {
   "tolerance": 0.001,
-  "ignoreCase": false,
+  "ignore_case": false,
   "unordered": true,
-  "ignoreNamespaces": true,
-  "skipKeys": ["//timestamp", "//uuid"],
-  "outputFormat": "json"
+  "ignore_namespaces": true,
+  "skip_keys": ["//timestamp", "//uuid"],
+  "output_format": "json"
 }
 ```
 

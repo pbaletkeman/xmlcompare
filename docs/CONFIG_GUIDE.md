@@ -162,13 +162,13 @@ All available options (see also [config.json.example](../config.json.example)):
 | `type_aware`       | boolean | false   | Type-aware comparison               |
 | `plugins`         | array   | []      | Plugin classes to load              |
 
-**Java-specific options:**
+**Performance options (Python and Java):**
 
 | Option      | Type    | Default | Description            |
 |-------------|---------|---------|------------------------|
 | `stream`    | boolean | false   | Use streaming parser   |
 | `parallel`  | boolean | false   | Use parallel processing|
-| `threads`   | integer | 4       | Number of threads      |
+| `threads`   | integer | 0       | Number of worker processes (0 = auto) |
 
 ## Configuration Profiles
 

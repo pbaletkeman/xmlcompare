@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **Docs** – `docs/FEATURES.md`: two config JSON examples used camelCase keys (`ignoreCase`, `ignoreNamespaces`, `skipKeys`, `outputFormat`) — corrected to snake_case
+- **Docs** – `java/docs/CLI_REFERENCE.md`: four config JSON examples (under `--config`, and "Config File Examples" section) used camelCase keys — corrected to snake_case throughout
+- **Docs** – `README.md`: two config JSON examples used camelCase keys — corrected to snake_case
+- **Docs** – `docs/CONFIG_GUIDE.md`: "Java-specific options" table label corrected to "Performance options (Python and Java)" — `stream`, `parallel`, and `threads` are supported by both implementations; also corrected the `threads` default from `4` to `0` (auto-detect) to match actual behaviour
+
+---
+
 ## [1.1.0] - 2025-07-15
 
 ### Added

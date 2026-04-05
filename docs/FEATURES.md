@@ -365,11 +365,11 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --config config.json
 ```json
 {
   "tolerance": 0.001,
-  "ignoreCase": false,
+  "ignore_case": false,
   "unordered": true,
-  "ignoreNamespaces": true,
-  "skipKeys": ["//timestamp", "//uuid"],
-  "outputFormat": "json"
+  "ignore_namespaces": true,
+  "skip_keys": ["//timestamp", "//uuid"],
+  "output_format": "json"
 }
 ```
 
@@ -581,8 +581,8 @@ Compare multiple files using configuration.
 cat > batch.json <<EOF
 {
   "tolerance": 0.001,
-  "ignoreNamespaces": true,
-  "skipKeys": ["//timestamp"]
+  "ignore_namespaces": true,
+  "skip_keys": ["//timestamp"]
 }
 EOF
 

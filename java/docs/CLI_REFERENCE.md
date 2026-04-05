@@ -108,10 +108,10 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --config config.json
 ```json
 {
   "tolerance": 0.01,
-  "ignoreCase": true,
+  "ignore_case": true,
   "unordered": true,
-  "skipKeys": ["//timestamp"],
-  "outputFormat": "json"
+  "skip_keys": ["//timestamp"],
+  "output_format": "json"
 }
 ```
 
@@ -691,12 +691,12 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --plugins "com.example.Cust
 ```json
 {
   "tolerance": 0.001,
-  "ignoreCase": false,
+  "ignore_case": false,
   "unordered": true,
-  "ignoreNamespaces": true,
-  "skipKeys": ["//timestamp", "//transactionId"],
-  "outputFormat": "json",
-  "outputFile": "results.json"
+  "ignore_namespaces": true,
+  "skip_keys": ["//timestamp", "//transactionId"],
+  "output_format": "json",
+  "output_file": "results.json"
 }
 ```
 
@@ -709,12 +709,12 @@ Command: `java -jar xmlcompare.jar --files test1.xml test2.xml --config config.j
 ```json
 {
   "tolerance": 0.001,
-  "ignoreCase": true,
+  "ignore_case": true,
   "unordered": true,
-  "ignoreNamespaces": true,
+  "ignore_namespaces": true,
   "parallel": true,
   "threads": 8,
-  "failFast": true
+  "fail_fast": true
 }
 ```
 
@@ -725,13 +725,13 @@ Command: `java -jar xmlcompare.jar --files test1.xml test2.xml --config config.j
 ```json
 {
   "tolerance": 0.0,
-  "ignoreCase": false,
+  "ignore_case": false,
   "unordered": false,
-  "ignoreNamespaces": false,
-  "ignoreAttributes": false,
-  "structureOnly": false,
-  "failFast": true,
-  "outputFormat": "json"
+  "ignore_namespaces": false,
+  "ignore_attributes": false,
+  "structure_only": false,
+  "fail_fast": true,
+  "output_format": "json"
 }
 ```
 
