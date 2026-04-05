@@ -341,7 +341,7 @@ def _compare_ordered(children1, children2, opts, path, diffs, depth=0,
                 return
 
 
-def _compare_unordered(children1, children2, opts, path, diffs, depth=0,
+def _compare_unordered(children1, children2, opts, path, diffs, depth=0,  # noqa: C901
                        schema_meta=None):
     match_attr = getattr(opts, 'match_attr', None)
 
@@ -553,7 +553,7 @@ def _apply_filters(diffs, opts):
         return diffs
 
 
-def compare_dirs(dir1, dir2, opts, recursive=False):
+def compare_dirs(dir1, dir2, opts, recursive=False):  # noqa: C901
     """Compare two directories of XML files. Returns dict[filename -> diffs or error str]."""
     results = {}
     dir1_path = Path(dir1)

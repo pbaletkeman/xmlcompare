@@ -107,7 +107,7 @@ class InteractiveCli:
                 return str(Path(path_str).resolve())
             print(f"  File not found: {path_str}")
 
-    def _main_menu(self) -> None:
+    def _main_menu(self) -> None:  # noqa: C901
         """Display main menu."""
         print("\n" + "=" * 60)
         print(f"Files: {Path(self.file1).name} vs {Path(self.file2).name}")

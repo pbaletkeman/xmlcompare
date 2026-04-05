@@ -108,7 +108,7 @@ def _compare_attrs_s(elem1, elem2, path: str, options, differences) -> bool:
     return False
 
 
-def _stream_compare_files(file1_path: str, file2_path: str, options) -> List:
+def _stream_compare_files(file1_path: str, file2_path: str, options) -> List:  # noqa: C901
     """
     Core streaming comparison: iterate both files in lock-step.
 

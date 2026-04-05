@@ -5,8 +5,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.xmlcompare.format.HtmlSideBySideFormatter;
 import com.xmlcompare.format.UnifiedDiffFormatter;
 import com.xmlcompare.interactive.InteractiveMode;
-import com.xmlcompare.parse.StreamingXmlParser;
-import com.xmlcompare.parallel.ParallelComparison;
 import com.xmlcompare.plugin.PluginRegistry;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;

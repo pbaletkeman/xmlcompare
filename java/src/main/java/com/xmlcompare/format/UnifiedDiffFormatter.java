@@ -5,7 +5,6 @@ import com.xmlcompare.plugin.FormatterPlugin;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Unified diff output format (like git diff --unified).

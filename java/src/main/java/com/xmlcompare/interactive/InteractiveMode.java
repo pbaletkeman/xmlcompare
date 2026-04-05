@@ -62,9 +62,9 @@ public class InteractiveMode {
 
     private void printMenu() {
         println("");
-        println("Mode: " + (compareMode ? "files" : "dirs") +
-                " | Stream: " + opts.streaming + " | Parallel: " + opts.parallel +
-                " | Unordered: " + opts.unordered);
+        println("Mode: " + (compareMode ? "files" : "dirs")
+                + " | Stream: " + opts.streaming + " | Parallel: " + opts.parallel
+                + " | Unordered: " + opts.unordered);
         if (compareMode) {
             println("File1: " + (file1 != null ? file1 : "(not set)"));
             println("File2: " + (file2 != null ? file2 : "(not set)"));

@@ -55,7 +55,8 @@ class TestMatchAttr:
         opts = _opts(unordered=True, match_attr="id")
         diffs = compare_xml_files(f1, f2, opts)
         assert diffs == [], f"Expected no diffs, got {diffs}"
-        os.unlink(f1); os.unlink(f2)
+        os.unlink(f1)
+        os.unlink(f2)
 
     def test_diff_with_match_attr_value_mismatch(self):
         """Matched items with same id but different text produce a diff."""
@@ -94,7 +95,8 @@ class TestCanonicalize:
         opts = _opts(canonicalize=True)
         diffs = compare_xml_files(f1, f2, opts)
         assert diffs == []
-        os.unlink(f1); os.unlink(f2)
+        os.unlink(f1)
+        os.unlink(f2)
 
     def test_comments_matter_without_canonicalize(self):
         """Without canonicalize, identical element trees give no diff regardless."""
@@ -112,7 +114,8 @@ class TestCanonicalize:
         opts = _opts(canonicalize=True)
         diffs = compare_xml_files(f1, f2, opts)
         assert diffs == []
-        os.unlink(f1); os.unlink(f2)
+        os.unlink(f1)
+        os.unlink(f2)
 
 
 # ---------------------------------------------------------------------------
@@ -130,7 +133,8 @@ class TestDiffOnly:
         # Simulate _format_output with files
         output = _format_output(all_results, opts, files=[f1, f2])
         assert output == ""
-        os.unlink(f1); os.unlink(f2)
+        os.unlink(f1)
+        os.unlink(f2)
 
     def test_diff_files_still_output_when_diff_only(self):
         """Files with differences produce output even when diff_only=True."""
@@ -141,7 +145,8 @@ class TestDiffOnly:
         all_results = {"files": diffs}
         output = _format_output(all_results, opts, files=[f1, f2])
         assert output != ""
-        os.unlink(f1); os.unlink(f2)
+        os.unlink(f1)
+        os.unlink(f2)
 
 
 # ---------------------------------------------------------------------------
@@ -168,7 +173,9 @@ class TestXslt:
         opts = _opts(xslt=xslt_file)
         diffs = compare_xml_files(f1, f2, opts)
         assert diffs == []
-        os.unlink(xslt_file); os.unlink(f1); os.unlink(f2)
+        os.unlink(xslt_file)
+        os.unlink(f1)
+        os.unlink(f2)
 
     def test_xslt_transform_normalizes_files(self):
         """An XSLT that normalises element names makes previously-unequal files equal."""
@@ -186,7 +193,9 @@ class TestXslt:
         opts = _opts(xslt=xslt_file)
         diffs = compare_xml_files(f1, f2, opts)
         assert diffs == []
-        os.unlink(xslt_file); os.unlink(f1); os.unlink(f2)
+        os.unlink(xslt_file)
+        os.unlink(f1)
+        os.unlink(f2)
 
 
 # ---------------------------------------------------------------------------

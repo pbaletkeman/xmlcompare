@@ -37,13 +37,13 @@ public class BenchmarkSuite {
       int itemNum = 0;
       while (currentSize < targetBytes) {
         String item = String.format(
-            "  <item id=\"%d\">\n" +
-                "    <name>Item %d</name>\n" +
-                "    <description>This is a test item for benchmarking xmlcompare "
-                + "performance on large files with multiple elements and attributes.</description>\n" +
-                "    <value>%.4f</value>\n" +
-                "    <timestamp>2026-04-04T12:00:00Z</timestamp>\n" +
-                "  </item>\n",
+            "  <item id=\"%%d\">\n"
+                + "    <name>Item %%d</name>\n"
+                + "    <description>This is a test item for benchmarking xmlcompare "
+                + "performance on large files with multiple elements and attributes.</description>\n"
+                + "    <value>%%.4f</value>\n"
+                + "    <timestamp>2026-04-04T12:00:00Z</timestamp>\n"
+                + "  </item>\n",
             itemNum, itemNum, itemNum * 3.14159);
         writer.print(item);
         currentSize += item.getBytes().length;

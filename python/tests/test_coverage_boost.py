@@ -4,13 +4,10 @@ Comprehensive tests targeting previously uncovered modules to reach >90% coverag
 Covers: format_unified_diff, format_html_sidebyside, validate_xsd, api_server,
         parse_streaming, parallel, cache, plugin_interface, xmlcompare edge cases.
 """
-import json
 import os
 import sys
 import tempfile
 from pathlib import Path
-from unittest import mock
-from xml.etree import ElementTree as ET
 
 import pytest
 
@@ -593,8 +590,10 @@ class TestParallel:
 
     def test_compare_dirs_parallel_equal(self, tmp_path):
         from parallel import compare_dirs_parallel
-        d1 = tmp_path / 'd1'; d1.mkdir()
-        d2 = tmp_path / 'd2'; d2.mkdir()
+        d1 = tmp_path / 'd1'
+        d1.mkdir()
+        d2 = tmp_path / 'd2'
+        d2.mkdir()
         _write(str(d1 / 'a.xml'), '<root><v>1</v></root>')
         _write(str(d2 / 'a.xml'), '<root><v>1</v></root>')
         results = compare_dirs_parallel(str(d1), str(d2))
@@ -602,8 +601,10 @@ class TestParallel:
 
     def test_compare_dirs_parallel_different(self, tmp_path):
         from parallel import compare_dirs_parallel
-        d1 = tmp_path / 'd1'; d1.mkdir()
-        d2 = tmp_path / 'd2'; d2.mkdir()
+        d1 = tmp_path / 'd1'
+        d1.mkdir()
+        d2 = tmp_path / 'd2'
+        d2.mkdir()
         _write(str(d1 / 'a.xml'), '<root><v>1</v></root>')
         _write(str(d2 / 'a.xml'), '<root><v>2</v></root>')
         results = compare_dirs_parallel(str(d1), str(d2))
@@ -611,16 +612,20 @@ class TestParallel:
 
     def test_compare_dirs_parallel_missing_file(self, tmp_path):
         from parallel import compare_dirs_parallel
-        d1 = tmp_path / 'd1'; d1.mkdir()
-        d2 = tmp_path / 'd2'; d2.mkdir()
+        d1 = tmp_path / 'd1'
+        d1.mkdir()
+        d2 = tmp_path / 'd2'
+        d2.mkdir()
         _write(str(d1 / 'only_in_d1.xml'), '<root/>')
         results = compare_dirs_parallel(str(d1), str(d2))
         assert 'only_in_d1.xml' in results
 
     def test_compare_dirs_parallel_recursive(self, tmp_path):
         from parallel import compare_dirs_parallel
-        d1 = tmp_path / 'd1'; (d1 / 'sub').mkdir(parents=True)
-        d2 = tmp_path / 'd2'; (d2 / 'sub').mkdir(parents=True)
+        d1 = tmp_path / 'd1'
+        (d1 / 'sub').mkdir(parents=True)
+        d2 = tmp_path / 'd2'
+        (d2 / 'sub').mkdir(parents=True)
         _write(str(d1 / 'sub' / 'a.xml'), '<root><v>1</v></root>')
         _write(str(d2 / 'sub' / 'a.xml'), '<root><v>1</v></root>')
         results = compare_dirs_parallel(str(d1), str(d2), recursive=True)
@@ -647,7 +652,6 @@ class TestParallel:
 
     def test_compare_file_pair_worker(self, tmp_path):
         from parallel import _compare_file_pair_worker
-        from xmlcompare import CompareOptions
         f1 = str(tmp_path / 'a.xml')
         f2 = str(tmp_path / 'b.xml')
         _write(f1, '<root><v>1</v></root>')
@@ -772,8 +776,7 @@ class TestPluginInterface:
         registry.load_module('nonexistent.module.that.does.not.exist')
 
     def test_load_module_with_formatter(self, tmp_path):
-        import importlib
-        from plugin_interface import PluginRegistry, FormatterPlugin
+        from plugin_interface import PluginRegistry
         mod_path = tmp_path / 'myplugin.py'
         mod_path.write_text(
             'from plugin_interface import FormatterPlugin\n'
@@ -935,8 +938,10 @@ class TestXmlcompareCoverage:
 
     def test_diff_only_format_skips_equal(self, tmp_path):
         from xmlcompare import main
-        d1 = tmp_path / 'd1'; d1.mkdir()
-        d2 = tmp_path / 'd2'; d2.mkdir()
+        d1 = tmp_path / 'd1'
+        d1.mkdir()
+        d2 = tmp_path / 'd2'
+        d2.mkdir()
         _write(str(d1 / 'a.xml'), '<root><v>1</v></root>')
         _write(str(d2 / 'a.xml'), '<root><v>1</v></root>')
         _write(str(d1 / 'b.xml'), '<root><v>1</v></root>')
@@ -1088,8 +1093,10 @@ class TestXmlcompareCoverage:
 
     def test_dirs_parallel_mode(self, tmp_path):
         from xmlcompare import main
-        d1 = tmp_path / 'd1'; d1.mkdir()
-        d2 = tmp_path / 'd2'; d2.mkdir()
+        d1 = tmp_path / 'd1'
+        d1.mkdir()
+        d2 = tmp_path / 'd2'
+        d2.mkdir()
         _write(str(d1 / 'a.xml'), '<root><a>1</a><b>2</b></root>')
         _write(str(d2 / 'a.xml'), '<root><a>1</a><b>2</b></root>')
         with pytest.raises(SystemExit) as exc_info:

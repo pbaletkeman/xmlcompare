@@ -23,13 +23,12 @@ compare_xml_files() / compare_dirs() equivalents.
 import multiprocessing
 from multiprocessing import Pool
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 from xml.etree import ElementTree as ET
 
 from xmlcompare import (
     CompareOptions,
     Difference,
-    compare_dirs,
     compare_xml_files,
     get_tag,
 )
@@ -118,7 +117,7 @@ def _compare_file_pair_worker(args: Tuple) -> Tuple[str, object]:
 # Public API
 # ---------------------------------------------------------------------------
 
-def compare_xml_files_parallel(file1_path, file2_path, options=None, num_processes=0):
+def compare_xml_files_parallel(file1_path, file2_path, options=None, num_processes=0):  # noqa: C901
     """
     Compare two XML files using parallel subtree processing.
 

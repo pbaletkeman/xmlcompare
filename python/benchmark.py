@@ -9,10 +9,8 @@ import time
 import tempfile
 import os
 from pathlib import Path
-from xml.etree import ElementTree as ET
 
 from xmlcompare import compare_xml_files, CompareOptions
-from parse_streaming import get_stream_stats
 
 
 def generate_large_xml(size_mb, filename=None):
