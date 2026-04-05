@@ -1,0 +1,155 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/xmlcompare/config.schema.json",
+  "title": "XmlCompare Configuration",
+  "description": "JSON Schema for xmlcompare config.json / config.yaml files",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "tolerance": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Relative numeric tolerance for fuzzy matching (e.g. 0.001 = 0.1%)"
+    },
+    "ignore_case": {
+      "type": "boolean",
+      "default": false,
+      "description": "Ignore letter case in text comparisons"
+    },
+    "unordered": {
+      "type": "boolean",
+      "default": false,
+      "description": "Treat child element lists as unordered sets"
+    },
+    "ignore_namespaces": {
+      "type": "boolean",
+      "default": false,
+      "description": "Strip XML namespace prefixes and URIs before comparing"
+    },
+    "ignore_attributes": {
+      "type": "boolean",
+      "default": false,
+      "description": "Skip attribute comparison entirely"
+    },
+    "skip_keys": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "XPath-style paths of elements/attributes to exclude (e.g. //timestamp)"
+    },
+    "skip_pattern": {
+      "type": "string",
+      "description": "Regex pattern; elements whose tag matches are excluded"
+    },
+    "filter_xpath": {
+      "type": "string",
+      "description": "Only compare elements matching this XPath expression"
+    },
+    "output_format": {
+      "type": "string",
+      "enum": ["text", "json", "html", "unified-diff"],
+      "default": "text",
+      "description": "Report output format"
+    },
+    "output_file": {
+      "type": "string",
+      "description": "Write report to this file path instead of stdout"
+    },
+    "summary": {
+      "type": "boolean",
+      "default": false,
+      "description": "Show summary counts only, not full difference list"
+    },
+    "verbose": {
+      "type": "boolean",
+      "default": false,
+      "description": "Emit detailed comparison trace to stderr"
+    },
+    "quiet": {
+      "type": "boolean",
+      "default": false,
+      "description": "Suppress all output; rely on exit code only"
+    },
+    "fail_fast": {
+      "type": "boolean",
+      "default": false,
+      "description": "Stop at the first detected difference"
+    },
+    "structure_only": {
+      "type": "boolean",
+      "default": false,
+      "description": "Compare element structure only; ignore text content and attributes"
+    },
+    "max_depth": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Maximum element nesting depth to compare"
+    },
+    "schema": {
+      "type": "string",
+      "description": "Path to XSD schema file for pre-validation and type hints"
+    },
+    "type_aware": {
+      "type": "boolean",
+      "default": false,
+      "description": "Use schema type hints for smarter date/numeric comparison"
+    },
+    "plugins": {
+      "type": "array",
+      "items": { "type": "string" },
+      "default": [],
+      "description": "Plugin module paths or class names to load"
+    },
+    "stream": {
+      "type": "boolean",
+      "default": false,
+      "description": "Use streaming (SAX) parser for memory-efficient large file comparison"
+    },
+    "parallel": {
+      "type": "boolean",
+      "default": false,
+      "description": "Compare directory file pairs in parallel"
+    },
+    "threads": {
+      "type": "integer",
+      "minimum": 0,
+      "default": 0,
+      "description": "Worker thread count (0 = auto-detect from CPU cores)"
+    },
+    "match_attr": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Attribute name used as match key for --unordered repeated elements (e.g. 'id')"
+    },
+    "diff_only": {
+      "type": "boolean",
+      "default": false,
+      "description": "Suppress output for equal file pairs in --dirs mode"
+    },
+    "canonicalize": {
+      "type": "boolean",
+      "default": false,
+      "description": "Strip XML comment nodes and processing instructions before comparing"
+    },
+    "xslt": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Path to XSLT 1.0 stylesheet applied to both documents before comparison"
+    },
+    "cache_file": {
+      "type": ["string", "null"],
+      "default": null,
+      "description": "Path to incremental cache file for --dirs mode (skips unchanged equal pairs)"
+    },
+    "swap": {
+      "type": "boolean",
+      "default": false,
+      "description": "Swap file1 and file2 before comparing (reverse expected/actual direction)"
+    },
+    "no_color": {
+      "type": "boolean",
+      "default": false,
+      "description": "Disable ANSI color output regardless of TTY detection"
+    }
+  }
+}

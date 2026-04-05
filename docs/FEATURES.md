@@ -110,8 +110,18 @@ Master features guide covering both Python and Java implementations of xmlcompar
 | Type-aware comparison  | ✅     | ✅   | Date/numeric type hints      |
 | Plugin system          | ✅     | ✅   | Extend via plugins/SPI       |
 | Performance benchmarks | ✅     | ✅   | Built-in benchmarking        |
+| Attribute-key matching | ✅     | ✅   | `--match-attr` for repeated elements |
+| Diff-only output       | ✅     | ✅   | `--diff-only` suppress equal-pair output |
+| Canonicalize           | ✅     | ✅   | `--canonicalize` strip comments/PIs |
+| XSLT preprocessing     | ✅     | ✅   | `--xslt` transform before comparison |
+| Incremental cache      | ✅     | ✅   | `--cache` skip unchanged pairs |
+| REST API server        | ✅     | ❌   | Flask HTTP service (`api_server.py`) |
+| ANSI color output      | ✅     | ✅   | Color-coded TTY text report  |
+| Swap direction         | ✅     | ✅   | `--swap` reverse expected/actual |
+| No-color flag          | ✅     | ✅   | `--no-color` force disable color |
+| .xmlignore auto-load   | ✅     | ✅   | Skip patterns from `.xmlignore` file |
 
-**Legend:** ✅ = Implemented
+**Legend:** ✅ = Implemented  ❌ = Not applicable
 
 ---
 

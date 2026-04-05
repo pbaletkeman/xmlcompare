@@ -389,6 +389,13 @@ java -jar xmlcompare.jar --files file1.xml file2.xml [options]
 | --skip-elements elem1 elem2       | Skip specific elements           |
 | --max-depth N                     | Limit comparison depth           |
 | --benchmark                       | Run performance benchmark        |
+| --match-attr ATTR                 | Attribute match key for --unordered |
+| --diff-only                       | Suppress equal-pair output       |
+| --canonicalize                    | Strip comments/PIs before compare |
+| --xslt FILE                       | Apply XSLT transform before compare |
+| --cache FILE                      | Incremental cache for --dirs mode |
+| --swap                            | Swap file1/file2 direction       |
+| --no-color                        | Disable ANSI color output        |
 | --help                            | Show help message                |
 
 ## Examples

@@ -47,6 +47,13 @@ python xmlcompare.py --files file1.xml file2.xml [options]
 | `--schema FILE`                   |             | XSD schema file for pre-validation and type hints       |
 | `--type-aware`                    | false       | Schema type hints for smarter comparison (needs `--schema`) |
 | `--plugins MODULE [MODULE...]`    |             | Python module paths for custom plugins                  |
+| `--match-attr ATTR`               |             | Attribute name used as match key for `--unordered`      |
+| `--diff-only`                     | false       | Suppress output for equal file pairs                    |
+| `--canonicalize`                  | false       | Strip XML comments and processing instructions          |
+| `--xslt FILE`                     |             | Apply XSLT transform to both documents (requires lxml)  |
+| `--cache FILE`                    |             | Incremental cache file for `--dirs` mode                |
+| `--swap`                          | false       | Swap file1 and file2 (reverse expected/actual)          |
+| `--no-color`                      | false       | Disable ANSI color output                               |
 | `--help`                          |             | Show help message                                       |
 
 ## Examples

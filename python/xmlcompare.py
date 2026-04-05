@@ -23,8 +23,17 @@ GREEN = '\033[92m'
 YELLOW = '\033[93m'
 RESET = '\033[0m'
 
+# None = auto-detect, True = force on, False = force off
+_COLOR_OVERRIDE = None
+
 
 def _use_color():
+    if _COLOR_OVERRIDE is not None:
+        return _COLOR_OVERRIDE
+    if os.environ.get('NO_COLOR'):
+        return False
+    if os.environ.get('FORCE_COLOR'):
+        return True
     return sys.stdout.isatty()
 
 
@@ -68,6 +77,8 @@ class CompareOptions:
         self.canonicalize = False   # Strip XML comments/PIs before comparing
         self.xslt = None            # XSLT transform file path (requires lxml)
         self.cache_file = None      # Incremental cache file path (for --dirs)
+        self.swap = False           # Swap file1/file2 (reverse expected/actual)
+        self.no_color = False       # Disable ANSI color output
 
 
 class Difference:
@@ -496,6 +507,8 @@ def compare_xml_files(file1, file2, opts):
     is available) and loads schema metadata for smarter comparison.
     Loaded plugins' difference filters are applied to the final result.
     """
+    if getattr(opts, 'swap', False):
+        file1, file2 = file2, file1
     schema_meta = _load_schema_meta(opts)
     if getattr(opts, 'schema', None):
         _validate_against_schema(file1, file2, opts)
@@ -704,6 +717,8 @@ def _opts_from_dict(config):
     opts.canonicalize = bool(config.get('canonicalize', False))
     opts.xslt = config.get('xslt') or None
     opts.cache_file = config.get('cache_file') or None
+    opts.swap = bool(config.get('swap', False))
+    opts.no_color = bool(config.get('no_color', False))
     return opts
 
 
@@ -737,6 +752,8 @@ def _opts_from_args(args):
     opts.canonicalize = getattr(args, 'canonicalize', False)
     opts.xslt = getattr(args, 'xslt', None) or None
     opts.cache_file = getattr(args, 'cache_file', None) or None
+    opts.swap = getattr(args, 'swap', False)
+    opts.no_color = getattr(args, 'no_color', False)
     return opts
 
 
@@ -818,7 +835,29 @@ def build_parser():
                         help='Apply XSLT transform to both documents before comparing (requires lxml)')
     parser.add_argument('--cache', metavar='FILE', dest='cache_file',
                         help='Incremental cache file: skip unchanged equal pairs in --dirs mode')
+    parser.add_argument('--swap', action='store_true',
+                        help='Swap file1 and file2 (reverse expected/actual direction)')
+    parser.add_argument('--no-color', action='store_true', dest='no_color',
+                        help='Disable ANSI color output')
     return parser
+
+
+def _load_xmlignore():
+    """Load skip patterns from a .xmlignore file in the current working directory.
+
+    Lines starting with # are comments. Blank lines are ignored.
+    Each remaining line is added to skip_keys (e.g. //timestamp, /root/meta/id).
+    """
+    ignore_path = Path.cwd() / '.xmlignore'
+    if not ignore_path.exists():
+        return []
+    entries = []
+    with open(ignore_path) as fh:
+        for line in fh:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                entries.append(line)
+    return entries
 
 
 def _load_plugins(opts):
@@ -961,6 +1000,14 @@ def main(argv=None):
 
     if not files and not dirs:
         parser.error("One of --files or --dirs is required.")
+
+    if getattr(opts, 'no_color', False):
+        global _COLOR_OVERRIDE
+        _COLOR_OVERRIDE = False
+
+    xmlignore = _load_xmlignore()
+    if xmlignore:
+        opts.skip_keys.extend(xmlignore)
 
     _load_plugins(opts)
 

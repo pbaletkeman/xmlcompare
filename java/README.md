@@ -1,6 +1,6 @@
 # xmlcompare — Java Edition
 
-A Java 21 port of the Python `xmlcompare` tool for comparing XML files and directories.
+A Java 25 port of the Python `xmlcompare` tool for comparing XML files and directories.
 
 ---
 
@@ -47,7 +47,7 @@ A Java 21 port of the Python `xmlcompare` tool for comparing XML files and direc
 
 ## Prerequisites
 
-- Java 21 or later (Gradle 8.x requires Java 21+ for compatibility)
+- Java 25 or later (Gradle 8.x requires Java 21+ for compatibility)
 - Gradle 8.x (or use the included `gradlew` wrapper)
 - Maven 3.8+ (optional, for Maven builds)
 

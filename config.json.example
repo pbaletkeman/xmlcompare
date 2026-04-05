@@ -116,7 +116,14 @@
       "threads": 4,
       "schema": null,
       "type_aware": false,
-      "plugins": []
+      "plugins": [],
+      "match_attr": null,
+      "diff_only": false,
+      "canonicalize": false,
+      "xslt": null,
+      "cache_file": null,
+      "swap": false,
+      "no_color": false
     }
   },
 
@@ -278,6 +285,55 @@
       "default": [],
       "description": "List of plugin class names or module paths to load at runtime",
       "example": ["com.example.CustomFilter", "com.example.SchemaValidator"]
+    },
+
+    "match_attr": {
+      "type": "string or null",
+      "default": null,
+      "description": "Attribute name used as match key when --unordered is set. Disambiguates repeated child elements (e.g. 'id', 'key').",
+      "example": "id"
+    },
+
+    "diff_only": {
+      "type": "boolean",
+      "default": false,
+      "description": "Suppress output for file pairs that are equal. Only print results when differences exist.",
+      "example": true
+    },
+
+    "canonicalize": {
+      "type": "boolean",
+      "default": false,
+      "description": "Strip XML comment nodes and processing instructions from both documents before comparing.",
+      "example": false
+    },
+
+    "xslt": {
+      "type": "string (file path) or null",
+      "default": null,
+      "description": "Path to an XSLT 1.0 stylesheet to apply to both documents before comparison. Python requires lxml.",
+      "example": "normalize.xsl"
+    },
+
+    "cache_file": {
+      "type": "string (file path) or null",
+      "default": null,
+      "description": "Path to an incremental cache JSON file for --dirs mode. File pairs with unchanged SHA-256 hashes that were equal last run are skipped.",
+      "example": ".xmlcompare_cache.json"
+    },
+
+    "swap": {
+      "type": "boolean",
+      "default": false,
+      "description": "Swap file1 and file2 before comparing (reverses expected/actual direction without changing CLI arguments).",
+      "example": false
+    },
+
+    "no_color": {
+      "type": "boolean",
+      "default": false,
+      "description": "Disable ANSI color output regardless of TTY detection.",
+      "example": false
     }
   },
 

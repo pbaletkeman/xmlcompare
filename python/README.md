@@ -42,7 +42,7 @@ Python 3.8+ implementation of xmlcompare with flexible XML comparison options.
 **Prerequisites:** Python 3.8+
 
 ```bash
-# Build: create venv, install deps, run 167 tests
+# Build: create venv, install deps, run 189 tests
 ./build.sh          # Linux / macOS
 ./build.bat         # Windows
 ```
@@ -79,6 +79,30 @@ Python 3.8+ implementation of xmlcompare with flexible XML comparison options.
 
 # Configuration file
 ./run.sh --files file1.xml file2.xml --config config.json
+
+# Phase 4: attribute-key unordered matching
+./run.sh --files file1.xml file2.xml --unordered --match-attr id
+
+# Phase 4: diff-only (suppress equal output)
+./run.sh --dirs dir1/ dir2/ --diff-only
+
+# Phase 4: strip comments/PIs before compare
+./run.sh --files file1.xml file2.xml --canonicalize
+
+# Phase 4: apply XSLT transform first (requires lxml)
+./run.sh --files file1.xml file2.xml --xslt transform.xsl
+
+# Phase 4: incremental cache for large directory runs
+./run.sh --dirs dir1/ dir2/ --cache .xmlcompare_cache.json
+
+# Phase 4: disable ANSI color
+./run.sh --files file1.xml file2.xml --no-color
+
+# Phase 4: swap file1/file2 direction
+./run.sh --files file1.xml file2.xml --swap
+
+# REST API server
+python api_server.py --host 127.0.0.1 --port 5000
 ```
 
 ---
@@ -86,7 +110,7 @@ Python 3.8+ implementation of xmlcompare with flexible XML comparison options.
 ## Testing with Python
 
 ```bash
-# Run all tests (167 tests)
+# Run all tests (189 tests)
 pytest tests/
 
 # Verbose with coverage

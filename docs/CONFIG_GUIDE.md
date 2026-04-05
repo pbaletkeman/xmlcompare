@@ -161,6 +161,13 @@ All available options (see also [config.json.example](../config.json.example)):
 | `schema`          | string  | null    | XSD schema file path                |
 | `type_aware`       | boolean | false   | Type-aware comparison               |
 | `plugins`         | array   | []      | Plugin classes to load              |
+| `match_attr`      | string  | null    | Attribute match key for `unordered` |
+| `diff_only`       | boolean | false   | Suppress output for equal file pairs |
+| `canonicalize`    | boolean | false   | Strip XML comments and PIs          |
+| `xslt`            | string  | null    | XSLT stylesheet path (Python: needs lxml) |
+| `cache_file`      | string  | null    | Incremental cache file for dirs mode |
+| `swap`            | boolean | false   | Swap file1/file2 (reverse expected/actual) |
+| `no_color`        | boolean | false   | Disable ANSI color output           |
 
 **Performance options (Python and Java):**
 

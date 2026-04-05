@@ -31,12 +31,12 @@
   - [Contributing](#contributing)
   - [License](#license)
 
-A powerful command-line tool for comparing XML files and directories with flexible options, available in both **Python 3.8+** and **Java 21 LTS** implementations with identical behavior.
+A powerful command-line tool for comparing XML files and directories with flexible options, available in both **Python 3.8+** and **Java 25** implementations with identical behavior.
 
 [![CI](https://github.com/pbaletkeman/xmlcompare/workflows/CI/badge.svg)](https://github.com/pbaletkeman/xmlcompare/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/pbaletkeman/xmlcompare/branch/main/graph/badge.svg)](https://codecov.io/gh/pbaletkeman/xmlcompare)
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
-[![Java 21+](https://img.shields.io/badge/Java-21+-orange.svg)](https://www.oracle.com/java/)
+[![Java 25+](https://img.shields.io/badge/Java-25+-orange.svg)](https://www.oracle.com/java/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Quick Navigation
@@ -48,11 +48,11 @@ xmlcompare/
 ├── python/              # Python 3.8+ implementation
 │   ├── xmlcompare.py   # Main comparison engine
 │   ├── docs/           # Python-specific documentation
-│   ├── tests/          # 167 pytest tests
+│   ├── tests/          # 189 pytest tests
 │   ├── README.md       # Python setup guide
 │   └── build.sh|.bat|.ps1
 │
-├── java/                # Java 21 implementation
+├── java/                # Java 25 implementation
 │   ├── src/            # picocli-based CLI
 │   ├── docs/           # Java-specific documentation
 │   ├── tests/          # 93 JUnit5 tests
@@ -148,6 +148,16 @@ See [Java README](java/README.md) for full documentation.
 | Streaming parser          | ✅     | ✅   | Memory-efficient large file mode   |
 | Plugin system             | ✅     | ✅   | Extend via entry-points / SPI      |
 | Performance benchmarks    | ✅     | ✅   | Built-in benchmarking suite        |
+| Attribute-key unordered   | ✅     | ✅   | `--match-attr` for repeated elements |
+| Diff-only output          | ✅     | ✅   | `--diff-only` suppress equal-pair output |
+| Canonicalize              | ✅     | ✅   | `--canonicalize` strip comments/PIs |
+| XSLT preprocessing        | ✅     | ✅   | `--xslt` transform before comparison |
+| Incremental cache         | ✅     | ✅   | `--cache` skip unchanged pairs |
+| REST API server           | ✅     | ❌   | Flask HTTP service (`api_server.py`) |
+| ANSI color output         | ✅     | ✅   | Color-coded TTY text report |
+| Swap direction            | ✅     | ✅   | `--swap` reverse expected/actual |
+| No-color flag             | ✅     | ✅   | `--no-color` force disable color |
+| .xmlignore auto-load      | ✅     | ✅   | Skip patterns from `.xmlignore` |
 
 ---
 
@@ -236,6 +246,13 @@ See [config.json.example](config.json.example) for more examples.
 --fail-fast                   Stop at first difference
 --verbose                     Detailed trace output
 --quiet                       Suppress output
+--match-attr ATTR             Attribute match key for --unordered
+--diff-only                   Suppress equal-pair output
+--canonicalize                Strip XML comments and PIs
+--xslt FILE                   Apply XSLT transform before compare
+--cache FILE                  Incremental cache for --dirs
+--swap                        Swap file1/file2 direction
+--no-color                    Disable ANSI color output
 --help                        Show help
 ```
 
@@ -335,9 +352,9 @@ cd java && ./gradlew checkstyle
 
 ## Testing
 
-**Python:** 167 passing tests
+**Python:** 189 passing tests
 **Java:** 93 passing tests
-**Total:** 260 test cases
+**Total:** 282 test cases
 
 Run tests:
 

@@ -7,12 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [1.2.0] - 2026-04-05
+
+### Added
+
+- **Python / Java – Attribute-key unordered matching** (`--match-attr ATTR`)
+  - Disambiguates repeated child elements in `--unordered` mode using a named attribute (e.g. `--match-attr id`)
+  - Python: `_compare_unordered` builds group keys of `(tag, attr_value)` pairs
+  - Java: `compareUnordered` uses `groupKey()` helper with `opts.matchAttr`
+
+- **Python / Java – ANSI color output** (text report)
+  - Differences printed in red, equal results in green on TTY terminals
+  - Automatically disabled when output is piped or redirected
+
+- **Python / Java – Canonicalize preprocessing** (`--canonicalize`)
+  - Strips XML comment nodes and processing instructions from both documents before comparing
+
+- **Python / Java – Diff-only output** (`--diff-only`)
+  - Suppresses "Files are equal" output; prints nothing for equal pairs in `--dirs` mode
+
+- **Python / Java – XSLT preprocessing** (`--xslt FILE`)
+  - Applies an XSLT 1.0 stylesheet to both documents before comparison
+  - Python: requires `lxml`; Java: uses `javax.xml.transform`
+
+- **Python / Java – Incremental cache** (`--cache FILE`)
+  - Skips file pairs whose SHA-256 hashes match a previously recorded equal result
+  - Python: `cache.py` module; Java: `cache/CacheManager.java`
+
+- **Python – REST API server** (`api_server.py`)
+  - Flask-based HTTP service: `GET /health`, `POST /compare/files`, `POST /compare/content`
+  - Accepts all `CompareOptions` fields via JSON request body `"options"` key
+
+- **Python / Java – `--swap` flag**
+  - Reverses file1/file2 order without swapping command-line arguments
+
+- **Python / Java – `--no-color` flag**
+  - Explicitly disables ANSI color output regardless of TTY detection
+
+- **Python / Java – `.xmlignore` auto-load**
+  - A `.xmlignore` file in the current working directory is read automatically
+  - Each non-comment line is added to `skip_keys` (e.g. `//timestamp`)
+
 ### Fixed
 
 - **Docs** – `docs/FEATURES.md`: two config JSON examples used camelCase keys (`ignoreCase`, `ignoreNamespaces`, `skipKeys`, `outputFormat`) — corrected to snake_case
 - **Docs** – `java/docs/CLI_REFERENCE.md`: four config JSON examples (under `--config`, and "Config File Examples" section) used camelCase keys — corrected to snake_case throughout
 - **Docs** – `README.md`: two config JSON examples used camelCase keys — corrected to snake_case
-- **Docs** – `docs/CONFIG_GUIDE.md`: "Java-specific options" table label corrected to "Performance options (Python and Java)" — `stream`, `parallel`, and `threads` are supported by both implementations; also corrected the `threads` default from `4` to `0` (auto-detect) to match actual behaviour
+- **Docs** – `docs/CONFIG_GUIDE.md`: "Java-specific options" table label corrected to "Performance options (Python and Java)"
+
+### Technical Details
+
+- Python test suite: 189 tests, all passing
+- Java test suite: 93 tests, all passing
+- Java target: JDK 25 (Amazon Corretto), picocli 4.7.5, Jackson 2.17.0
 
 ---
 
@@ -94,7 +143,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Technical Details
 
-- Python test suite: 167 tests, all passing
+- Python test suite: 189 tests, all passing
 - Java test suite: 93 tests, all passing
 - Java target: JDK 25 (Amazon Corretto), picocli 4.7.5, Jackson 2.17.0
 

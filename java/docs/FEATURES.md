@@ -1,6 +1,6 @@
 # xmlcompare Java - Features & Advanced Topics
 
-This document describes the advanced features and detailed capabilities of the Java (21 LTS) implementation using picocli CLI framework.
+This document describes the advanced features and detailed capabilities of the Java 25 implementation using picocli CLI framework.
 
 ## Overview
 
@@ -37,6 +37,15 @@ The Java implementation includes:
 | Element filtering      | Skip specific elements                      |
 | Depth limiting         | Limit comparison depth                      |
 | Performance benchmarks | Built-in benchmarking                       |
+| Attribute-key matching | `--match-attr` for repeated elements        |
+| Diff-only output       | `--diff-only` suppress equal-pair output    |
+| Canonicalize           | `--canonicalize` strip comments/PIs         |
+| XSLT preprocessing     | `--xslt` transform before comparison        |
+| Incremental cache      | `--cache` skip unchanged pairs              |
+| ANSI color output      | Color-coded TTY text report                 |
+| Swap direction         | `--swap` reverse expected/actual            |
+| No-color flag          | `--no-color` force disable color            |
+| .xmlignore auto-load   | Skip patterns from `.xmlignore` file        |
 
 ## Example: Parallel Processing
 

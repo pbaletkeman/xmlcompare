@@ -429,12 +429,22 @@ public class XmlCompare {
     }
 
     private static boolean useAnsiColor() {
+        return useAnsiColor(false);
+    }
+
+    private static boolean useAnsiColor(boolean noColor) {
+        if (noColor) return false;
         return System.console() != null
             && System.getenv("NO_COLOR") == null
             && !"false".equalsIgnoreCase(System.getenv("XMLCOMPARE_COLOR"));
     }
 
     public static List<Difference> compareXmlFiles(String file1, String file2, CompareOptions opts) throws IOException {
+        if (opts.swap) {
+            String tmp = file1;
+            file1 = file2;
+            file2 = tmp;
+        }
         // Load schema metadata if specified
         SchemaMetadata schemaMeta = null;
         if (opts.schema != null && !opts.schema.isEmpty()) {
@@ -590,7 +600,11 @@ public class XmlCompare {
     }
 
     public static String formatTextReport(List<Difference> diffs, String label1, String label2) {
-        boolean color = useAnsiColor();
+        return formatTextReport(diffs, label1, label2, false);
+    }
+
+    public static String formatTextReport(List<Difference> diffs, String label1, String label2, boolean noColor) {
+        boolean color = useAnsiColor(noColor);
         StringBuilder sb = new StringBuilder();
         if (label1 != null && label2 != null) {
             sb.append("Comparing: ").append(label1).append(" vs ").append(label2).append("\n");

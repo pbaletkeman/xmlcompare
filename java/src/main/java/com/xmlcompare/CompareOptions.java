@@ -47,4 +47,8 @@ public class CompareOptions {
     public String xsltPath = null;
     /** Path to incremental cache file for --dirs mode. */
     public String cacheFile = null;
+    /** Swap file1 and file2 before comparing (reverse expected/actual direction). */
+    public boolean swap = false;
+    /** Disable ANSI color output in text mode. */
+    public boolean noColor = false;
 }

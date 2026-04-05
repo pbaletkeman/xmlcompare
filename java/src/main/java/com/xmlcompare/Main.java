@@ -123,6 +123,12 @@ public class Main implements Callable<Integer> {
     @Option(names = "--cache", description = "Incremental cache file for --dirs mode", paramLabel = "FILE")
     private String cache;
 
+    @Option(names = "--swap", description = "Swap file1 and file2 (reverse expected/actual direction)")
+    private boolean swap;
+
+    @Option(names = "--no-color", description = "Disable ANSI color output")
+    private boolean noColor;
+
     public static void main(String[] args) {
         int exitCode = new CommandLine(new Main()).execute(args);
         System.exit(exitCode);
@@ -175,6 +181,12 @@ public class Main implements Callable<Integer> {
         if (canonicalize) opts.canonicalize = true;
         if (xslt != null) opts.xsltPath = xslt;
         if (cache != null) opts.cacheFile = cache;
+        if (swap) opts.swap = true;
+        if (noColor) opts.noColor = true;
+
+        // Apply .xmlignore from current working directory
+        List<String> xmlIgnore = loadXmlIgnore();
+        if (!xmlIgnore.isEmpty()) { opts.skipKeys.addAll(xmlIgnore); }
 
         // Load plugins: register built-in formatters first, then customizations
         PluginRegistry registry = new PluginRegistry();
@@ -288,7 +300,7 @@ public class Main implements Callable<Integer> {
                     Object val = allResults.values().iterator().next();
                     List<Difference> diffs = val instanceof List ? (List<Difference>) val : Collections.emptyList();
                     if (opts.diffOnly && diffs.isEmpty()) yield "";
-                    yield XmlCompare.formatTextReport(diffs, label1, label2);
+                    yield XmlCompare.formatTextReport(diffs, label1, label2, opts.noColor);
                 } else {
                     StringBuilder sb = new StringBuilder();
                     for (Map.Entry<String, Object> entry : allResults.entrySet()) {
@@ -298,13 +310,28 @@ public class Main implements Callable<Integer> {
                         } else {
                             List<Difference> diffs = (List<Difference>) val;
                             if (opts.diffOnly && diffs.isEmpty()) continue;
-                            sb.append(XmlCompare.formatTextReport(diffs, entry.getKey(), null)).append("\n");
+                            sb.append(XmlCompare.formatTextReport(diffs, entry.getKey(), null, opts.noColor)).append("\n");
                         }
                     }
                     yield sb.toString().stripTrailing();
                 }
             }
         };
+    }
+
+    private static List<String> loadXmlIgnore() {
+        java.nio.file.Path ignorePath = java.nio.file.Paths.get(System.getProperty("user.dir"), ".xmlignore");
+        if (!Files.exists(ignorePath)) return Collections.emptyList();
+        try {
+            List<String> entries = new java.util.ArrayList<>();
+            for (String line : Files.readAllLines(ignorePath)) {
+                line = line.strip();
+                if (!line.isEmpty() && !line.startsWith("#")) entries.add(line);
+            }
+            return entries;
+        } catch (IOException e) {
+            return Collections.emptyList();
+        }
     }
 
     private void writeOutput(String report, CompareOptions opts) {
@@ -360,5 +387,7 @@ public class Main implements Callable<Integer> {
         if (cfg.containsKey("canonicalize")) opts.canonicalize = (Boolean) cfg.get("canonicalize");
         if (cfg.containsKey("xslt")) opts.xsltPath = (String) cfg.get("xslt");
         if (cfg.containsKey("cache_file")) opts.cacheFile = (String) cfg.get("cache_file");
+        if (cfg.containsKey("swap")) opts.swap = (Boolean) cfg.get("swap");
+        if (cfg.containsKey("no_color")) opts.noColor = (Boolean) cfg.get("no_color");
     }
 }
