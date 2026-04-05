@@ -1,6 +1,5 @@
 package com.xmlcompare;
 
-import com.xmlcompare.plugin.ComparisonPluginSPI;
 import com.xmlcompare.plugin.DifferenceFilter;
 import com.xmlcompare.plugin.FormatterPlugin;
 import com.xmlcompare.plugin.PluginRegistry;
@@ -17,7 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Tests for Phase 1: Plugin Architecture & Schema Integration (Java).

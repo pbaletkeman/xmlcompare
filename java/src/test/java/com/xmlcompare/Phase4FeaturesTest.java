@@ -5,7 +5,7 @@ import com.xmlcompare.format.HtmlSideBySideFormatter;
 import com.xmlcompare.format.UnifiedDiffFormatter;
 import com.xmlcompare.parallel.ParallelComparison;
 import com.xmlcompare.parse.StreamingXmlParser;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
@@ -13,11 +13,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Phase-4 feature tests covering formatters, cache, streaming, parallel,
