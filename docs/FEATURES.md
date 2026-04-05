@@ -1,15 +1,15 @@
-# xmlcompare - Complete Features Guide
+# xmlcompare – Complete Features Guide
 
 Master features guide covering both Python and Java implementations of xmlcompare.
 
 ## Quick Navigation
 
-- **[Python Features](../python/docs/FEATURES.md)** - Python-specific advanced features
-- **[Java Features](../java/docs/FEATURES.md)** - Java-specific advanced features
-- **[Python CLI Reference](../python/docs/CLI_REFERENCE.md)** - Complete Python command reference
-- **[Java CLI Reference](../java/docs/CLI_REFERENCE.md)** - Complete Java command reference
-- **[Configuration Guide](CONFIG_GUIDE.md)** - How to use configuration files
-- **[config.json.example]( ../config.json.example)** - Configuration examples
+- **[Python Features](../python/docs/FEATURES.md)** – Python-specific advanced features
+- **[Java Features](../java/docs/FEATURES.md)** – Java-specific advanced features
+- **[Python CLI Reference](../python/docs/CLI_REFERENCE.md)** – Complete Python command reference
+- **[Java CLI Reference](../java/docs/CLI_REFERENCE.md)** – Complete Java command reference
+- **[Configuration Guide](CONFIG_GUIDE.md)** – How to use configuration files
+- **[config.json.example](../config.json.example)** – Configuration examples
 
 ---
 
@@ -17,42 +17,42 @@ Master features guide covering both Python and Java implementations of xmlcompar
 
 ### Core Comparison Features
 
-| Feature | Python | Java | Notes |
-|---------|--------|------|-------|
-| File comparison | ✅ | ✅ | Compare two XML files |
-| Directory comparison | ✅ | ✅ | Compare directory contents |
-| Recursive directory scan | ✅ | ✅ | Process subdirectories |
-| Numeric tolerance | ✅ | ✅ | Fuzzy numeric matching |
-| Case-insensitive comparison | ✅ | ✅ | Ignore letter case |
-| Ordering flexibility | ✅ | ✅ | Compare elements in any order |
-| Namespace handling | ✅ | ✅ | Ignore or normalize namespaces |
-| Attribute comparison | ✅ | ✅ | Compare or skip attributes |
-| Element filtering | ✅ | ✅ | Skip specific elements |
-| XPath filtering | ✅ | ✅ | Filter by XPath expression |
-| Depth limiting | ✅ | ✅ | Limit comparison depth |
-| Structure-only mode | ✅ | ✅ | Compare only structure |
-| Config file support | ✅ | ✅ | Load settings from JSON/YAML |
+| Feature                  | Python | Java | Notes                           |
+|--------------------------|--------|------|---------------------------------|
+| File comparison          | ✅     | ✅   | Compare two XML files           |
+| Directory comparison     | ✅     | ✅   | Compare directory contents      |
+| Recursive directory scan | ✅     | ✅   | Process subdirectories          |
+| Numeric tolerance        | ✅     | ✅   | Fuzzy numeric matching          |
+| Case-insensitive         | ✅     | ✅   | Ignore letter case              |
+| Ordering flexibility     | ✅     | ✅   | Compare elements in any order   |
+| Namespace handling       | ✅     | ✅   | Ignore or normalize namespaces  |
+| Attribute comparison     | ✅     | ✅   | Compare or skip attributes      |
+| Element filtering        | ✅     | ✅   | Skip specific elements          |
+| XPath filtering          | ✅     | ✅   | Filter by XPath expression      |
+| Depth limiting           | ✅     | ✅   | Limit comparison depth          |
+| Structure-only mode      | ✅     | ✅   | Compare only structure          |
+| Config file support      | ✅     | ✅   | Load settings from JSON/YAML    |
 
 ### Output Formats
 
-| Format | Python | Java | Purpose |
-|--------|--------|------|---------|
-| Text | ✅ | ✅ | Human-readable with color |
-| JSON | ✅ | ✅ | Machine-readable, scripting |
-| HTML | ✅ | ✅ | Interactive side-by-side report |
-| Unified Diff | ✅ | ✅ | Standard diff format |
+| Format        | Python | Java | Purpose                          |
+|---------------|--------|------|--------------------------------- |
+| Text          | ✅     | ✅   | Human-readable with color        |
+| JSON          | ✅     | ✅   | Machine-readable, scripting      |
+| HTML          | ✅     | ✅   | Interactive side-by-side report  |
+| Unified Diff  | ✅     | ✅   | Standard diff format             |
 
 ### Advanced Features
 
-| Feature | Python | Java | Notes |
-|---------|--------|------|-------|
-| Interactive CLI | ✅ | ⏳ | Menu-driven interface |
-| Streaming parser | ⏳ | ⏳ | Large file optimization |
-| Parallel processing | ⏳ | ⏳ | Multi-threaded comparison |
-| Schema validation | ✅ | ✅ | XSD schema support |
-| Type-aware comparison | ✅ | ✅ | Date/numeric type hints |
-| Plugin system | ✅ | ✅ | Extend via plugins/SPI |
-| Performance benchmarks | ✅ | ✅ | Built-in benchmarking |
+| Feature                | Python | Java | Notes                        |
+|------------------------|--------|------|----------------------------- |
+| Interactive CLI        | ✅     | ⏳   | Menu-driven interface        |
+| Streaming parser       | ⏳     | ⏳   | Large file optimization      |
+| Parallel processing    | ⏳     | ⏳   | Multi-threaded comparison    |
+| Schema validation      | ✅     | ✅   | XSD schema support           |
+| Type-aware comparison  | ✅     | ✅   | Date/numeric type hints      |
+| Plugin system          | ✅     | ✅   | Extend via plugins/SPI       |
+| Performance benchmarks | ✅     | ✅   | Built-in benchmarking        |
 
 **Legend:** ✅ = Implemented, ⏳ = Experimental/In Progress
 
@@ -65,16 +65,19 @@ Master features guide covering both Python and Java implementations of xmlcompar
 Compare two XML files and detect all differences.
 
 **Python:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml
 ```
 
 **Java:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml
 ```
 
 **Detects:**
+
 - Missing/extra elements
 - Text content differences
 - Attribute mismatches
@@ -87,16 +90,19 @@ java -jar xmlcompare.jar --files file1.xml file2.xml
 Compare all XML files in two directories.
 
 **Python:**
+
 ```bash
 python xmlcompare.py --dirs dir1/ dir2/ --recursive
 ```
 
 **Java:**
+
 ```bash
 java -jar xmlcompare.jar --dirs dir1/ dir2/ --recursive
 ```
 
 **Features:**
+
 - Recursive directory support
 - File-by-file comparison
 - Relative path preservation
@@ -107,6 +113,7 @@ java -jar xmlcompare.jar --dirs dir1/ dir2/ --recursive
 ### 3. Flexible Comparison Options
 
 #### Numeric Tolerance
+
 Handle minor numeric variations.
 
 ```bash
@@ -118,11 +125,13 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --tolerance 0.01
 ```
 
 **Example:**
+
 - File1: `<value>99.99</value>`
 - File2: `<value>100.00</value>`
 - With `--tolerance 0.01`: EQUAL ✅
 
 #### Case Insensitivity
+
 Compare text ignoring letter case.
 
 ```bash
@@ -134,11 +143,13 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --ignore-case
 ```
 
 **Example:**
+
 - File1: `<status>Active</status>`
 - File2: `<status>ACTIVE</status>`
 - With `--ignore-case`: EQUAL ✅
 
 #### Unordered Comparison
+
 Compare child elements regardless of order.
 
 ```bash
@@ -150,6 +161,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --unordered
 ```
 
 **Example:**
+
 ```xml
 <!-- File 1 -->
 <root>
@@ -167,6 +179,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --unordered
 ```
 
 #### Namespace Handling
+
 Ignore or normalize XML namespace URIs.
 
 ```bash
@@ -182,6 +195,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --ignore-namespaces
 ### 4. Element Filtering & Skipping
 
 #### Skip Elements by Tag
+
 Skip comparison of specific elements matching tag names.
 
 ```bash
@@ -193,6 +207,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --skip-keys "//timestamp,//
 ```
 
 #### Skip Elements by Pattern
+
 Use regex to skip matching elements.
 
 ```bash
@@ -204,6 +219,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --skip-pattern "^(_|debug|t
 ```
 
 #### XPath Filtering
+
 Compare only elements matching XPath expression.
 
 ```bash
@@ -219,15 +235,17 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --filter "//orders/order[st
 ### 5. Output Formats
 
 #### Text (Default)
+
 Human-readable output with optional colors.
 
-```
+```plaintext
 [ATTR] Path: /root/item/@id - attribute 'id' value mismatch
   Expected : 123
   Actual   : 456
 ```
 
 #### JSON
+
 Machine-readable structured output.
 
 ```json
@@ -244,6 +262,7 @@ Machine-readable structured output.
 ```
 
 #### HTML
+
 Interactive side-by-side comparison report.
 
 ```bash
@@ -255,9 +274,10 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --output-format html --outp
 ```
 
 #### Unified Diff
+
 Standard diff format for integration with tools.
 
-```
+```shell
 --- file1.xml
 +++ file2.xml
 @@ /root/item @@
@@ -272,16 +292,19 @@ Standard diff format for integration with tools.
 Load settings from JSON or YAML config files.
 
 **Python:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --config config.json
 ```
 
 **Java:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --config config.json
 ```
 
 **Example config.json:**
+
 ```json
 {
   "tolerance": 0.001,
@@ -302,6 +325,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --config config.json
 ### Python Features
 
 #### Interactive Mode
+
 Menu-driven interface for interactive comparisons.
 
 ```bash
@@ -316,6 +340,7 @@ python interactive_cli.py
 **See:** [Python FEATURES](../python/docs/FEATURES.md#interactive-mode)
 
 #### Streaming Parser (Experimental)
+
 Memory-efficient processing of large files.
 
 - Constant memory regardless of file size
@@ -325,6 +350,7 @@ Memory-efficient processing of large files.
 **See:** [Python FEATURES](../python/docs/FEATURES.md#streaming-parser)
 
 #### Plugin System
+
 Extend comparison with Python modules.
 
 ```python
@@ -336,6 +362,7 @@ class CustomFilter(DifferenceFilter):
 **See:** [Python FEATURES](../python/docs/FEATURES.md#plugin-system)
 
 #### Performance Benchmarking
+
 Built-in benchmark suite for performance analysis.
 
 ```bash
@@ -349,6 +376,7 @@ python benchmark.py
 ### Java Features
 
 #### Parallel Processing (Experimental)
+
 Multi-threaded comparison for improved performance.
 
 ```bash
@@ -360,6 +388,7 @@ java -jar xmlcompare.jar --files huge1.xml huge2.xml --parallel --threads 8
 **See:** [Java FEATURES](../java/docs/FEATURES.md#parallel-processing-experimental)
 
 #### Streaming Parser (Experimental)
+
 SAX-based streaming for constant memory usage.
 
 ```bash
@@ -369,6 +398,7 @@ java -jar xmlcompare.jar --files large.xml large2.xml --stream
 **See:** [Java FEATURES](../java/docs/FEATURES.md#streaming-parser-experimental)
 
 #### Plugin System (SPI)
+
 Extend via Java Service Provider Interface.
 
 ```java
@@ -382,6 +412,7 @@ public class CustomPlugin implements ComparisonPluginSPI {
 **See:** [Java FEATURES](../java/docs/FEATURES.md#plugin-system)
 
 #### High Performance
+
 - Parallel processing
 - Multi-core support
 - Configurable memory
@@ -398,11 +429,13 @@ Both implementations support XSD schema-aware comparison with type hints.
 ### Basic Usage
 
 **Python:**
+
 ```bash
 python xmlcompare.py --files data1.xml data2.xml --schema schema.xsd
 ```
 
 **Java:**
+
 ```bash
 java -jar xmlcompare.jar --files data1.xml data2.xml --schema schema.xsd
 ```
@@ -410,26 +443,31 @@ java -jar xmlcompare.jar --files data1.xml data2.xml --schema schema.xsd
 ### Type-Aware Features
 
 1. **Date Normalization**
-   ```
+
+   ```shell
    2024-01-15 vs 01/15/2024 → EQUAL
    ```
 
 2. **Numeric Precision**
-   ```
+
+   ```shell
    99.99 vs 99.990 → EQUAL (with xs:decimal)
    ```
 
 3. **Boolean Normalization**
-   ```
+
+   ```shell
    true vs 1 → EQUAL (with xs:boolean)
    ```
 
 4. **Enum Validation**
-   ```
+
+   ```shell
    Validates against allowed values
    ```
 
 **See:**
+
 - [Python Schema Analysis](../python/docs/FEATURES.md#schema-analysis--validation)
 - [Java Schema Analysis](../java/docs/FEATURES.md#schema-analysis--validation)
 
@@ -439,17 +477,18 @@ java -jar xmlcompare.jar --files data1.xml data2.xml --schema schema.xsd
 
 Both implementations follow standard exit codes:
 
-| Code | Meaning |
-|------|---------|
-| 0 | Files are equal |
-| 1 | Files differ |
-| 2 | Error (file not found, invalid XML, etc.) |
+| Code  | Meaning                                   |
+|------ | ----------------------------------------- |
+| 0     | Files are equal                           |
+| 1     | Files differ                              |
+| 2     | Error (file not found, invalid XML, etc.) |
 
 ---
 
 ## Common Use Cases & Examples
 
 ### Use Case 1: Development/Testing
+
 Flexible comparison during development.
 
 ```bash
@@ -463,6 +502,7 @@ java -jar xmlcompare.jar --files expected.xml actual.xml \
 ```
 
 ### Use Case 2: Production Validation
+
 Strict testing in production environments.
 
 ```bash
@@ -476,6 +516,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml \
 ```
 
 ### Use Case 3: Batch Processing
+
 Compare multiple files using configuration.
 
 ```bash
@@ -500,6 +541,7 @@ done
 ```
 
 ### Use Case 4: CI/CD Integration
+
 Generate machine-readable JSON for CI/CD pipelines.
 
 ```bash
@@ -511,6 +553,7 @@ java -jar xmlcompare.jar --files test1.xml test2.xml --output-format json --outp
 ```
 
 ### Use Case 5: Large File Comparison (Java)
+
 High-performance comparison with multiple cores.
 
 ```bash
@@ -521,6 +564,7 @@ java -Xmx4G -jar xmlcompare.jar \
 ```
 
 ### Use Case 6: Generate HTML Report
+
 Interactive comparison report for stakeholders.
 
 ```bash
@@ -542,6 +586,7 @@ java -jar xmlcompare.jar --files test1.xml test2.xml \
 - **Performance:** Java typically 2-3x faster; Python more flexible
 
 **Choose based on:**
+
 - **Python:** Flexibility, plugins, development, easy scripting
 - **Java:** Performance, parallelization, deployment stability
 
@@ -550,12 +595,14 @@ java -jar xmlcompare.jar --files test1.xml test2.xml \
 ## Performance Characteristics
 
 ### Python
+
 - **Small files (< 10MB):** 50-200ms
 - **Medium files (10-100MB):** 500ms-2s
 - **Large files:** Efficiency depends on configuration
 - **Memory:** ~10x file size
 
 ### Java
+
 - **Small files:** 100-300ms (JVM startup + comparison)
 - **Medium files:** 500ms-1s (parallel): 200-400ms)
 - **Large files:** 2-5x faster with parallel mode
@@ -646,6 +693,7 @@ else:
 ## Support & Questions
 
 For issues, feature requests, or questions:
+
 - GitHub Issues: [pbaletkeman/xmlcompare](https://github.com/pbaletkeman/xmlcompare/issues)
 - Check [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines
 

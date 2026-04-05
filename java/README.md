@@ -54,99 +54,99 @@ mvn clean package
 ```bash
 ./build.sh        # Linux/macOS
 build.bat         # Windows CMD
-.\build.ps1       # PowerShell
-```
+# xmlcompare (Java)
+
+High-performance XML comparison tool (Java implementation)
+
+## Quick Navigation
+
+- [FEATURES.md](docs/FEATURES.md) – Java-specific features
+- [CLI_REFERENCE.md](docs/CLI_REFERENCE.md) – Command-line usage
+- [../docs/CONFIG_GUIDE.md](../docs/CONFIG_GUIDE.md) – Configuration guide
+- [../docs/FEATURES.md](../docs/FEATURES.md) – Master feature matrix
 
 ---
 
-## Building a Fat JAR
+## Overview
 
-A fat JAR (uber JAR) bundles the application and all its dependencies into a single self-contained `.jar` file.
+xmlcompare (Java) is a fast, extensible XML comparison tool for data validation, regression testing, and automated QA. It supports large files, fuzzy matching, and advanced filtering.
 
-Both build tools are pre-configured:
-- **Maven** uses `maven-shade-plugin` (runs automatically during `mvn package`)
-- **Gradle** uses a custom `jar` task with `configurations.runtimeClasspath`
+**Key Features:**
+- Parallel processing for large datasets
+- Streaming parser for low memory usage
+- Schema validation (XSD)
+- Plugin system for custom logic
+- Multiple output formats: text, JSON, HTML, diff
 
-### Dedicated fat JAR scripts
-
-| Script | Platform | Usage |
-|--------|----------|-------|
-| `fatjar.sh` | Linux / macOS | `./fatjar.sh [maven\|gradle]` |
-| `fatjar.bat` | Windows CMD | `fatjar.bat [maven\|gradle]` |
-| `fatjar.ps1` | Windows PowerShell | `.\fatjar.ps1 [-BuildTool maven\|gradle]` |
-
-The default build tool is **maven**. Pass `gradle` as the argument to use Gradle instead.
-
-### Output locations
-
-| Build tool | Fat JAR path |
-|------------|-------------|
-| Maven | `target/xmlcompare-1.0.0.jar` |
-| Gradle | `build/libs/xmlcompare-1.0.0.jar` |
-
-### Examples
+## Installation
 
 ```bash
-# Maven (default)
-./fatjar.sh
-fatjar.bat
-.\fatjar.ps1
+# Using Maven
+mvn clean install
 
-# Gradle
-./fatjar.sh gradle
-fatjar.bat gradle
-.\fatjar.ps1 -BuildTool gradle
+# Using Gradle
+gradle build
 ```
 
----
+## Usage
 
-## Running
-
-After building, run with:
+### Basic file comparison
 
 ```bash
-# Maven fat JAR
-java -jar target/xmlcompare-1.0.0.jar [OPTIONS]
-
-# Gradle fat JAR
-java -jar build/libs/xmlcompare-1.0.0.jar [OPTIONS]
+java -jar xmlcompare.jar --files file1.xml file2.xml
 ```
 
-Or use the run script (after building):
+### Directory comparison
 
 ```bash
-./run.sh [OPTIONS]          # Linux/macOS
-run.bat [OPTIONS]           # Windows CMD
-./run.ps1 [OPTIONS]         # PowerShell
+java -jar xmlcompare.jar --dir dir1 dir2
 ```
 
-## CLI Options
+### With configuration file
 
-| Option | Description |
-|--------|-------------|
-| `--files FILE1 FILE2` | Compare two XML files |
-| `--dirs DIR1 DIR2` | Compare two directories of XML files |
-| `--recursive` | Recurse into subdirectories (with `--dirs`) |
-| `--config FILE` | Load options from a JSON or YAML config file |
-| `--tolerance FLOAT` | Numeric tolerance for value comparison (default: 0.0) |
-| `--ignore-case` | Case-insensitive text comparison |
-| `--unordered` | Compare child elements in any order |
-| `--ignore-namespaces` | Ignore XML namespace URIs |
-| `--ignore-attributes` | Ignore XML attributes entirely |
-| `--structure-only` | Compare only XML structure, ignoring text and attribute values |
-| `--max-depth INT` | Limit comparison to elements at or above this depth (0=root only) |
-| `--skip-keys PATH,...` | Skip elements by path or `//tagname` |
-| `--skip-pattern REGEX` | Skip elements whose tag matches a regex |
-| `--filter XPATH` | Compare only elements matching an XPath expression |
-| `--output-format FORMAT` | Output format: `text` (default), `json`, `html` |
-| `--output-file FILE` | Write output to a file instead of stdout |
-| `--summary` | Print a summary line only |
-| `--verbose` | Print verbose comparison details to stderr |
-| `--quiet` | Suppress all output |
-| `--fail-fast` | Stop on first difference found |
-| `-h`, `--help` | Show help message |
-| `-V`, `--version` | Print version information |
+```bash
+java -jar xmlcompare.jar --files file1.xml file2.xml --config config.json
+```
 
+### Output formats
+
+```bash
+java -jar xmlcompare.jar --files file1.xml file2.xml --output json
+java -jar xmlcompare.jar --files file1.xml file2.xml --output html
+java -jar xmlcompare.jar --files file1.xml file2.xml --output diff
+```
+
+## Command-Line Reference
+
+See [CLI_REFERENCE.md](docs/CLI_REFERENCE.md) for all options and examples.
+
+## Configuration
+
+See [../docs/CONFIG_GUIDE.md](../docs/CONFIG_GUIDE.md) for all config options and examples.
+
+## Features
+
+See [FEATURES.md](docs/FEATURES.md) for a full list of Java-specific features.
+
+## Testing
+
+```bash
+# Run all tests
+mvn test
+# or
+gradle test
+```
+
+## Contributing
+
+1. Fork the repo
+2. Create a feature branch
+3. Write tests for new features
+4. Submit a pull request
+
+## License
+
+MIT
 
 ## Sample Commands
 

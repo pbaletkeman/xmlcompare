@@ -106,34 +106,35 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --config production.json
 
 All available options (see also [config.json.example](../config.json.example)):
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `tolerance` | number | 0.0 | Numeric tolerance for comparisons |
-| `ignoreCase` | boolean | false | Case-insensitive comparison |
-| `unordered` | boolean | false | Ignore element order |
-| `ignoreNamespaces` | boolean | false | Ignore namespace URIs |
-| `ignoreAttributes` | boolean | false | Ignore all attributes |
-| `structureOnly` | boolean | false | Compare only structure |
-| `maxDepth` | integer | null | Limit depth (null = unlimited) |
-| `skipKeys` | array | [] | Elements to skip |
-| `skipPattern` | string | null | Regex pattern for skipping |
-| `filterXpath` | string | null | XPath filter |
-| `outputFormat` | string | "text" | Output format |
-| `outputFile` | string | null | Output file path |
-| `summary` | boolean | false | Print summary only |
-| `verbose` | boolean | false | Verbose output |
-| `quiet` | boolean | false | Suppress output |
-| `failFast` | boolean | false | Stop on first difference |
-| `schema` | string | null | XSD schema file path |
-| `typeAware` | boolean | false | Type-aware comparison |
-| `plugins` | array | [] | Plugin classes to load |
+| Option            | Type    | Default | Description                         |
+|-------------------|---------|---------|-------------------------------------|
+| `tolerance`       | number  | 0.0     | Numeric tolerance for comparisons   |
+| `ignoreCase`      | boolean | false   | Case-insensitive comparison         |
+| `unordered`       | boolean | false   | Ignore element order                |
+| `ignoreNamespaces`| boolean | false   | Ignore namespace URIs               |
+| `ignoreAttributes`| boolean | false   | Ignore all attributes               |
+| `structureOnly`   | boolean | false   | Compare only structure              |
+| `maxDepth`        | integer | null    | Limit depth (null = unlimited)      |
+| `skipKeys`        | array   | []      | Elements to skip                    |
+| `skipPattern`     | string  | null    | Regex pattern for skipping          |
+| `filterXpath`     | string  | null    | XPath filter                        |
+| `outputFormat`    | string  | "text"  | Output format                       |
+| `outputFile`      | string  | null    | Output file path                    |
+| `summary`         | boolean | false   | Print summary only                  |
+| `verbose`         | boolean | false   | Verbose output                      |
+| `quiet`           | boolean | false   | Suppress output                     |
+| `failFast`        | boolean | false   | Stop on first difference            |
+| `schema`          | string  | null    | XSD schema file path                |
+| `typeAware`       | boolean | false   | Type-aware comparison               |
+| `plugins`         | array   | []      | Plugin classes to load              |
 
 **Java-specific options:**
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `stream` | boolean | false | Use streaming parser |
-| `parallel` | boolean | false | Use parallel processing |
-| `threads` | integer | 4 | Number of threads |
+
+| Option      | Type    | Default | Description            |
+|-------------|---------|---------|------------------------|
+| `stream`    | boolean | false   | Use streaming parser   |
+| `parallel`  | boolean | false   | Use parallel processing|
+| `threads`   | integer | 4       | Number of threads      |
 
 ## Configuration Profiles
 
@@ -296,7 +297,7 @@ python xmlcompare.py --files file1.xml file2.xml --config "config.$ENV.json"
 
 ### Common Mistakes
 
-**❌ Wrong: Single quotes**
+❌ Wrong: Single quotes
 
 ```json
 { 'key': 'value' }  // JSON requires double quotes
@@ -308,7 +309,7 @@ python xmlcompare.py --files file1.xml file2.xml --config "config.$ENV.json"
 { "key": "value" }
 ```
 
-**❌ Wrong: Trailing comma**
+❌ Wrong: Trailing comma
 
 ```json
 { "key": "value", }  // No trailing commas in JSON
@@ -320,7 +321,7 @@ python xmlcompare.py --files file1.xml file2.xml --config "config.$ENV.json"
 { "key": "value" }
 ```
 
-**❌ Wrong: Comments in JSON**
+❌ Wrong: Comments in JSON
 
 ```json
 {
@@ -379,18 +380,20 @@ python -c "import yaml; yaml.safe_load(open('config.yaml'))"
    }
    ```
 
-4. **Version Control Configs**
+3. **Version Control Configs**
 
-   ```bash
+   ```bash"
    git add config*.json
    git commit -m "Add production config
    ```
 
-5. **Use Profiles**
+4. **Use Profiles**
+
    - Separate configs for dev/staging/production
    - Separate configs for different XML types
 
-6. **Environment Variables**
+5. **Environment Variables**
+
    ```bash
    # Create config from environment
    cat > config.json <<EOF
@@ -439,6 +442,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --config config.json --verb
 ## Examples
 
 See [config.json.example](../config.json.example) for comprehensive examples including:
+
 - Basic comparison
 - Strict testing
 - Flexible development

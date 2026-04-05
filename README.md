@@ -1,8 +1,6 @@
-# xmlcompare
+# Overview
 
 A powerful command-line tool for comparing XML files and directories with flexible options, available in both **Python 3.8+** and **Java 21 LTS** implementations with identical behavior.
-
-
 
 [![CI](https://github.com/pbaletkeman/xmlcompare/workflows/CI/badge.svg)](https://github.com/pbaletkeman/xmlcompare/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/pbaletkeman/xmlcompare/branch/main/graph/badge.svg)](https://codecov.io/gh/pbaletkeman/xmlcompare)
@@ -10,23 +8,11 @@ A powerful command-line tool for comparing XML files and directories with flexib
 [![Java 21+](https://img.shields.io/badge/Java-21+-orange.svg)](https://www.oracle.com/java/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
----
-
 ## Quick Navigation
-
-- **[📘 Complete Features Guide](docs/FEATURES.md)** - All features with examples
-- **[Python Implementation](python/README.md)** - Setup, build, and Python-specific features
-- **[Java Implementation](java/README.md)** - Setup, build, and Java-specific features
-- **[CLI Reference - Python](python/docs/CLI_REFERENCE.md)** - All Python command options
-- **[CLI Reference - Java](java/docs/CLI_REFERENCE.md)** - All Java command options
-- **[Configuration Guide](docs/CONFIG_GUIDE.md)** - How to use config files
-- **[Example Config](config.json.example)** - Working config.json examples
-
----
 
 ## Repository Structure
 
-```
+```shell
 xmlcompare/
 ├── python/              # Python 3.8+ implementation
 │   ├── xmlcompare.py   # Main comparison engine
@@ -55,30 +41,35 @@ xmlcompare/
 └── README.md           # This file
 ```
 
----
-
 ## Quick Start
 
 ### 🐍 Python
 
-```bash
 cd python
 
 # Build and test (Linux/macOS)
+
+```shell
 ./build.sh
 ./run.sh --files samples/orders_expected.xml samples/orders_actual_diff.xml
+```
 
 # Build and test (Windows)
+
+```shell
 build.bat
 run.bat --files samples\orders_expected.xml samples\orders_actual_diff.xml
 ```
 
 **Build a wheel:**
+
 ```bash
 ./wheel.sh              # dist/xmlcompare-1.0.0-py3-none-any.whl
 ```
 
 See [Python README](python/README.md) for full documentation.
+
+### 🐍 Python
 
 ---
 
@@ -97,6 +88,7 @@ run.bat --files samples\orders_expected.xml samples\orders_actual_diff.xml
 ```
 
 **Build a fat JAR:**
+
 ```bash
 ./fatjar.sh             # Maven (default)
 ./fatjar.sh gradle      # Gradle
@@ -108,22 +100,22 @@ See [Java README](java/README.md) for full documentation.
 
 ## Feature Matrix
 
-| Feature | Python | Java | Details |
-|---------|:------:|:----:|---------|
-| File comparison | ✅ | ✅ | Compare two XML files |
-| Directory comparison | ✅ | ✅ | Compare all files in directories |
-| Numeric tolerance | ✅ | ✅ | Fuzzy numeric matching (0.001) |
-| Case-insensitive | ✅ | ✅ | Ignore letter case in text |
-| Unordered elements | ✅ | ✅ | Compare in any order |
-| Namespace handling | ✅ | ✅ | Ignore or normalize namespaces |
-| Skip elements | ✅ | ✅ | Skip by tag, pattern, or XPath |
-| Text / JSON / HTML output | ✅ | ✅ | Multiple output formats |
-| Config file support | ✅ | ✅ | JSON/YAML configuration |
-| Schema validation | ✅ | ✅ | XSD schema support |
-| Interactive CLI | ✅ | - | Menu-driven interface |
-| Parallel processing | - | ✅ | Multi-threaded (2-3x faster) |
-| Streaming parser | ⏳ | ⏳ | Large file optimization |
-| Plugin system | ✅ | ✅ | Extend functionality |
+| Feature                   | Python | Java | Details                            |
+| ------------------------- | ------ | ---- | ---------------------------------  |
+| File comparison           | ✅     | ✅   | Compare two XML files              |
+| Directory comparison      | ✅     | ✅   | Compare all files in directories   |
+| Numeric tolerance         | ✅     | ✅   | Fuzzy numeric matching (0.001)     |
+| Case-insensitive          | ✅     | ✅   | Ignore letter case in text         |
+| Unordered elements        | ✅     | ✅   | Compare in any order               |
+| Namespace handling        | ✅     | ✅   | Ignore or normalize namespaces     |
+| Skip elements             | ✅     | ✅   | Skip by tag, pattern, or XPath     |
+| Text / JSON / HTML output | ✅     | ✅   | Multiple output formats            |
+| Config file support       | ✅     | ✅   | JSON/YAML configuration            |
+| Schema validation         | ✅     | ✅   | XSD schema support                 |
+| Interactive CLI           | ✅     | -    | Menu-driven interface              |
+| Parallel processing       | -      | ✅   | Multi-threaded (2-3x faster)       |
+| Streaming parser          | ⏳     | ⏳   | Large file optimization            |
+| Plugin system             | ✅     | ✅   | Extend functionality               |
 
 ---
 
@@ -216,6 +208,7 @@ See [config.json.example](config.json.example) for more examples.
 ```
 
 **Full reference:**
+
 - [Python CLI Reference](python/docs/CLI_REFERENCE.md)
 - [Java CLI Reference](java/docs/CLI_REFERENCE.md)
 
@@ -223,10 +216,10 @@ See [config.json.example](config.json.example) for more examples.
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| **0** | Files are equal |
-| **1** | Files differ |
+| Code  | Meaning                                   |
+| ----- | ----------------------------------------- |
+| **0** | Files are equal                           |
+| **1** | Files differ                              |
 | **2** | Error (file not found, invalid XML, etc.) |
 
 ---
@@ -236,6 +229,7 @@ See [config.json.example](config.json.example) for more examples.
 Load settings from JSON or YAML config files:
 
 **Example config.json:**
+
 ```json
 {
   "tolerance": 0.001,
@@ -248,6 +242,7 @@ Load settings from JSON or YAML config files:
 ```
 
 **Run with config:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --config config.json
 java -jar xmlcompare.jar --files file1.xml file2.xml --config config.json
@@ -260,11 +255,13 @@ See [Configuration Guide](docs/CONFIG_GUIDE.md) for detailed examples.
 ## Performance
 
 ### Python
+
 - **Speed:** 50-200ms for small files; scales with complexity
 - **Memory:** ~10x file size
 - **Ideal for:** Development, scripting, flexibility
 
 ### Java
+
 - **Speed:** 100-300ms for small files (includes JVM startup)
 - **Parallel Mode:** 2-3x faster on multi-core systems
 - **Memory:** Configurable; parallel mode ~10x file size
@@ -277,21 +274,25 @@ See [Configuration Guide](docs/CONFIG_GUIDE.md) for detailed examples.
 ## Code Quality
 
 ### Python: Ruff Linting
+
 - Fast linting with flake8-compatible rules
 - 120-character line length limit
 - Detects: unused imports, complexity, style issues
 
 Run checks:
+
 ```bash
 cd python && python -m ruff check .
 ```
 
 ### Java: Checkstyle
+
 - Google-style code standards
 - 120-character line length limit
 - Enforced via Maven/Gradle
 
 Run checks:
+
 ```bash
 cd java && mvn checkstyle:check
 # or
@@ -307,6 +308,7 @@ cd java && ./gradlew checkstyle
 **Total:** 260 test cases
 
 Run tests:
+
 ```bash
 # Python
 cd python && python -m pytest tests/
@@ -321,17 +323,17 @@ cd java && ./gradlew test
 
 ## Documentation
 
-| Document | Purpose |
-|----------|---------|
-| [FEATURES.md](docs/FEATURES.md) | Complete feature guide with examples |
-| [Python README](python/README.md) | Python setup and quick start |
-| [Java README](java/README.md) | Java setup and quick start |
-| [Python CLI Reference](python/docs/CLI_REFERENCE.md) | All Python options and examples |
-| [Java CLI Reference](java/docs/CLI_REFERENCE.md) | All Java options and examples |
-| [Configuration Guide](docs/CONFIG_GUIDE.md) | How to use config files |
-| [config.json.example](config.json.example) | Working config examples |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
-| [PLUGINS.md](PLUGINS.md) | Plugin development guide |
+| Document                                                    | Purpose                              |
+| ----------------------------------------------------------- | ------------------------------------ |
+| [FEATURES.md](docs/FEATURES.md)                             | Complete feature guide with examples |
+| [Python README](python/README.md)                           | Python setup and quick start         |
+| [Java README](java/README.md)                               | Java setup and quick start           |
+| [Python CLI Reference](python/docs/CLI_REFERENCE.md)        | All Python options and examples      |
+| [Java CLI Reference](java/docs/CLI_REFERENCE.md)            | All Java options and examples        |
+| [Configuration Guide](docs/CONFIG_GUIDE.md)                 | How to use config files              |
+| [config.json.example](config.json.example)                  | Working config examples              |
+| [CONTRIBUTING.md](CONTRIBUTING.md)                          | How to contribute                    |
+| [PLUGINS.md](PLUGINS.md)                                    | Plugin development guide             |
 | [PERFORMANCE.md](PERFORMANCE.md) | Performance optimization |
 
 ---
@@ -360,6 +362,7 @@ cd java && ./gradlew test
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 **Areas for contribution:**
+
 - Bug reports and fixes
 - Feature requests and implementations
 - Documentation improvements

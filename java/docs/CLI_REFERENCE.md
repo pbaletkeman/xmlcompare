@@ -32,30 +32,36 @@ java -jar xmlcompare.jar --help
 ## Input Options
 
 ### `--files FILE FILE` (required, unless using --dirs)
+
 Compare two XML files.
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files expected.xml actual.xml
 java -jar xmlcompare.jar --files /path/to/file1.xml /path/to/file2.xml
 ```
 
 **Examples:**
+
 - `--files file1.xml file2.xml`
 - `--files samples/orders_expected.xml samples/orders_actual.xml`
 
 ---
 
 ### `--dirs DIR DIR` (required, unless using --files)
+
 Compare two directories containing XML files.
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --dirs dir1/ dir2/
 java -jar xmlcompare.jar --dirs /path/to/dir1 /path/to/dir2
 ```
 
 **Options with --dirs:**
+
 - Combine with `--recursive` to traverse all subdirectories
 - Only `.xml` files are compared
 - Exit with status 1 if any file differs
@@ -63,34 +69,42 @@ java -jar xmlcompare.jar --dirs /path/to/dir1 /path/to/dir2
 ---
 
 ### `--recursive`
+
 When using `--dirs`, recurse into all subdirectories.
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --dirs configs1/ configs2/ --recursive
 ```
 
 **Without --recursive (default):**
+
 - Only compares XML files in the top level of specified directories
 
 **With --recursive:**
+
 - Compares XML files in all subdirectories preserving relative paths
 
 ---
 
 ### `--config FILE`
+
 Load comparison options from a JSON or YAML configuration file.
 
 **Supported formats:**
+
 - JSON: `config.json`
 - YAML: `config.yaml`
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --config config.json
 ```
 
 **Config file structure:**
+
 ```json
 {
   "tolerance": 0.01,
@@ -108,26 +122,31 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --config config.json
 ## Comparison Behavior Options
 
 ### `--tolerance FLOAT`
+
 Numeric tolerance for comparing numeric values.
 
 **Default:** `0.0` (exact match required)
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --tolerance 0.01
 ```
 
 **Examples:**
+
 - `--tolerance 0.0` - Exact numeric match
 - `--tolerance 0.001` - 0.1% tolerance
 - `--tolerance 0.01` - 1% tolerance
 - `--tolerance 0.1` - 10% tolerance
 
 **How it works:**
+
 - For values `a` and `b`, they are equal if `|a - b| <= tolerance`
 - Text values are not affected; only numeric values
 
 **Example values:**
+
 - file1.xml: `<price>100.00</price>`
 - file2.xml: `<price>100.50</price>`
 - With `--tolerance 1.0`: Equal
@@ -136,11 +155,13 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --tolerance 0.01
 ---
 
 ### `--ignore-case`
+
 Compare text values case-insensitively.
 
 **Default:** `false` (case-sensitive)
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --ignore-case
 ```
@@ -148,6 +169,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --ignore-case
 **Examples:**
 
 With `--ignore-case`:
+
 ```xml
 <!-- file1.xml -->
 <status>Active</status>
@@ -159,6 +181,7 @@ With `--ignore-case`:
 ```
 
 Without `--ignore-case`:
+
 ```xml
 <!-- Same XML files -->
 <!-- Result: NOT EQUAL (case mismatch) -->
@@ -167,11 +190,13 @@ Without `--ignore-case`:
 ---
 
 ### `--unordered`
+
 Compare child elements in any order (not position-dependent).
 
 **Default:** `false` (order matters)
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --unordered
 ```
@@ -179,6 +204,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --unordered
 **Examples:**
 
 With `--unordered`:
+
 ```xml
 <!-- file1.xml -->
 <root>
@@ -196,6 +222,7 @@ With `--unordered`:
 ```
 
 Without `--unordered`:
+
 ```xml
 <!-- Same XML files -->
 <!-- Result: NOT EQUAL (different order) -->
@@ -204,11 +231,13 @@ Without `--unordered`:
 ---
 
 ### `--ignore-namespaces`
+
 Ignore XML namespace URIs when comparing elements and attributes.
 
 **Default:** `false` (namespaces matter)
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --ignore-namespaces
 ```
@@ -216,6 +245,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --ignore-namespaces
 **Examples:**
 
 With `--ignore-namespaces`:
+
 ```xml
 <!-- file1.xml -->
 <root xmlns="http://example.com/v1">
@@ -231,6 +261,7 @@ With `--ignore-namespaces`:
 ```
 
 Without `--ignore-namespaces`:
+
 ```xml
 <!-- Same XML files -->
 <!-- Result: NOT EQUAL (different namespace URIs) -->
@@ -239,11 +270,13 @@ Without `--ignore-namespaces`:
 ---
 
 ### `--ignore-attributes`
+
 Ignore all XML attributes; compare only element structure and text content.
 
 **Default:** `false` (attributes matter)
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --ignore-attributes
 ```
@@ -251,6 +284,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --ignore-attributes
 **Examples:**
 
 With `--ignore-attributes`:
+
 ```xml
 <!-- file1.xml -->
 <item id="1" status="active">Widget</item>
@@ -262,6 +296,7 @@ With `--ignore-attributes`:
 ```
 
 Without `--ignore-attributes`:
+
 ```xml
 <!-- Same XML files -->
 <!-- Result: NOT EQUAL (attribute differences detected) -->
@@ -270,11 +305,13 @@ Without `--ignore-attributes`:
 ---
 
 ### `--structure-only`
+
 Compare only XML structure and element names; ignore text content and attributes.
 
 **Default:** `false`
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --structure-only
 ```
@@ -282,6 +319,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --structure-only
 **Examples:**
 
 With `--structure-only`:
+
 ```xml
 <!-- file1.xml -->
 <root>
@@ -301,150 +339,156 @@ With `--structure-only`:
 ---
 
 ### `--max-depth INT`
+
 Limit comparison depth (useful for deeply nested XML).
 
 **Default:** unlimited
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --max-depth 5
 ```
 
 **Examples:**
+
 - `--max-depth 1` - Only compare root element
-- `--max-depth 2` - Compare root and one level of children
-- `--max-depth 5` - Compare up to 5 levels deep
+
+# xmlcompare (Java) – CLI Reference
+
+## Quick Navigation
+
+- [FEATURES.md](FEATURES.md) – Java-specific features
+- [../docs/CONFIG_GUIDE.md](../../docs/CONFIG_GUIDE.md) – Configuration guide
+- [../docs/FEATURES.md](../../docs/FEATURES.md) – Master feature matrix
 
 ---
 
-## Filtering Options
-
-### `--skip-keys PATH [PATH ...]`
-Skip specific elements by path or tag name.
-
-**Syntax:**
-- `//tagname` - Skip elements with this tag name anywhere in the document
-- `/path/to/element` - Skip element at this exact path
-
-**Usage:**
-```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --skip-keys "//timestamp" "//uuid" "/root/metadata/version"
-```
-
-**Examples:**
-```bash
-# Skip timestamp elements anywhere
-java -jar xmlcompare.jar --files file1.xml file2.xml --skip-keys "//timestamp"
-
-# Skip multiple elements (comma-separated for command line)
-java -jar xmlcompare.jar --files file1.xml file2.xml --skip-keys "//timestamp,//uuid,//transactionId"
-
-# Skip by exact path
-java -jar xmlcompare.jar --files file1.xml file2.xml --skip-keys "/root/metadata/lastModified"
-```
-
----
-
-### `--skip-pattern REGEX`
-Regular expression pattern to skip elements by tag name.
-
-**Usage:**
-```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --skip-pattern "^(temp|debug|test).*$"
-```
-
-**Examples:**
-```bash
-# Skip tags starting with underscore
-java -jar xmlcompare.jar --files file1.xml file2.xml --skip-pattern "^_.*"
-
-# Skip numeric tags
-java -jar xmlcompare.jar --files file1.xml file2.xml --skip-pattern "^\\d+$"
-
-# Skip tags containing specific word
-java -jar xmlcompare.jar --files file1.xml file2.xml --skip-pattern ".*meta.*"
-```
-
----
-
-### `--filter XPATH`
-XPath 1.0 expression to filter which elements to compare.
-
-**Usage:**
-```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --filter "//orders/order[status='active']"
-```
-
-**Examples:**
-```bash
-# Compare only active orders
-java -jar xmlcompare.jar --files file1.xml file2.xml --filter "//order[status='active']"
-
-# Compare specific node group
-java -jar xmlcompare.jar --files file1.xml file2.xml --filter "//users/user[@id='user123']"
-```
-
----
-
-## Output Options
-
-### `--output-format FORMAT`
-Output format for comparison results.
-
-**Options:** `text` (default), `json`, `html`, `html-diff`, `unified-diff`
-
-**Usage:**
-```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --output-format json
-```
-
-#### `text` (default)
-Human-readable text output with optional color.
+## Usage
 
 ```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --output-format text
+java -jar xmlcompare.jar --files file1.xml file2.xml [options]
 ```
 
-Output:
-```
-[ATTR] Path: /root/item - attribute 'id' mismatch
-  Expected : 123
-  Actual   : 456
-```
+## Options
 
-#### `json`
-Structured JSON output for programmatic processing.
+| Option                            | Description                      |
+|---------------------------------- |----------------------------------|
+| --files file1 file2               | Compare two XML files            |
+| --dir dir1 dir2                   | Compare two directories          |
+| --config config.json              | Use configuration file           |
+| --output [text\|json\|html\|diff] | Output format                    |
+| --parallel                        | Enable parallel processing       |
+| --stream                          | Use streaming parser             |
+| --schema schema.xsd               | Validate with XSD schema         |
+| --plugin myplugin.jar             | Use custom plugin                |
+| --xpath "//item"                  | Filter by XPath                  |
+| --type-aware                      | Enable type-aware comparison     |
+| --structure-only                  | Compare only structure           |
+| --ignore-attributes attr1 attr2   | Ignore specific attributes       |
+| --skip-elements elem1 elem2       | Skip specific elements           |
+| --max-depth N                     | Limit comparison depth           |
+| --benchmark                       | Run performance benchmark        |
+| --help                            | Show help message                |
+
+## Examples
+
+### Compare two files
 
 ```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --output-format json
+java -jar xmlcompare.jar --files a.xml b.xml
 ```
 
-Output:
-```json
-{
-  "file1.xml vs file2.xml": {
-    "equal": false,
-    "differences": [
-      {
-        "path": "/root/item",
-        "kind": "attr",
-        "message": "attribute 'id' mismatch",
-        "expected": "123",
-        "actual": "456"
-      }
-    ]
-  }
-}
+### Compare directories
+
+```bash
+java -jar xmlcompare.jar --dir old/ new/
 ```
 
-#### `html` or `html-diff`
-Interactive HTML report with side-by-side comparison.
+### Use a config file
+
+```bash
+java -jar xmlcompare.jar --files a.xml b.xml --config config.json
+```
+
+### Output as JSON
+
+```bash
+java -jar xmlcompare.jar --files a.xml b.xml --output json
+```
+
+### Parallel processing
+
+```bash
+java -jar xmlcompare.jar --files a.xml b.xml --parallel
+```
+
+### Streaming parser
+
+```bash
+java -jar xmlcompare.jar --files a.xml b.xml --stream
+```
+
+### Schema validation
+
+```bash
+java -jar xmlcompare.jar --files a.xml b.xml --schema schema.xsd
+```
+
+### Plugin system
+
+```bash
+java -jar xmlcompare.jar --files a.xml b.xml --plugin myplugin.jar
+```
+
+### XPath filtering
+
+```bash
+java -jar xmlcompare.jar --files a.xml b.xml --xpath "/root/item"
+```
+
+### Type-aware comparison
+
+```bash
+java -jar xmlcompare.jar --files a.xml b.xml --type-aware
+```
+
+### Structure-only mode
+
+```bash
+java -jar xmlcompare.jar --files a.xml b.xml --structure-only
+```
+
+### Ignore attributes
+
+```bash
+java -jar xmlcompare.jar --files a.xml b.xml --ignore-attributes timestamp id
+```
+
+### Skip elements
+
+```bash
+java -jar xmlcompare.jar --files a.xml b.xml --skip-elements meta debug
+```
+
+### Limit depth
+
+```bash
+java -jar xmlcompare.jar --files a.xml b.xml --max-depth 3
+```
+
+### Benchmark
+
+```bash
+java -jar xmlcompare.jar --benchmark --files a.xml b.xml
+```
 
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --output-format html --output-file report.html
 ```
 
 Features:
+
 - Two-column layout (expected vs actual)
 - Color-coded differences (red/green)
 - Line numbers
@@ -452,6 +496,7 @@ Features:
 - Works offline
 
 #### `unified-diff`
+
 Standard unified diff format (like `git diff --unified`).
 
 ```bash
@@ -459,7 +504,8 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --output-format unified-dif
 ```
 
 Output:
-```
+
+```shell
 --- file1.xml
 +++ file2.xml
 @@ /root/item @@
@@ -470,11 +516,13 @@ Output:
 ---
 
 ### `--output-file FILE`
+
 Write output to a file instead of stdout.
 
 **Default:** stdout
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --output-file results.txt
 java -jar xmlcompare.jar --files file1.xml file2.xml --output-format json --output-file results.json
@@ -483,16 +531,19 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --output-format json --outp
 ---
 
 ### `--summary`
+
 Print only summary (difference count) instead of detailed differences.
 
 **Default:** `false` (print all differences)
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --summary
 ```
 
 Output:
+
 ```
 Total differences: 3
 ```
@@ -500,11 +551,13 @@ Total differences: 3
 ---
 
 ### `--verbose`
+
 Enable verbose output with additional diagnostic information.
 
 **Default:** `false`
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --verbose
 ```
@@ -512,11 +565,13 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --verbose
 ---
 
 ### `--quiet`
+
 Suppress all output except exit code.
 
 **Default:** `false`
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --quiet
 echo $?  # Exit code only
@@ -527,11 +582,13 @@ echo $?  # Exit code only
 ## Flow Control Options
 
 ### `--fail-fast`
+
 Stop comparison on the first difference found.
 
 **Default:** `false` (compare entire documents)
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --fail-fast
 ```
@@ -543,36 +600,43 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --fail-fast
 ## Performance Options (Experimental)
 
 ### `--stream`
+
 Use streaming parser for large files.
 
 **Default:** `false` (standard DOM parsing)
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files large1.xml large2.xml --stream
 ```
 
 **Benefits:**
+
 - Reduced memory usage for large files
 - Constant memory regardless of file size
 
 **Trade-offs:**
+
 - Slower processing than DOM parsing
 - Currently a placeholder; full streaming implementation in progress
 
 ---
 
 ### `--parallel`
+
 Use parallel processing for comparison.
 
 **Default:** `false`
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --parallel
 ```
 
 **Best for:**
+
 - Large files (multi-GB)
 - Multi-core systems
 
@@ -581,11 +645,13 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --parallel
 ---
 
 ### `--threads INT`
+
 Number of threads for parallel processing.
 
 **Default:** `4` (auto-detected based on available cores)
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --parallel --threads 8
 ```
@@ -597,9 +663,11 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --parallel --threads 8
 ## Advanced Options
 
 ### `--schema FILE`
+
 Path to XSD schema file for schema-aware comparison.
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --schema schema.xsd
 ```
@@ -607,14 +675,17 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --schema schema.xsd
 ---
 
 ### `--plugins CLASS [CLASS ...]`
+
 Load custom plugin classes at runtime.
 
 **Usage:**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --plugins "com.example.CustomFilter"
 ```
 
 **Multiple plugins (comma-separated):**
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --plugins "com.example.CustomFilter,com.example.Validator"
 ```
@@ -624,6 +695,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --plugins "com.example.Cust
 ## Config File Examples
 
 ### Example 1: Basic Production Config
+
 ```json
 {
   "tolerance": 0.001,
@@ -641,6 +713,7 @@ Command: `java -jar xmlcompare.jar --files test1.xml test2.xml --config config.j
 ---
 
 ### Example 2: High-Performance Config
+
 ```json
 {
   "tolerance": 0.001,
@@ -656,6 +729,7 @@ Command: `java -jar xmlcompare.jar --files test1.xml test2.xml --config config.j
 ---
 
 ### Example 3: Strict Testing Config
+
 ```json
 {
   "tolerance": 0.0,
@@ -673,17 +747,18 @@ Command: `java -jar xmlcompare.jar --files test1.xml test2.xml --config config.j
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| 0 | Files are equal |
-| 1 | Files differ; differences found |
-| 2 | Error (file not found, invalid XML, invalid arguments) |
+| Code  | Meaning                                                |
+| ----- | ------------------------------------------------------ |
+| 0     | Files are equal                                        |
+| 1     | Files differ; differences found                        |
+| 2     | Error (file not found, invalid XML, invalid arguments) |
 
 ---
 
 ## Help and Version
 
 ### `--help`
+
 Display help message with all available options.
 
 ```bash
@@ -691,6 +766,7 @@ java -jar xmlcompare.jar --help
 ```
 
 ### `--version`
+
 Display version information.
 
 ```bash
@@ -702,31 +778,37 @@ java -jar xmlcompare.jar --version
 ## Common Patterns
 
 ### Skip all metadata elements
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --skip-keys "//metadata,//timestamp,//version"
 ```
 
 ### Compare only structure
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --structure-only --ignore-attributes
 ```
 
 ### Flexible comparison
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --tolerance 0.001 --ignore-case --unordered --ignore-namespaces
 ```
 
 ### Generate machine-readable report
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --output-format json --output-file report.json --quiet
 ```
 
 ### Interactive HTML report
+
 ```bash
 java -jar xmlcompare.jar --files file1.xml file2.xml --output-format html --output-file comparison.html
 ```
 
 ### High-performance comparison
+
 ```bash
 java -jar xmlcompare.jar --files huge1.xml huge2.xml --parallel --threads 16 --fail-fast
 ```
@@ -736,6 +818,7 @@ java -jar xmlcompare.jar --files huge1.xml huge2.xml --parallel --threads 16 --f
 ## Troubleshooting
 
 ### "File not found error"
+
 Ensure the file path is correct and relative to your current working directory or use absolute paths.
 
 ```bash
@@ -747,18 +830,23 @@ java -jar xmlcompare.jar --files /absolute/path/test.xml /absolute/path/test2.xm
 ```
 
 ### "Invalid XML" error
+
 The XML file is malformed. Check syntax using an XML validator:
+
 ```bash
 xmllint test.xml  # Requires libxml2
 ```
 
 ### Config file not loading
+
 Ensure JSON/YAML syntax is valid. Use an online JSON validator or:
+
 ```bash
 python -c "import json; json.load(open('config.json'))"
 ```
 
 ### Parallel comparison not working
+
 Ensure `--threads` value is reasonable for your system. Use `java.lang.Runtime.getRuntime().availableProcessors()` to determine optimal value.
 
 ---

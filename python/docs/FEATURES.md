@@ -5,6 +5,7 @@ This document describes the advanced features and detailed capabilities of the P
 ## Overview
 
 The Python implementation includes:
+
 - **Multiple output formats** (text, JSON, HTML, unified diff)
 - **Interactive mode** with menu-driven interface
 - **Streaming parser** for memory-efficient large file handling
@@ -37,7 +38,8 @@ python xmlcompare.py --files file1.xml file2.xml --output-format text
 ```
 
 **Output Example:**
-```
+
+```plaintext
 Comparing: file1.xml vs file2.xml
 ------------------------------------------------------------
   [ATTR] Path: /root/item/@id - attribute 'id' value mismatch
@@ -49,6 +51,7 @@ Comparing: file1.xml vs file2.xml
 ```
 
 **Features:**
+
 - Color-coded output (red for differences, green for context)
 - Clear path indication for each difference
 - Side-by-side value comparison
@@ -63,6 +66,7 @@ python xmlcompare.py --files file1.xml file2.xml --output-format json
 ```
 
 **Output Example:**
+
 ```json
 {
   "file1.xml vs file2.xml": {
@@ -88,6 +92,7 @@ python xmlcompare.py --files file1.xml file2.xml --output-format json
 ```
 
 **Use Cases:**
+
 - Parsing output in shell scripts
 - Analysis by other tools
 - CI/CD integration
@@ -102,6 +107,7 @@ python xmlcompare.py --files file1.xml file2.xml --output-format html --output-f
 ```
 
 **Features:**
+
 - Two-column layout (expected vs actual)
 - Color-coded differences (red for removed, green for added)
 - Line numbers
@@ -110,6 +116,7 @@ python xmlcompare.py --files file1.xml file2.xml --output-format html --output-f
 - Summary statistics
 
 **Perfect for:**
+
 - Stakeholder reviews
 - Documentation
 - Archive storage
@@ -124,7 +131,8 @@ python xmlcompare.py --files file1.xml file2.xml --output-format unified-diff
 ```
 
 **Output Example:**
-```
+
+```shell
 --- file1.xml
 +++ file2.xml
 @@ /root/item @@
@@ -136,6 +144,7 @@ python xmlcompare.py --files file1.xml file2.xml --output-format unified-diff
 ```
 
 **Use Cases:**
+
 - Pattern recognition in diffs
 - Integration with version control
 - Patch creation and verification
@@ -177,7 +186,7 @@ python interactive_cli.py
 
 ### Example Session
 
-```
+```shell
 xmlcompare Interactive Mode
 ================================
 
@@ -195,125 +204,127 @@ Enter second file: samples/orders_actual_diff.xml
 Comparison Options:
 1. Default (strict)
 2. Flexible (ignore namespaces, case, order)
-3. Custom
-Choose: 2
+# xmlcompare (Python) – Features
 
-Comparing...
+## Quick Navigation
 
-Results:
-- Total differences: 5
-- Attribute differences: 2
-- Text differences: 3
-
-View detailed differences? (y/n): y
-```
+- [CLI_REFERENCE.md](CLI_REFERENCE.md) – Command-line usage
+- [../docs/CONFIG_GUIDE.md](../../docs/CONFIG_GUIDE.md) – Configuration guide
+- [../docs/FEATURES.md](../../docs/FEATURES.md) – Master feature matrix
 
 ---
 
-## Streaming Parser
+## Python-Specific Features
 
-Memory-efficient parser for large XML files using SAX (event-based) parsing.
+| Feature                | Description                                 |
+|------------------------|---------------------------------------------|
+| Parallel processing    | Multi-core comparison for large datasets    |
+| Streaming parser       | Handles large XML files with low memory     |
+| Schema validation      | XSD schema support                          |
+| Plugin system          | Custom comparison logic via plugins         |
+| XPath filtering        | Compare only elements matching XPath        |
+| Type-aware comparison  | Numeric/date type hints                     |
+| Output formats         | text, JSON, HTML, diff                      |
+| Config file support    | JSON/YAML config                            |
+| Directory comparison   | Recursively compare directories             |
+| Structure-only mode    | Compare only structure                      |
+| Attribute filtering    | Ignore or match specific attributes         |
+| Element filtering      | Skip specific elements                      |
+| Depth limiting         | Limit comparison depth                      |
+| Performance benchmarks | Built-in benchmarking                       |
 
-### Features
-
-```bash
-# Not yet integrated into main CLI, but available in parse_streaming.py
-python -c "from parse_streaming import compare_streaming; compare_streaming('large1.xml', 'large2.xml')"
-```
-
-**Advantages:**
-- Constant memory usage regardless of file size
-- Process multi-gigabyte files efficiently
-- Event-based processing model
-
-**Trade-offs:**
-- Slower than DOM parsing
-- Different API than standard comparison
-
-### Use Cases
-
-- Processing very large XML files (> 1GB)
-- Streaming data processing
-- Memory-constrained environments
-- Real-time log file analysis
-
----
-
-## Schema Analysis & Validation
-
-Schema-aware comparison using XSD (XML Schema Definition) files.
-
-### Basic Usage
+## Example: Parallel Processing
 
 ```bash
-python xmlcompare.py --files data1.xml data2.xml --schema schema.xsd --type-aware
+python xmlcompare.py --files file1.xml file2.xml --parallel
 ```
 
-### Features
+## Example: Streaming Parser
 
-1. **Type-Aware Comparison**
-   - Date fields: Normalize formats before comparison
-   - Numeric types: Apply schema-defined precision
-   - Boolean types: Normalize true/false variants
-   - Enum types: Validate against allowed values
-
-2. **Schema Validation**
-   - Validate XML against schema
-   - Report validation errors
-   - Enforce structure compliance
-
-3. **Type Hints**
-   - Comparison logic adapts to field types
-   - Special handling for known types
-   - Collation support for locale-aware strings
-
-### Type-Aware Comparison Examples
-
-**Date Comparison:**
-```xml
-<!-- file1.xml -->
-<date>2024-01-15</date>
-
-<!-- file2.xml -->
-<date>01/15/2024</date>
-
-<!-- With schema XSD that defines xs:date type -->
-<!-- Result: EQUAL (date formats normalized) -->
+```bash
+python xmlcompare.py --files large1.xml large2.xml --stream
 ```
 
-**Numeric Precision:**
-```xml
-<!-- file1.xml -->
-<price type="xs:decimal">99.99</price>
+## Example: Schema Validation
 
-<!-- file2.xml -->
-<price type="xs:decimal">99.990</price>
-
-<!-- With schema defining 2-decimal precision -->
-<!-- Result: EQUAL (trailing zero ignored) -->
+```bash
+python xmlcompare.py --files file1.xml file2.xml --schema schema.xsd
 ```
 
-**Boolean Normalization:**
-```xml
-<!-- file1.xml -->
-<active>true</active>
+## Example: Plugin System
 
-<!-- file2.xml -->
-<active>1</active>
-
-<!-- With schema defining xs:boolean type -->
-<!-- Result: EQUAL (1 and true are equivalent booleans) -->
+```bash
+python xmlcompare.py --files file1.xml file2.xml --plugin myplugin.py
 ```
 
-### Schema Validation API
+## Example: XPath Filtering
 
-```python
-from schema_analyzer import SchemaAnalyzer
+```bash
+python xmlcompare.py --files file1.xml file2.xml --xpath "/root/item"
+```
+
+## Example: Type-Aware Comparison
+
+```bash
+python xmlcompare.py --files file1.xml file2.xml --type-aware
+```
+
+## Example: Output Formats
+
+```bash
+python xmlcompare.py --files file1.xml file2.xml --output json
+python xmlcompare.py --files file1.xml file2.xml --output html
+python xmlcompare.py --files file1.xml file2.xml --output diff
+```
+
+## Example: Config File
+
+```bash
+python xmlcompare.py --files file1.xml file2.xml --config config.json
+```
+
+## Example: Directory Comparison
+
+```bash
+python xmlcompare.py --dir dir1 dir2
+```
+
+## Example: Structure-Only Mode
+
+```bash
+python xmlcompare.py --files file1.xml file2.xml --structure-only
+```
+
+## Example: Attribute Filtering
+
+```bash
+python xmlcompare.py --files file1.xml file2.xml --ignore-attributes timestamp id
+```
+
+## Example: Element Filtering
+
+```bash
+python xmlcompare.py --files file1.xml file2.xml --skip-elements meta debug
+```
+
+## Example: Depth Limiting
+
+```bash
+python xmlcompare.py --files file1.xml file2.xml --max-depth 3
+```
+
+## Example: Performance Benchmarks
+
+```bash
+python xmlcompare.py --benchmark --files file1.xml file2.xml
+```
 
 analyzer = SchemaAnalyzer()
 metadata = analyzer.analyze('schema.xsd')
 
 # Access type information
+
+```shell
 if metadata:
     print(metadata.get_type('/root/date'))  # Returns 'xs:date'
     print(metadata.is_numeric('/root/price'))  # Returns True
@@ -406,7 +417,7 @@ python -c "from benchmark import run_benchmarks; run_benchmarks()"
 
 ### Benchmark Output
 
-```
+```shell
 XML Comparison Benchmarks
 ========================
 
@@ -599,6 +610,7 @@ python parse_streaming.py file1.xml file2.xml
 ### Slow performance
 
 Solutions:
+
 1. Use `--fail-fast` for quick checks
 2. Apply `--filter` to reduce scope
 3. Use `--skip-keys` to skip unnecessary elements

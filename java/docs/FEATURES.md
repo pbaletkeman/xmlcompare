@@ -5,130 +5,134 @@ This document describes the advanced features and detailed capabilities of the J
 ## Overview
 
 The Java implementation includes:
+
 - **Multiple output formats** (text, JSON, HTML, unified diff)
 - **Parallel comparison** with multi-threading (experimental)
 - **Streaming parser** for memory-efficient large file handling (experimental)
 - **Plugin system** using SPI interface
-- **Schema-aware comparison** with XSD validation
-- **Performance benchmarking** utilities
-- **picocli-based CLI** with automatic help generation
+
+# xmlcompare (Java) – Features
+
+## Quick Navigation
+
+- [CLI_REFERENCE.md](CLI_REFERENCE.md) – Command-line usage
+- [../docs/CONFIG_GUIDE.md](../../docs/CONFIG_GUIDE.md) – Configuration guide
+- [../docs/FEATURES.md](../../docs/FEATURES.md) – Master feature matrix
 
 ---
 
-## Table of Contents
+## Java-Specific Features
 
-1. [Output Formatters](#output-formatters)
-2. [Parallel Processing](#parallel-processing)
-3. [Streaming Parser](#streaming-parser)
-4. [Schema Analysis & Validation](#schema-analysis--validation)
-5. [Plugin System](#plugin-system)
-6. [Benchmarking](#benchmarking)
-7. [Building & Running](#building--running)
-8. [Command Examples](#command-examples)
+| Feature                | Description                                 |
+|------------------------|---------------------------------------------|
+| Parallel processing    | Multi-threaded comparison for large datasets|
+| Streaming parser       | Handles large XML files with low memory     |
+| Schema validation      | XSD schema support                          |
+| Plugin system          | Custom comparison logic via SPI             |
+| XPath filtering        | Compare only elements matching XPath        |
+| Type-aware comparison  | Numeric/date type hints                     |
+| Output formats         | text, JSON, HTML, diff                      |
+| Config file support    | JSON config                                 |
+| Directory comparison   | Recursively compare directories             |
+| Structure-only mode    | Compare only structure                      |
+| Attribute filtering    | Ignore or match specific attributes         |
+| Element filtering      | Skip specific elements                      |
+| Depth limiting         | Limit comparison depth                      |
+| Performance benchmarks | Built-in benchmarking                       |
 
----
-
-## Output Formatters
-
-### Text Format (Default)
-
-Human-readable text output with optional color support.
-
-```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --output-format text
-```
-
-**Output Example:**
-```
-Comparing: file1.xml vs file2.xml
-------------------------------------------------------------
-  [ATTR] Path: /root/item/@id - attribute 'id' value mismatch
-    Expected : 123
-    Actual   : 456
-  [TEXT] Path: /root/item/price - text value mismatch
-    Expected : 99.99
-    Actual   : 89.99
-```
-
-**Features:**
-- ANSI color codes (for supported terminals)
-- Clear path indication
-- Side-by-side value comparison
-- ANSI codes automatically disabled when piping
-
-### JSON Format
-
-Machine-readable JSON output for CI/CD pipelines and tool integration.
+## Example: Parallel Processing
 
 ```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --output-format json
+java -jar xmlcompare.jar --files file1.xml file2.xml --parallel
 ```
 
-**Output Example:**
-```json
-{
-  "file1.xml vs file2.xml": {
-    "equal": false,
-    "differences": [
-      {
-        "path": "/root/item",
-        "kind": "attr",
-        "message": "attribute 'id' value mismatch",
-        "expected": "123",
-        "actual": "456"
-      }
-    ]
-  }
-}
-```
-
-**Use Cases:**
-- CI/CD integration (GitHub Actions, Jenkins, GitLab CI)
-- Automated testing pipelines
-- Dashboard display
-- API responses
-
-### HTML Format
-
-Interactive HTML report with side-by-side visualization.
+## Example: Streaming Parser
 
 ```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --output-format html --output-file report.html
+java -jar xmlcompare.jar --files large1.xml large2.xml --stream
 ```
 
-**Features:**
-- Side-by-side XML comparison view
-- Color-coded differences (red/green)
-- Line numbers for reference
-- Self-contained CSS (offline-friendly)
-- Responsive design
-- Collapsible difference sections
-- Summary statistics
-
-**Perfect for:**
-- Stakeholder reviews
-- Test result documentation
-- Archive storage
-- Comparison audit trail
-
-### Unified Diff Format
-
-Standard unified diff format compatible with standard Unix tools.
+## Example: Schema Validation
 
 ```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --output-format unified-diff
+java -jar xmlcompare.jar --files file1.xml file2.xml --schema schema.xsd
 ```
 
-**Output Example:**
+## Example: Plugin System
+
+```bash
+java -jar xmlcompare.jar --files file1.xml file2.xml --plugin myplugin.jar
 ```
---- file1.xml
-+++ file2.xml
+
+## Example: XPath Filtering
+
+```bash
+java -jar xmlcompare.jar --files file1.xml file2.xml --xpath "/root/item"
+```
+
+## Example: Type-Aware Comparison
+
+```bash
+java -jar xmlcompare.jar --files file1.xml file2.xml --type-aware
+```
+
+## Example: Output Formats
+
+```bash
+java -jar xmlcompare.jar --files file1.xml file2.xml --output json
+java -jar xmlcompare.jar --files file1.xml file2.xml --output html
+java -jar xmlcompare.jar --files file1.xml file2.xml --output diff
+```
+
+## Example: Config File
+
+```bash
+java -jar xmlcompare.jar --files file1.xml file2.xml --config config.json
+```
+
+## Example: Directory Comparison
+
+```bash
+java -jar xmlcompare.jar --dir dir1 dir2
+```
+
+## Example: Structure-Only Mode
+
+```bash
+java -jar xmlcompare.jar --files file1.xml file2.xml --structure-only
+```
+
+## Example: Attribute Filtering
+
+```bash
+java -jar xmlcompare.jar --files file1.xml file2.xml --ignore-attributes timestamp id
+```
+
+## Example: Element Filtering
+
+```bash
+java -jar xmlcompare.jar --files file1.xml file2.xml --skip-elements meta debug
+```
+
+## Example: Depth Limiting
+
+```bash
+java -jar xmlcompare.jar --files file1.xml file2.xml --max-depth 3
+```
+
+## Example: Performance Benchmarks
+
+```bash
+java -jar xmlcompare.jar --benchmark --files file1.xml file2.xml
+
+```shell
 @@ /root/item @@
 - <id>123</id>
 + <id>456</id>
 ```
 
 **Integration:**
+
 ```bash
 # Pipe to patch
 java -jar xmlcompare.jar --files old.xml new.xml --output-format unified-diff | patch
@@ -166,6 +170,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --parallel --threads 8
 ### Performance Characteristics
 
 **Typical speedup on 4-core system:**
+
 - Small files (< 1MB): 0.8x (overhead not worth it)
 - Medium files (1-100MB): 2.0-2.5x speedup
 - Large files (> 100MB): 2.5-3.0x speedup
@@ -190,6 +195,7 @@ java -Xmx512M -jar xmlcompare.jar \
 ### Configuration
 
 Thread count recommendations:
+
 - **Cloud CI/CD**: Match container CPU limits (usually 2-4)
 - **Local workstation**: Leave 1-2 cores free for OS
 - **Server deployment**: Use `availableProcessors() - 1`
@@ -216,6 +222,7 @@ java -jar xmlcompare.jar --files large1.xml large2.xml --stream
 ```
 
 **Memory Profile:**
+
 - DOM parser: ~10x file size peak memory
 - Streaming parser: ~50MB constant regardless of file size
 
@@ -228,12 +235,12 @@ java -jar xmlcompare.jar --files large1.xml large2.xml --stream
 
 ### Trade-offs
 
-| Aspect | DOM | Streaming |
-|--------|-----|-----------|
-| Memory | High | Low (constant) |
-| Speed | Fast | Slower |
-| Capabilities | Full | Limited |
-| Random access | Yes | No |
+| Aspect        | DOM  | Streaming      |
+| ------------- | ---- | -------------- |
+| Memory        | High | Low (constant) |
+| Speed         | Fast | Slower         |
+| Capabilities  | Full | Limited        |
+| Random access | Yes  | No             |
 
 ### Current Status
 
@@ -271,6 +278,7 @@ public static Optional<Boolean> typeAwareEqual(String a, String b, String xsType
 ### Supported Type Handling
 
 1. **Date/DateTime Fields**
+
    ```xml
    <!-- Schema: xs:date -->
    <!-- File1: 2024-01-15 -->
@@ -279,6 +287,7 @@ public static Optional<Boolean> typeAwareEqual(String a, String b, String xsType
    ```
 
 2. **Numeric Fields with Precision**
+
    ```xml
    <!-- Schema: xs:decimal, fractionDigits="2" -->
    <!-- File1: 99.99 -->
@@ -287,6 +296,7 @@ public static Optional<Boolean> typeAwareEqual(String a, String b, String xsType
    ```
 
 3. **Boolean Normalization**
+
    ```xml
    <!-- Schema: xs:boolean -->
    <!-- File1: true -->
@@ -295,6 +305,7 @@ public static Optional<Boolean> typeAwareEqual(String a, String b, String xsType
    ```
 
 4. **Enum Validation**
+
    ```xml
    <!-- Schema defines: status ∈ {active, inactive, pending} -->
    <!-- Validates against allowed values -->
@@ -330,6 +341,7 @@ public interface ComparisonPluginSPI {
 ```
 
 Usage:
+
 ```bash
 java -jar xmlcompare.jar \
   --files file1.xml file2.xml \
@@ -346,6 +358,7 @@ public interface DifferenceFilter {
 ```
 
 Usage:
+
 ```bash
 java -jar xmlcompare.jar \
   --files file1.xml file2.xml \
@@ -362,6 +375,7 @@ public interface FormatterPlugin {
 ```
 
 Usage:
+
 ```bash
 java -jar xmlcompare.jar \
   --files file1.xml file2.xml \
@@ -372,6 +386,7 @@ java -jar xmlcompare.jar \
 ### Loading Plugins at Runtime
 
 The `PluginRegistry` handles:
+
 - Plugin discovery via classpath
 - Interface validation
 - Instance creation
@@ -450,17 +465,18 @@ java -jar xmlcompare.jar --benchmark
 
 ### Benchmark Output
 
-```
+```plaintext
 XML Comparison Performance Benchmarks
 =====================================
 
-File Size | Parse Time | Compare Time | Memory Used | Throughput
-1KB       | 0.5ms      | 1.2ms        | 512KB       | 850 MB/s
-10KB      | 1.2ms      | 3.5ms        | 1.2MB       | 2.8 MB/s
-100KB     | 12ms       | 35ms         | 4.5MB       | 2.8 MB/s
-1MB       | 45ms       | 125ms        | 16MB        | 8.0 MB/s
-10MB      | 450ms      | 1200ms       | 85MB        | 8.3 MB/s
-100MB     | 4500ms     | 12000ms      | 512MB       | 8.3 MB/s
+File Size | Parse Time | Compare Time | Memory Used | Throughput |
+--------- | ---------- |------------- | ----------- | ---------- |
+1KB       | 0.5ms      | 1.2ms        | 512KB       | 850 MB/s   |
+10KB      | 1.2ms      | 3.5ms        | 1.2MB       | 2.8 MB/s   |
+100KB     | 12ms       | 35ms         | 4.5MB       | 2.8 MB/s   |
+1MB       | 45ms       | 125ms        | 16MB        | 8.0 MB/s   |
+10MB      | 450ms      | 1200ms       | 85MB        | 8.3 MB/s   |
+100MB     | 4500ms     | 12000ms      | 512MB       | 8.3 MB/s   |
 ```
 
 ### Interpreting Results
@@ -473,16 +489,19 @@ File Size | Parse Time | Compare Time | Memory Used | Throughput
 ### Performance Optimization
 
 1. **Allocate sufficient heap**
+
    ```bash
    java -Xmx2G -jar xmlcompare.jar --files huge1.xml huge2.xml
    ```
 
 2. **Use parallel for large files**
+
    ```bash
    java -jar xmlcompare.jar --files big1.xml big2.xml --parallel --threads 8
    ```
 
 3. **Apply filters to reduce scope**
+
    ```bash
    java -jar xmlcompare.jar --files file1.xml file2.xml --fail-fast --summary
    ```
@@ -641,6 +660,7 @@ done
 ### Recommended Configs
 
 **Development Environment:**
+
 ```json
 {
   "tolerance": 0.01,
@@ -655,6 +675,7 @@ done
 ```
 
 **Production Testing:**
+
 ```json
 {
   "tolerance": 0.0,

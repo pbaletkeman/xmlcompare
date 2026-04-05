@@ -20,18 +20,20 @@ Complete guide for creating and integrating custom FormatterPlugins and Differen
 ### Core Concepts
 
 **FormatterPlugin**: Converts comparison results into formatted output
+
 - Input: Comparison results (list of Difference objects)
 - Output: Formatted string (any text-based format)
 - Responsibility: Present differences in human-readable format
 
 **DifferenceFilter**: Selects/excludes differences based on criteria
+
 - Input: List of Difference objects
 - Output: Filtered list
 - Responsibility: Pre-process results before formatting
 
 ### Plugin Lifecycle
 
-```
+```plaintext
 1. Plugin Loaded → 2. Plugin Registered → 3. Plugin Selected → 4. Plugin Executed → 5. Result Returned
 ```
 
@@ -40,6 +42,7 @@ Complete guide for creating and integrating custom FormatterPlugins and Differen
 #### FormatterPlugin
 
 **Python:**
+
 ```python
 class FormatterPlugin:
     @property
@@ -53,6 +56,7 @@ class FormatterPlugin:
 ```
 
 **Java:**
+
 ```java
 public interface FormatterPlugin {
     String getName();
@@ -64,6 +68,7 @@ public interface FormatterPlugin {
 #### DifferenceFilter
 
 **Python:**
+
 ```python
 class DifferenceFilter:
     @property
@@ -77,6 +82,7 @@ class DifferenceFilter:
 ```
 
 **Java:**
+
 ```java
 public interface DifferenceFilter {
     String getName();
@@ -124,6 +130,7 @@ class CsvFormatter(FormatterPlugin):
 ```
 
 **Usage:**
+
 ```bash
 xmlcompare --files file1.xml file2.xml --output-format csv > results.csv
 ```
@@ -290,7 +297,7 @@ public class SeverityFilter implements DifferenceFilter {
 
 ### Setting Up Plugin Module
 
-```
+```shell
 my_plugins/
 ├── __init__.py
 ├── formatters/
@@ -305,6 +312,7 @@ my_plugins/
 ### Registering Plugin in Python
 
 **Method 1: Programmatic Registration**
+
 ```python
 from plugin_interface import get_registry
 from my_plugins.formatters.csv_formatter import CsvFormatter
@@ -321,6 +329,7 @@ formatted = registry.get_formatter("csv").format(results)
 **Method 2: Entry Points (setuptools)**
 
 Add to `setup.py`:
+
 ```python
 setup(
     name="xmlcompare-csv-plugin",
@@ -339,6 +348,7 @@ setup(
 Then install: `pip install -e .`
 
 The entry points are automatically discovered on import:
+
 ```python
 from plugin_interface import get_registry
 registry = get_registry()
@@ -351,7 +361,7 @@ registry = get_registry()
 
 ### Setting Up Plugin Module
 
-```
+```shell
 my-plugins/
 ├── pom.xml
 └── src/main/java/com/example/xmlcompare/plugin/
@@ -363,14 +373,14 @@ my-plugins/
 
 Create: `src/main/resources/META-INF/services/com.xmlcompare.plugin.FormatterPlugin`
 
-```
+```java
 com.example.xmlcompare.plugin.MarkdownFormatter
 com.example.xmlcompare.plugin.CsvFormatter
 ```
 
 Create: `src/main/resources/META-INF/services/com.xmlcompare.plugin.DifferenceFilter`
 
-```
+```java
 com.example.xmlcompare.plugin.SeverityFilter
 ```
 
@@ -378,12 +388,14 @@ com.example.xmlcompare.plugin.SeverityFilter
 
 **Method 1: Programmatic Registration**
 ```java
+
 PluginRegistry registry = new PluginRegistry();
 registry.registerFormatter(new MarkdownFormatter());
 registry.registerFormatter(new CsvFormatter());
 ```
 
 **Method 2: Service Loader (Automatic)**
+
 ```java
 PluginRegistry registry = new PluginRegistry();
 registry.loadServiceLoader(); // Automatically discovers all registered plugins
@@ -483,7 +495,7 @@ myformat = "my_plugins.formatters:MyFormatter"
 
 Create service manifest and jar file:
 
-```
+```shell
 my-plugin.jar/
 └── META-INF/services/
     └── com.xmlcompare.plugin.FormatterPlugin
@@ -503,6 +515,7 @@ java -cp xmlcompare.jar:my-plugin.jar ... main-class
 ### Python Package
 
 1. Create `setup.py` or `pyproject.toml`:
+
 ```python
 [project]
 name = "xmlcompare-csv-plugin"
@@ -512,6 +525,7 @@ entry-points."xmlcompare.formatters" = {
 ```
 
 2. Publish to PyPI:
+
 ```bash
 pip install build
 python -m build
@@ -519,6 +533,7 @@ twine upload dist/*
 ```
 
 3. Users install:
+
 ```bash
 pip install xmlcompare xmlcompare-csv-plugin
 ```
@@ -526,6 +541,7 @@ pip install xmlcompare xmlcompare-csv-plugin
 ### Java Package
 
 1. Create Maven project:
+
 ```xml
 <project>
     <artifactId>xmlcompare-csv-plugin</artifactId>
@@ -534,11 +550,13 @@ pip install xmlcompare xmlcompare-csv-plugin
 ```
 
 2. Publish to Maven Central:
+
 ```bash
 mvn clean deploy
 ```
 
 3. Users add dependency:
+
 ```xml
 <dependency>
     <groupId>com.example</groupId>

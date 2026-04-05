@@ -2,142 +2,142 @@
 
 This guide documents all command-line options and switches for the Python implementation of xmlcompare.
 
-## Quick Reference
+## Quick Navigation
 
-```bash
-# Basic file comparison
-python xmlcompare.py --files file1.xml file2.xml
-
-# Directory comparison
-python xmlcompare.py --dirs dir1/ dir2/ --recursive
-
-# With config file
-python xmlcompare.py --files file1.xml file2.xml --config config.json
-
-# Generate JSON output
-python xmlcompare.py --files file1.xml file2.xml --output-format json
-
-# Generate HTML report
-python xmlcompare.py --files file1.xml file2.xml --output-format html --output-file report.html
-
-# Custom options
-python xmlcompare.py --files file1.xml file2.xml --tolerance 0.01 --ignore-namespaces --unordered
-```
+- [FEATURES.md](FEATURES.md) – Python-specific features
+- [../docs/CONFIG_GUIDE.md](../../docs/CONFIG_GUIDE.md) – Configuration guide
+- [../docs/FEATURES.md](../../docs/FEATURES.md) – Master feature matrix
 
 ---
 
-## Input Options
+## Usage
 
-### `--files FILE FILE` (required, unless using --dirs)
-Compare two XML files.
-
-**Usage:**
 ```bash
-python xmlcompare.py --files expected.xml actual.xml
-python xmlcompare.py --files /path/to/file1.xml /path/to/file2.xml
+python xmlcompare.py --files file1.xml file2.xml [options]
 ```
 
-**Examples:**
-- `--files file1.xml file2.xml`
-- `--files samples/orders_expected.xml samples/orders_actual.xml`
+## Options
 
----
+| Option                            | Description                      |
+| --------------------------------- | -------------------------------- |
+| --files file1 file2               | Compare two XML files            |
+| --dir dir1 dir2                   | Compare two directories          |
+| --config config.json              | Use configuration file           |
+| --output [text\|json\|html\|diff] | Output format                    |
+| --parallel                        | Enable parallel processing       |
+| --stream                          | Use streaming parser             |
+| --schema schema.xsd               | Validate with XSD schema         |
+| --plugin myplugin.py              | Use custom plugin                |
+| --xpath "//item"                  | Filter by XPath                  |
+| --type-aware                      | Enable type-aware comparison     |
+| --structure-only                  | Compare only structure           |
+| --ignore-attributes attr1 attr2   | Ignore specific attributes       |
+| --skip-elements elem1 elem2       | Skip specific elements           |
+| --max-depth N                     | Limit comparison depth           |
+| --benchmark                       | Run performance benchmark        |
+| --help                            | Show help message                |
 
-### `--dirs DIR DIR` (required, unless using --files)
-Compare two directories containing XML files.
+## Examples
 
-**Usage:**
+### Compare two files
+
 ```bash
-python xmlcompare.py --dirs dir1/ dir2/
-python xmlcompare.py --dirs /path/to/dir1 /path/to/dir2
+python xmlcompare.py --files a.xml b.xml
 ```
 
-**Options with --dirs:**
-- Combine with `--recursive` to traverse all subdirectories
-- Only `.xml` files are compared
-- Exit with status 1 if any file differs
+### Compare directories
 
----
-
-### `--recursive`
-When using `--dirs`, recurse into all subdirectories.
-
-**Usage:**
 ```bash
-python xmlcompare.py --dirs configs1/ configs2/ --recursive
+python xmlcompare.py --dir old/ new/
 ```
 
-**Without --recursive (default):**
-- Only compares XML files in the top level of specified directories
+### Use a config file
 
-**With --recursive:**
-- Compares XML files in all subdirectories preserving relative paths
-
----
-
-### `--config FILE`
-Load comparison options from a JSON or YAML configuration file.
-
-**Supported formats:**
-- JSON: `config.json`
-- YAML: `config.yaml` (requires PyYAML)
-
-**Usage:**
 ```bash
-python xmlcompare.py --files file1.xml file2.xml --config config.json
+python xmlcompare.py --files a.xml b.xml --config config.json
 ```
 
-**Config file structure:**
-```json
-{
-  "tolerance": 0.01,
-  "ignore_case": true,
-  "unordered": true,
-  "skip_keys": ["//timestamp"],
-  "output_format": "json"
-}
-```
+### Output as JSON
 
-**Note:** Command-line options override config file values.
-
----
-
-## Comparison Behavior Options
-
-### `--tolerance FLOAT`
-Numeric tolerance for comparing numeric values.
-
-**Default:** `0.0` (exact match required)
-
-**Usage:**
 ```bash
-python xmlcompare.py --files file1.xml file2.xml --tolerance 0.01
+python xmlcompare.py --files a.xml b.xml --output json
 ```
 
-**Examples:**
-- `--tolerance 0.0` - Exact numeric match
-- `--tolerance 0.001` - 0.1% tolerance
-- `--tolerance 0.01` - 1% tolerance
-- `--tolerance 0.1` - 10% tolerance
+### Parallel processing
 
-**How it works:**
-- For values `a` and `b`, they are equal if `|a - b| <= tolerance * max(|a|, |b|)`
-- Text values are not affected; only numeric values
+```bash
+python xmlcompare.py --files a.xml b.xml --parallel
+```
 
-**Example values:**
-- file1.xml: `<price>100.00</price>`
-- file2.xml: `<price>100.50</price>`
-- With `--tolerance 0.01` (1%): Equal (difference is 0.5%)
-- With `--tolerance 0.001` (0.1%): Not equal (difference is 0.5%)
+### Streaming parser
 
+```bash
+python xmlcompare.py --files a.xml b.xml --stream
+```
+
+### Schema validation
+
+```bash
+python xmlcompare.py --files a.xml b.xml --schema schema.xsd
+```
+
+### Plugin system
+
+```bash
+python xmlcompare.py --files a.xml b.xml --plugin myplugin.py
+```
+
+### XPath filtering
+
+```bash
+python xmlcompare.py --files a.xml b.xml --xpath "/root/item"
+```
+
+### Type-aware comparison
+
+```bash
+python xmlcompare.py --files a.xml b.xml --type-aware
+```
+
+### Structure-only mode
+
+```bash
+python xmlcompare.py --files a.xml b.xml --structure-only
+```
+
+### Ignore attributes
+
+```bash
+python xmlcompare.py --files a.xml b.xml --ignore-attributes timestamp id
+```
+
+### Skip elements
+
+```bash
+python xmlcompare.py --files a.xml b.xml --skip-elements meta debug
+```
+
+### Limit depth
+
+```bash
+python xmlcompare.py --files a.xml b.xml --max-depth 3
+```
+
+### Benchmark
+
+```bash
+python xmlcompare.py --benchmark --files a.xml b.xml
+```
 ---
 
 ### `--ignore-case`
+
 Compare text values case-insensitively.
 
 **Default:** `false` (case-sensitive)
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --ignore-case
 ```
@@ -145,6 +145,7 @@ python xmlcompare.py --files file1.xml file2.xml --ignore-case
 **Examples:**
 
 With `--ignore-case`:
+
 ```xml
 <!-- file1.xml -->
 <status>Active</status>
@@ -156,6 +157,7 @@ With `--ignore-case`:
 ```
 
 Without `--ignore-case`:
+
 ```xml
 <!-- Same XML files -->
 <!-- Result: NOT EQUAL (case mismatch) -->
@@ -164,11 +166,13 @@ Without `--ignore-case`:
 ---
 
 ### `--unordered`
+
 Compare child elements in any order (not position-dependent).
 
 **Default:** `false` (order matters)
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --unordered
 ```
@@ -176,6 +180,7 @@ python xmlcompare.py --files file1.xml file2.xml --unordered
 **Examples:**
 
 With `--unordered`:
+
 ```xml
 <!-- file1.xml -->
 <root>
@@ -193,6 +198,7 @@ With `--unordered`:
 ```
 
 Without `--unordered`:
+
 ```xml
 <!-- Same XML files -->
 <!-- Result: NOT EQUAL (different order) -->
@@ -201,11 +207,13 @@ Without `--unordered`:
 ---
 
 ### `--ignore-namespaces`
+
 Ignore XML namespace URIs when comparing elements and attributes.
 
 **Default:** `false` (namespaces matter)
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --ignore-namespaces
 ```
@@ -213,6 +221,7 @@ python xmlcompare.py --files file1.xml file2.xml --ignore-namespaces
 **Examples:**
 
 With `--ignore-namespaces`:
+
 ```xml
 <!-- file1.xml -->
 <root xmlns="http://example.com/v1">
@@ -228,6 +237,7 @@ With `--ignore-namespaces`:
 ```
 
 Without `--ignore-namespaces`:
+
 ```xml
 <!-- Same XML files -->
 <!-- Result: NOT EQUAL (different namespace URIs) -->
@@ -236,11 +246,13 @@ Without `--ignore-namespaces`:
 ---
 
 ### `--ignore-attributes`
+
 Ignore all XML attributes; compare only element structure and text content.
 
 **Default:** `false` (attributes matter)
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --ignore-attributes
 ```
@@ -248,6 +260,7 @@ python xmlcompare.py --files file1.xml file2.xml --ignore-attributes
 **Examples:**
 
 With `--ignore-attributes`:
+
 ```xml
 <!-- file1.xml -->
 <item id="1" status="active">Widget</item>
@@ -259,6 +272,7 @@ With `--ignore-attributes`:
 ```
 
 Without `--ignore-attributes`:
+
 ```xml
 <!-- Same XML files -->
 <!-- Result: NOT EQUAL (attribute differences detected) -->
@@ -267,11 +281,13 @@ Without `--ignore-attributes`:
 ---
 
 ### `--structure-only`
+
 Compare only XML structure and element names; ignore text content and attributes.
 
 **Default:** `false`
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --structure-only
 ```
@@ -279,6 +295,7 @@ python xmlcompare.py --files file1.xml file2.xml --structure-only
 **Examples:**
 
 With `--structure-only`:
+
 ```xml
 <!-- file1.xml -->
 <root>
@@ -298,16 +315,19 @@ With `--structure-only`:
 ---
 
 ### `--max-depth INT`
+
 Limit comparison depth (useful for deeply nested XML).
 
 **Default:** `null` (unlimited)
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --max-depth 5
 ```
 
 **Examples:**
+
 - `--max-depth 1` - Only compare root element
 - `--max-depth 2` - Compare root and one level of children
 - `--max-depth 5` - Compare up to 5 levels deep
@@ -317,18 +337,22 @@ python xmlcompare.py --files file1.xml file2.xml --max-depth 5
 ## Filtering Options
 
 ### `--skip-keys PATH [PATH ...]`
+
 Skip specific elements by path or tag name.
 
 **Syntax:**
+
 - `//tagname` - Skip elements with this tag name anywhere in the document
 - `/path/to/element` - Skip element at this exact path
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --skip-keys "//timestamp" "//uuid" "/root/metadata/version"
 ```
 
 **Examples:**
+
 ```bash
 # Skip timestamp elements anywhere
 python xmlcompare.py --files file1.xml file2.xml --skip-keys "//timestamp"
@@ -346,14 +370,17 @@ python xmlcompare.py --files file1.xml file2.xml --skip-keys "//temp" "/root/deb
 ---
 
 ### `--skip-pattern REGEX`
+
 Regular expression pattern to skip elements by tag name.
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --skip-pattern "^(temp|debug|test).*$"
 ```
 
 **Examples:**
+
 ```bash
 # Skip tags starting with underscore
 python xmlcompare.py --files file1.xml file2.xml --skip-pattern "^_.*"
@@ -368,14 +395,17 @@ python xmlcompare.py --files file1.xml file2.xml --skip-pattern ".*meta.*"
 ---
 
 ### `--filter XPATH`
+
 XPath expression to filter which elements to compare.
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --filter "//orders/order[status='active']"
 ```
 
 **Examples:**
+
 ```bash
 # Compare only active orders
 python xmlcompare.py --files file1.xml file2.xml --filter "//order[status='active']"
@@ -392,16 +422,19 @@ python xmlcompare.py --files file1.xml file2.xml --filter "//users/user[@id='use
 ## Output Options
 
 ### `--output-format FORMAT`
+
 Output format for comparison results.
 
 **Options:** `text` (default), `json`, `html`, `html-diff`, `unified-diff`
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --output-format json
 ```
 
 #### `text` (default)
+
 Human-readable text output with color (if TTY).
 
 ```bash
@@ -409,6 +442,7 @@ python xmlcompare.py --files file1.xml file2.xml --output-format text
 ```
 
 Output:
+
 ```
 [ATTR] Path: /root/item - attribute 'id' mismatch
   Expected : 123
@@ -416,6 +450,7 @@ Output:
 ```
 
 #### `json`
+
 Structured JSON output for programmatic processing.
 
 ```bash
@@ -423,6 +458,7 @@ python xmlcompare.py --files file1.xml file2.xml --output-format json
 ```
 
 Output:
+
 ```json
 {
   "file1.xml vs file2.xml": {
@@ -441,6 +477,7 @@ Output:
 ```
 
 #### `html` or `html-diff`
+
 Interactive HTML report with side-by-side comparison.
 
 ```bash
@@ -448,6 +485,7 @@ python xmlcompare.py --files file1.xml file2.xml --output-format html --output-f
 ```
 
 Features:
+
 - Two-column layout (expected vs actual)
 - Color-coded differences
 - Line numbers
@@ -455,6 +493,7 @@ Features:
 - Works offline
 
 #### `unified-diff`
+
 Standard unified diff format (like `git diff --unified`).
 
 ```bash
@@ -462,7 +501,8 @@ python xmlcompare.py --files file1.xml file2.xml --output-format unified-diff
 ```
 
 Output:
-```
+
+```shell
 --- file1.xml
 +++ file2.xml
 @@ /root/item @@
@@ -473,11 +513,13 @@ Output:
 ---
 
 ### `--output-file FILE`
+
 Write output to a file instead of stdout.
 
 **Default:** stdout
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --output-file results.txt
 python xmlcompare.py --files file1.xml file2.xml --output-format json --output-file results.json
@@ -486,28 +528,32 @@ python xmlcompare.py --files file1.xml file2.xml --output-format json --output-f
 ---
 
 ### `--summary`
+
 Print only summary (difference count) instead of detailed differences.
 
 **Default:** `false` (print all differences)
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --summary
 ```
 
 Output:
-```
+```shell
 Total differences: 3
 ```
 
 ---
 
 ### `--verbose`
+
 Enable verbose output with additional diagnostic information.
 
 **Default:** `false`
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --verbose
 ```
@@ -515,11 +561,13 @@ python xmlcompare.py --files file1.xml file2.xml --verbose
 ---
 
 ### `--quiet`
+
 Suppress all output except exit code.
 
 **Default:** `false`
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --quiet
 echo $?  # Exit code only
@@ -530,11 +578,13 @@ echo $?  # Exit code only
 ## Flow Control Options
 
 ### `--fail-fast`
+
 Stop comparison on the first difference found.
 
 **Default:** `false` (compare entire documents)
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --fail-fast
 ```
@@ -546,9 +596,11 @@ python xmlcompare.py --files file1.xml file2.xml --fail-fast
 ## Advanced Options (Phase 1 Features)
 
 ### `--schema FILE`
+
 Path to XSD schema file for schema-aware comparison.
 
 **Usage:**
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --schema schema.xsd
 ```
@@ -556,9 +608,11 @@ python xmlcompare.py --files file1.xml file2.xml --schema schema.xsd
 ---
 
 ### Type-Aware Comparison
+
 Comparison using schema type hints (currently in `schema_analyzer.py`).
 
 **Features:**
+
 - Date value normalization
 - Numeric type handling
 - Boolean comparison
@@ -569,6 +623,7 @@ Comparison using schema type hints (currently in `schema_analyzer.py`).
 ## Config File Examples
 
 ### Example 1: Basic Production Config
+
 ```json
 {
   "tolerance": 0.001,
@@ -586,6 +641,7 @@ Command: `python xmlcompare.py --files test1.xml test2.xml --config config.json`
 ---
 
 ### Example 2: Flexible Development Config
+
 ```json
 {
   "tolerance": 0.01,
@@ -602,6 +658,7 @@ Command: `python xmlcompare.py --files test1.xml test2.xml --config config.json`
 ---
 
 ### Example 3: Strict Testing Config
+
 ```json
 {
   "tolerance": 0.0,
@@ -618,37 +675,42 @@ Command: `python xmlcompare.py --files test1.xml test2.xml --config config.json`
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| 0 | Files are equal |
-| 1 | Files differ; differences found |
-| 2 | Error (file not found, invalid XML, invalid arguments) |
+| Code  | Meaning                                                |
+| ----- | ------------------------------------------------------ |
+| 0     | Files are equal                                        |
+| 1     | Files differ; differences found                        |
+| 2     | Error (file not found, invalid XML, invalid arguments) |
 
 ---
 
 ## Common Patterns
 
 ### Skip all metadata elements
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --skip-keys "//metadata" "//timestamp" "//version"
 ```
 
 ### Compare only structure
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --structure-only --ignore-attributes
 ```
 
 ### Flexible comparison
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --tolerance 0.001 --ignore-case --unordered --ignore-namespaces
 ```
 
 ### Generate machine-readable report
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --output-format json --output-file report.json --quiet
 ```
 
 ### Interactive HTML report
+
 ```bash
 python xmlcompare.py --files file1.xml file2.xml --output-format html --output-file comparison.html
 ```
@@ -658,6 +720,7 @@ python xmlcompare.py --files file1.xml file2.xml --output-format html --output-f
 ## Troubleshooting
 
 ### "File not found error"
+
 Ensure the file path is correct and relative to your current working directory or use absolute paths.
 
 ```bash
@@ -669,13 +732,16 @@ python xmlcompare.py --files /absolute/path/test.xml /absolute/path/test2.xml
 ```
 
 ### "Invalid XML" error
+
 The XML file is malformed. Check syntax using an XML validator:
 ```bash
 xmllint test.xml  # Requires libxml2
 ```
 
 ### Config file not loading
+
 Ensure JSON/YAML syntax is valid:
+
 ```bash
 python -m json.tool config.json  # Validate JSON
 ```

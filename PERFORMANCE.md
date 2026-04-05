@@ -8,35 +8,35 @@ Comprehensive guide to understanding and optimizing xmlcompare performance for y
 
 Benchmark results on a reference machine (Intel i7, 16GB RAM, SSD):
 
-| File Size | Format | Time | Memory | Throughput |
-|-----------|--------|------|--------|-----------|
-| 1 MB      | DOM    | 120ms | 15MB | ~8 MB/s |
-| 1 MB      | Stream | 180ms | 3MB | ~5 MB/s  |
-| 10 MB     | DOM    | 1.2s  | 150MB | ~8 MB/s  |
-| 10 MB     | Stream | 2.5s  | 5MB | ~4 MB/s   |
-| 100 MB    | DOM    | 12s   | 1.5GB | ~8 MB/s  |
-| 100 MB    | Stream | 30s   | 15MB | ~3 MB/s  |
-| 1 GB      | Stream | 5min  | 50MB | ~3 MB/s  |
+| File Size | Format | Time  | Memory | Throughput |
+| --------- | ------ | ----- | ------ | ---------- |
+| 1 MB      | DOM    | 120ms | 15MB   | ~8 MB/s    |
+| 1 MB      | Stream | 180ms | 3MB    | ~5 MB/s    |
+| 10 MB     | DOM    | 1.2s  | 150MB  | ~8 MB/s    |
+| 10 MB     | Stream | 2.5s  | 5MB    | ~4 MB/s    |
+| 100 MB    | DOM    | 12s   | 1.5GB  | ~8 MB/s    |
+| 100 MB    | Stream | 30s   | 15MB   | ~3 MB/s    |
+| 1 GB      | Stream | 5min  | 50MB   | ~3 MB/s    |
 
 ### Comparison Options Overhead
 
 Relative cost of comparison options (compared to baseline):
 
-| Option | Overhead | Notes |
-|--------|----------|-------|
-| baseline | 1x | Simple element comparison |
-| --ignore-case | +10% | Case normalization |
-| --unordered | +20% | Set-based sorting |
-| --tolerance 0.01 | +5% | Numeric normalization |
-| --structure-only | -50% | Skips text/attr comparison |
-| --schema | +15% | XSD validation |
-| --type-aware | +20% | Type-aware matching  |
+| Option           | Overhead       | Notes                      |
+| ---------------- | -------------- | -------------------------- |
+| baseline         | 1x             | Simple element comparison  |
+| --ignore-case    | +10%           | Case normalization         |
+| --unordered      | +20%           | Set-based sorting          |
+| --tolerance 0.01 | +5%            | Numeric normalization      |
+| --structure-only | -50%           | Skips text/attr comparison |
+| --schema         | +15%           | XSD validation             |
+| --type-aware     | +20%           | Type-aware matching        |
 
 ### Memory Usage Patterns
 
 Typical memory usage by comparison size (DOM parsing):
 
-```
+```plaintext
 File Size  Memory Usage
 1 MB       ~15 MB
 10 MB      ~150 MB
@@ -45,7 +45,8 @@ File Size  Memory Usage
 ```
 
 With streaming parser:
-```
+
+```plaintext
 Any size   ~50 MB (constant)
 ```
 
@@ -56,12 +57,14 @@ Any size   ~50 MB (constant)
 ### For Large Files (>100 MB)
 
 1. **Use Streaming Parser**
+
    ```bash
    xmlcompare --files huge1.xml huge2.xml --stream
    # Saves 100x memory
    ```
 
 2. **Skip Metadata Elements**
+
    ```bash
    xmlcompare --files huge1.xml huge2.xml \
               --skip-keys "timestamp" "version" "revision" \
@@ -70,6 +73,7 @@ Any size   ~50 MB (constant)
    ```
 
 3. **Use Structure-Only Mode**
+
    ```bash
    xmlcompare --files huge1.xml huge2.xml --structure-only
    # 2x faster when only structure matters
@@ -78,6 +82,7 @@ Any size   ~50 MB (constant)
 ### For Frequent Comparisons
 
 1. **Pre-filter Unchanged Files**
+
    ```bash
    # Quick size/checksum check before full comparison
    if [[ $(stat -c%s file1.xml) -ne $(stat -c%s file2.xml) ]]; then
@@ -86,6 +91,7 @@ Any size   ~50 MB (constant)
    ```
 
 2. **Cache Schema Analysis**
+
    ```bash
    # First run: schema loaded, cached
    xmlcompare --files a.xml b.xml --schema schema.xsd
@@ -93,6 +99,7 @@ Any size   ~50 MB (constant)
    ```
 
 3. **Parallelize Multiple Comparisons**
+
    ```bash
    # Process multiple files in parallel
    for f1 in file_*.xml; do
@@ -105,12 +112,16 @@ Any size   ~50 MB (constant)
 ### For Real-Time Monitoring
 
 1. **Use Interactive Mode**
+2.
+
    ```bash
    xmlcompare --interactive
    # Lazy load, filter on demand
    ```
 
-2. **Export for Analysis**
+3. **Export for Analysis**
+4.
+
    ```bash
    xmlcompare --files file1.xml file2.xml --output-format json > results.json
    # Process asynchronously
@@ -119,6 +130,8 @@ Any size   ~50 MB (constant)
 ### For Report Generation
 
 1. **Generate Once, Filter Many**
+2.
+
    ```bash
    # Generate full report once
    xmlcompare --files file1.xml file2.xml --output-format json > full_report.json

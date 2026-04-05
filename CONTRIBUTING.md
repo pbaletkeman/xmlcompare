@@ -51,6 +51,7 @@ git checkout -b bugfix/your-bug-fix
 ```
 
 Use descriptive branch names:
+
 - `feature/namespace-handling` ✓
 - `bugfix/tolerance-rounding` ✓
 - `docs/update-readme` ✓
@@ -174,23 +175,25 @@ Then create a pull request on GitHub with:
 
 Example PR description:
 
-```
 ## Description
+
 Adds support for XPath filtering to allow users to compare only specific XML subtrees.
 
 ## Changes
+
 - Added `--filter XPATH` command-line option
 - Implemented XPath evaluation in both Python and Java
 - Added 15 new test cases covering various XPath expressions
 
 ## Testing
+
 ```bash
 ./run.sh --files a.xml b.xml --filter "//order"
 ```
 
 ## Related Issues
+
 Closes #45
-```
 
 ## Code Review Process
 
@@ -256,6 +259,7 @@ Use [GitHub Issues](https://github.com/pbaletkeman/xmlcompare/issues) to report 
 ### Bug Report
 
 Include:
+
 - **Description**: What went wrong?
 - **Steps to reproduce**: Exact commands and inputs
 - **Expected behavior**: What should happen?
@@ -267,6 +271,7 @@ Include:
 ### Feature Request
 
 Include:
+
 - **Description**: What would you like?
 - **Use case**: Why do you need it?
 - **Proposed solution**: How should it work?
@@ -274,7 +279,7 @@ Include:
 
 ## Project Structure
 
-```
+```shell
 xmlcompare/
 ├── python/
 │   ├── xmlcompare.py        # Main implementation

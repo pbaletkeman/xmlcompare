@@ -21,100 +21,100 @@ Python 3.8+ implementation of xmlcompare with flexible XML comparison options.
 ```bash
 # Build: create venv, install deps, run 167 tests
 ./build.sh          # Linux / macOS
-build.bat           # Windows CMD
-.\build.ps1         # Windows PowerShell
+# xmlcompare (Python)
 
-# Run examples
-./run.sh --files samples/orders_expected.xml samples/orders_actual_diff.xml
-./run.sh --files samples/readings_a.xml samples/readings_b.xml --tolerance 0.005
-```
+High-performance XML comparison tool (Python implementation)
 
----
+## Quick Navigation
 
-## Build and Run Scripts
-
-| Script | Platform | Purpose |
-|--------|----------|---------|
-| `build.sh / build.bat / build.ps1` | All | Setup venv, install deps, run tests |
-| `run.sh / run.bat / run.ps1` | All | Activate venv and run xmlcompare |
-
-**Usage:**
-```bash
-./run.sh --files file1.xml file2.xml [OPTIONS]
-./run.sh --dirs dir1/ dir2/ --recursive [OPTIONS]
-```
+- [FEATURES.md](docs/FEATURES.md) – Python-specific features
+- [CLI_REFERENCE.md](docs/CLI_REFERENCE.md) – Command-line usage
+- [../docs/CONFIG_GUIDE.md](../docs/CONFIG_GUIDE.md) – Configuration guide
+- [../docs/FEATURES.md](../docs/FEATURES.md) – Master feature matrix
 
 ---
 
-## Building a Wheel
+## Overview
 
-Create a distributable Python package:
+xmlcompare (Python) is a fast, extensible XML comparison tool for data validation, regression testing, and automated QA. It supports large files, fuzzy matching, and advanced filtering.
+
+**Key Features:**
+- Parallel processing for large datasets
+- Streaming parser for low memory usage
+- Schema validation (XSD)
+- Plugin system for custom logic
+- Multiple output formats: text, JSON, HTML, diff
+
+## Installation
 
 ```bash
-./wheel.sh          # Linux / macOS  → dist/xmlcompare-1.0.0-py3-none-any.whl
-wheel.bat           # Windows CMD
-.\wheel.ps1         # Windows PowerShell
-
-# Install and use globally
-pip install dist/xmlcompare-1.0.0-py3-none-any.whl
-xmlcompare --files file1.xml file2.xml
+pip install xmlcompare
 ```
 
----
+Or from source:
 
-## Command Reference
+```bash
+git clone https://github.com/example/xmlcompare.git
+cd xmlcompare/python
+pip install .
+```
 
-**Input (choose one):**
-- `--files FILE1 FILE2` - Compare two files
-- `--dirs DIR1 DIR2` - Compare directories
-- `--recursive` - Include subdirectories
+## Usage
 
-**Comparison options:**
-- `--tolerance FLOAT` - Numeric variation (default: 0.0)
-- `--ignore-case` - Case-insensitive text
-- `--unordered` - Ignore element order
-- `--ignore-namespaces` - Strip XML namespaces
-- `--ignore-attributes` - Skip attribute comparison
-- `--structure-only` - Compare structure only
-- `--max-depth INT` - Limit comparison depth
+### Basic file comparison
 
-**Filtering:**
-- `--skip-keys XPATH…` - Skip specific elements
-- `--skip-pattern REGEX` - Skip elements matching regex
-- `--filter XPATH` - Compare only matching elements
+```bash
+python xmlcompare.py --files file1.xml file2.xml
+```
 
-**Output:**
-- `--output-format text|json|html` - Report format (default: text)
-- `--output-file FILE` - Write to file
-- `--summary` - Count only
-- `--verbose` - Trace output
-- `--quiet` - Suppress output
-- `--fail-fast` - Stop at first difference
+### Directory comparison
 
-**Configuration:**
-- `--config FILE` - Load from YAML/JSON config file
+```bash
+python xmlcompare.py --dir dir1 dir2
+```
 
-**Full reference:** See [docs/CLI_REFERENCE.md](docs/CLI_REFERENCE.md)
+### With configuration file
 
----
+```bash
+python xmlcompare.py --files file1.xml file2.xml --config config.json
+```
 
-## Exit Codes
+### Output formats
 
-| Code | Meaning |
-|------|---------|
-| **0** | Files are equal |
-| **1** | Files differ |
-| **2** | Error (file not found, invalid XML, etc.) |
+```bash
+python xmlcompare.py --files file1.xml file2.xml --output json
+python xmlcompare.py --files file1.xml file2.xml --output html
+python xmlcompare.py --files file1.xml file2.xml --output diff
+```
 
----
+## Command-Line Reference
 
-## Configuration Files
+See [CLI_REFERENCE.md](docs/CLI_REFERENCE.md) for all options and examples.
 
-Load settings from JSON or YAML:
+## Configuration
 
-**Example config.json:**
-```json
-{
+See [../docs/CONFIG_GUIDE.md](../docs/CONFIG_GUIDE.md) for all config options and examples.
+
+## Features
+
+See [FEATURES.md](docs/FEATURES.md) for a full list of Python-specific features.
+
+## Testing
+
+```bash
+pytest
+```
+
+## Contributing
+
+1. Fork the repo
+2. Create a feature branch
+3. Write tests for new features
+4. Submit a pull request
+
+## License
+
+MIT
   "tolerance": 0.001,
   "ignoreCase": true,
   "unordered": true,
