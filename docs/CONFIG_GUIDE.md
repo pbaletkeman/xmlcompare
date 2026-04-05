@@ -382,9 +382,9 @@ python -c "import yaml; yaml.safe_load(open('config.yaml'))"
 
 3. **Version Control Configs**
 
-   ```bash"
+   ```bash
    git add config*.json
-   git commit -m "Add production config
+   git commit -m "Add production config"
    ```
 
 4. **Use Profiles**

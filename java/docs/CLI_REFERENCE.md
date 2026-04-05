@@ -354,7 +354,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --max-depth 5
 
 - `--max-depth 1` - Only compare root element
 
-# xmlcompare (Java) – CLI Reference
+## xmlcompare (Java) – CLI Reference
 
 ## Quick Navigation
 
@@ -483,19 +483,11 @@ java -jar xmlcompare.jar --files a.xml b.xml --max-depth 3
 java -jar xmlcompare.jar --benchmark --files a.xml b.xml
 ```
 
-```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --output-format html --output-file report.html
-```
+---
 
-Features:
+## Output Format Details
 
-- Two-column layout (expected vs actual)
-- Color-coded differences (red/green)
-- Line numbers
-- Collapsible sections
-- Works offline
-
-#### `unified-diff`
+### `unified-diff`
 
 Standard unified diff format (like `git diff --unified`).
 
@@ -544,7 +536,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --summary
 
 Output:
 
-```
+```shell
 Total differences: 3
 ```
 

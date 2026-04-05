@@ -42,7 +42,7 @@ Master features guide covering both Python and Java implementations of xmlcompar
 | HTML          | ✅     | ✅   | Interactive side-by-side report  |
 | Unified Diff  | ✅     | ✅   | Standard diff format             |
 
-### Advanced Features
+### Advanced Features - Table
 
 | Feature                | Python | Java | Notes                        |
 |------------------------|--------|------|----------------------------- |
@@ -387,7 +387,7 @@ java -jar xmlcompare.jar --files huge1.xml huge2.xml --parallel --threads 8
 
 **See:** [Java FEATURES](../java/docs/FEATURES.md#parallel-processing-experimental)
 
-#### Streaming Parser (Experimental)
+#### Streaming Parser (Experimental) SAX-based
 
 SAX-based streaming for constant memory usage.
 

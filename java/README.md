@@ -16,16 +16,32 @@ A Java 21 port of the Python `xmlcompare` tool for comparing XML files and direc
 
 ## Table of Contents
 
-- [Prerequisites](#prerequisites)
-- [Building](#building)
-- [Building a Fat JAR](#building-a-fat-jar)
-- [Running](#running)
-- [CLI Options](#cli-options)
-- [Sample Commands](#sample-commands)
-- [Config File Format](#config-file-format)
-- [Exit Codes](#exit-codes)
-- [Running Tests](#running-tests)
-- [Code Quality](#code-quality)
+- [xmlcompare — Java Edition](#xmlcompare--java-edition)
+  - [Quick Navigation](#quick-navigation)
+  - [Table of Contents](#table-of-contents)
+  - [Prerequisites](#prerequisites)
+  - [Building](#building)
+    - [With Gradle (recommended)](#with-gradle-recommended)
+    - [With Maven](#with-maven)
+    - [With the build script (both Gradle and Maven)](#with-the-build-script-both-gradle-and-maven)
+  - [Usage](#usage)
+    - [Basic file comparison](#basic-file-comparison)
+    - [Directory comparison](#directory-comparison)
+    - [With configuration file](#with-configuration-file)
+    - [Output formats](#output-formats)
+  - [Command-Line Reference](#command-line-reference)
+  - [Configuration](#configuration)
+  - [Features](#features)
+  - [Testing](#testing)
+  - [Contributing](#contributing)
+  - [License](#license)
+  - [Sample Commands](#sample-commands)
+  - [Config File Format](#config-file-format)
+  - [Exit Codes](#exit-codes)
+  - [Running Tests](#running-tests)
+  - [Code Quality](#code-quality)
+    - [Checkstyle (Code Style Validation)](#checkstyle-code-style-validation)
+    - [XSD Validation](#xsd-validation)
 
 ---
 
@@ -191,13 +207,12 @@ java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --ignore-case --ig
 java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --config myconfig.json
 ```
 
-
 ## Config File Format
-
 
 All options (including `structure_only` and `max_depth`) are standard and can be set in JSON or YAML config files:
 
 **JSON Example:**
+
 ```json
 {
   "structure_only": true,
@@ -213,6 +228,7 @@ All options (including `structure_only` and `max_depth`) are standard and can be
 ```
 
 **YAML Example:**
+
 ```yaml
 structure_only: true
 max_depth: 2
@@ -226,11 +242,11 @@ skip_keys:
 
 ## Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| 0 | Files/directories are equal |
-| 1 | Differences found |
-| 2 | Error (file not found, invalid XML, etc.) |
+| Code  | Meaning                                   |
+| ----- | ----------------------------------------- |
+| 0     | Files/directories are equal               |
+| 1     | Differences found                         |
+| 2     | Error (file not found, invalid XML, etc.) |
 
 ## Running Tests
 
@@ -257,22 +273,26 @@ The project enforces Google-style coding standards with a 120-character line len
 **Run Checkstyle:**
 
 Using Maven:
+
 ```bash
 mvn checkstyle:check
 ```
 
 Using Gradle:
+
 ```bash
 ./gradlew checkstyleMain checkstyleTest
 ```
 
 **Configuration:**
+
 - `checkstyle.xml` — Main Google-style ruleset
 - `suppressions.xml` — Suppresses specific violations for third-party or generated code
 - Line length: 120 characters (Google style default is 80; configured to 120 for readability)
 - Indentation: 2 spaces (Google style standard)
 
 **Violations reported by Checkstyle:**
+
 - Import statement issues (wildcard imports forbidden)
 - Naming conventions (TypeName, MethodName, ParameterName, etc.)
 - Whitespace rules (spacing around operators, method params, casts, etc.)
@@ -287,21 +307,25 @@ XSD (XML Schema Definition) validation is available as part of the testing suite
 **Test XSD validation:**
 
 Using Maven:
+
 ```bash
 mvn clean test -Dtest=XsdValidatorTest
 ```
 
 Using Gradle:
+
 ```bash
 ./gradlew test --tests XsdValidatorTest
 ```
 
 **XSD Validation Files:**
+
 - `src/test/resources/schema.xsd` — Example XSD schema
 - `src/test/resources/valid.xml` — Example XML valid against the schema
 - `src/test/resources/invalid.xml` — Example XML invalid against the schema
 
 The `XsdValidator` class can be used programmatically:
+
 ```java
 XsdValidator validator = new XsdValidator("path/to/schema.xsd");
 validator.validate("path/to/document.xml");  // Throws IOException if invalid

@@ -15,15 +15,58 @@ The Python implementation includes:
 
 ---
 
-## Table of Contents
-
-1. [Output Formatters](#output-formatters)
-2. [Interactive Mode](#interactive-mode)
-3. [Streaming Parser](#streaming-parser)
-4. [Schema Analysis & Validation](#schema-analysis--validation)
-5. [Plugin System](#plugin-system)
-6. [Performance Benchmarking](#performance-benchmarking)
-7. [Command Examples](#command-examples)
+- [xmlcompare Python - Features \& Advanced Topics](#xmlcompare-python---features--advanced-topics)
+  - [Overview](#overview)
+  - [Output Formatters](#output-formatters)
+    - [Text Format (Default)](#text-format-default)
+    - [JSON Format](#json-format)
+    - [HTML Format](#html-format)
+    - [Unified Diff Format](#unified-diff-format)
+  - [Interactive Mode](#interactive-mode)
+    - [Launching Interactive Mode](#launching-interactive-mode)
+    - [Features](#features)
+    - [Example Session](#example-session)
+  - [Example: Streaming Parser](#example-streaming-parser)
+  - [Example: Schema Validation](#example-schema-validation)
+  - [Example: Plugin System](#example-plugin-system)
+  - [Example: XPath Filtering](#example-xpath-filtering)
+  - [Example: Type-Aware Comparison](#example-type-aware-comparison)
+  - [Example: Output Formats](#example-output-formats)
+  - [Example: Config File](#example-config-file)
+  - [Example: Directory Comparison](#example-directory-comparison)
+  - [Example: Structure-Only Mode](#example-structure-only-mode)
+  - [Example: Attribute Filtering](#example-attribute-filtering)
+  - [Example: Element Filtering](#example-element-filtering)
+  - [Example: Depth Limiting](#example-depth-limiting)
+  - [Example: Performance Benchmarks](#example-performance-benchmarks)
+  - [Access type information](#access-type-information)
+  - [Plugin System](#plugin-system)
+    - [Creating a Plugin](#creating-a-plugin)
+    - [Using Plugins](#using-plugins)
+    - [Plugin Types](#plugin-types)
+    - [Plugin Registry](#plugin-registry)
+  - [Performance Benchmarking](#performance-benchmarking)
+    - [Running Benchmarks](#running-benchmarks)
+    - [What Gets Measured](#what-gets-measured)
+    - [Benchmark Output](#benchmark-output)
+    - [Interpreting Results](#interpreting-results)
+    - [Optimization Tips](#optimization-tips)
+  - [Command Examples](#command-examples)
+    - [Example 1: Flexible Development Comparison](#example-1-flexible-development-comparison)
+    - [Example 2: Strict Production Testing](#example-2-strict-production-testing)
+    - [Example 3: Generate HTML Report](#example-3-generate-html-report)
+    - [Example 4: Skip Metadata Fields](#example-4-skip-metadata-fields)
+    - [Example 5: Filter Specific Elements](#example-5-filter-specific-elements)
+    - [Example 6: Batch Comparison with Config](#example-6-batch-comparison-with-config)
+    - [Example 7: Interactive Mode Workflow](#example-7-interactive-mode-workflow)
+  - [Advanced Configuration](#advanced-configuration)
+    - [Config File Best Practices](#config-file-best-practices)
+    - [Environment Variables](#environment-variables)
+  - [Troubleshooting](#troubleshooting)
+    - ["Out of memory" with large files](#out-of-memory-with-large-files)
+    - [Slow performance](#slow-performance)
+    - [Plugin loading fails](#plugin-loading-fails)
+  - [See Also](#see-also)
 
 ---
 
@@ -322,7 +365,7 @@ python xmlcompare.py --benchmark --files file1.xml file2.xml
 analyzer = SchemaAnalyzer()
 metadata = analyzer.analyze('schema.xsd')
 
-# Access type information
+## Access type information
 
 ```shell
 if metadata:

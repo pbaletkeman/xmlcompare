@@ -128,6 +128,7 @@ python xmlcompare.py --files a.xml b.xml --max-depth 3
 ```bash
 python xmlcompare.py --benchmark --files a.xml b.xml
 ```
+
 ---
 
 ### `--ignore-case`
@@ -443,7 +444,7 @@ python xmlcompare.py --files file1.xml file2.xml --output-format text
 
 Output:
 
-```
+```shell
 [ATTR] Path: /root/item - attribute 'id' mismatch
   Expected : 123
   Actual   : 456
@@ -540,6 +541,7 @@ python xmlcompare.py --files file1.xml file2.xml --summary
 ```
 
 Output:
+
 ```shell
 Total differences: 3
 ```
@@ -734,6 +736,7 @@ python xmlcompare.py --files /absolute/path/test.xml /absolute/path/test2.xml
 ### "Invalid XML" error
 
 The XML file is malformed. Check syntax using an XML validator:
+
 ```bash
 xmllint test.xml  # Requires libxml2
 ```

@@ -11,8 +11,6 @@ The Java implementation includes:
 - **Streaming parser** for memory-efficient large file handling (experimental)
 - **Plugin system** using SPI interface
 
-# xmlcompare (Java) – Features
-
 ## Quick Navigation
 
 - [CLI_REFERENCE.md](CLI_REFERENCE.md) – Command-line usage
@@ -150,7 +148,7 @@ java -jar xmlcompare.jar --files old.xml new.xml --output-format unified-diff | 
 
 Multi-threaded comparison for improved performance on large files.
 
-### Basic Usage
+### Parallel Processing Basic Usage
 
 ```bash
 # Automatic thread detection
@@ -255,7 +253,7 @@ java -jar xmlcompare.jar --files large1.xml large2.xml --stream
 
 XSD schema-aware comparison with type hints.
 
-### Basic Usage
+### Basic Usage Analysis
 
 ```bash
 java -jar xmlcompare.jar --files data1.xml data2.xml --schema schema.xsd

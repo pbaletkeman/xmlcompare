@@ -115,6 +115,9 @@ pytest
 ## License
 
 MIT
+
+```json
+{
   "tolerance": 0.001,
   "ignoreCase": true,
   "unordered": true,
@@ -125,6 +128,7 @@ MIT
 ```
 
 **Usage:**
+
 ```bash
 ./run.sh --files file1.xml file2.xml --config config.json
 ```
@@ -135,13 +139,13 @@ See [../config.json.example](../config.json.example) for more examples.
 
 ## Sample XML Files
 
-| File | Description |
-|------|-------------|
-| `samples/orders_expected.xml` | Reference document |
-| `samples/orders_actual_equal.xml` | Equal (normalized) |
-| `samples/orders_actual_diff.xml` | With differences |
-| `samples/catalog_ns_*.xml` | Namespace examples |
-| `samples/readings_*.xml` | Numeric tolerance examples |
+| File                              | Description                |
+| --------------------------------- | -------------------------- |
+| `samples/orders_expected.xml`     | Reference document         |
+| `samples/orders_actual_equal.xml` | Equal (normalized)         |
+| `samples/orders_actual_diff.xml`  | With differences           |
+| `samples/catalog_ns_*.xml`        | Namespace examples         |
+| `samples/readings_*.xml`          | Numeric tolerance examples |
 
 ---
 
@@ -169,7 +173,7 @@ See [../config.json.example](../config.json.example) for more examples.
 
 ---
 
-## Testing
+## Testing with Python
 
 ```bash
 # Run all tests (167 tests)
