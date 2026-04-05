@@ -38,7 +38,6 @@ Complete guide to using configuration files with xmlcompare.
   - [Examples](#examples)
   - [See Also](#see-also)
 
-
 Configuration files allow you to:
 
 - Save and reuse comparison settings

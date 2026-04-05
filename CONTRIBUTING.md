@@ -24,7 +24,7 @@ Thank you for your interest in contributing to xmlcompare! This document provide
   - [Testing](#testing)
   - [Related Issues](#related-issues)
   - [Code Review Process](#code-review-process)
-  - [Testing](#testing-1)
+  - [Testing Code](#testing-code)
     - [Running Tests Locally](#running-tests-locally)
       - [Python](#python)
       - [Java](#java)
@@ -34,8 +34,8 @@ Thank you for your interest in contributing to xmlcompare! This document provide
     - [Feature Request](#feature-request)
   - [Project Structure](#project-structure)
   - [Code Style Guide](#code-style-guide)
-    - [Python](#python-1)
-    - [Java](#java-1)
+    - [Python Style](#python-style)
+    - [Java Style](#java-style)
   - [Performance Considerations](#performance-considerations)
   - [Security Considerations](#security-considerations)
   - [License](#license)
@@ -246,7 +246,7 @@ Closes #45
 
 4. **Approval**: PR merged after approval and all checks pass
 
-## Testing
+## Testing Code
 
 ### Running Tests Locally
 
@@ -348,7 +348,7 @@ xmlcompare/
 
 ## Code Style Guide
 
-### Python
+### Python Style
 
 - Use 4 spaces for indentation
 - Maximum line length: 120 characters
@@ -371,7 +371,7 @@ def compare_elements(elem1: Element, elem2: Element, opts: CompareOptions) -> Li
     """
 ```
 
-### Java
+### Java Style
 
 - Use 2 spaces for indentation
 - Maximum line length: 120 characters

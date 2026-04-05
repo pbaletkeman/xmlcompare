@@ -35,7 +35,6 @@ Python 3.8+ implementation of xmlcompare with flexible XML comparison options.
   - [Documentation](#documentation)
   - [Next Steps](#next-steps)
 
-
 ---
 
 ## Quick Start

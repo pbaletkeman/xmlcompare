@@ -37,7 +37,6 @@ This document describes the advanced features available in xmlcompare, including
     - [Schema validation errors](#schema-validation-errors)
   - [See Also](#see-also)
 
-
 ---
 
 ## Output Formatters
@@ -56,7 +55,7 @@ xmlcompare --files file1.xml file2.xml --output-format text
 
 **Output example:**
 
-```
+```shell
 [ATTR] Path: /root/element1 - attribute 'id' value mismatch
   Expected : id="123"
   Actual   : id="124"
@@ -250,6 +249,7 @@ xmlcompare --files data1.xml data2.xml --schema schema.xsd --type-aware
 ### Example
 
 Without schema:
+
 ```shell
 [TEXT] Path: /order/amount - text value mismatch
   Expected : 100.0
