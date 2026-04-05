@@ -317,6 +317,10 @@ public class Main implements Callable<Integer> {
         if (cfg.containsKey("skip_pattern")) opts.skipPattern = (String) cfg.get("skip_pattern");
         if (cfg.containsKey("filter_xpath")) opts.filterXpath = (String) cfg.get("filter_xpath");
         if (cfg.containsKey("output_format")) opts.outputFormat = (String) cfg.get("output_format");
+        if (cfg.containsKey("output_file")) opts.outputFile = (String) cfg.get("output_file");
+        if (cfg.containsKey("summary")) opts.summary = (Boolean) cfg.get("summary");
+        if (cfg.containsKey("verbose")) opts.verbose = (Boolean) cfg.get("verbose");
+        if (cfg.containsKey("quiet")) opts.quiet = (Boolean) cfg.get("quiet");
         if (cfg.containsKey("fail_fast")) opts.failFast = (Boolean) cfg.get("fail_fast");
         if (cfg.containsKey("structure_only")) opts.structureOnly = (Boolean) cfg.get("structure_only");
         if (cfg.containsKey("max_depth")) opts.maxDepth = ((Number) cfg.get("max_depth")).intValue();
@@ -324,5 +328,9 @@ public class Main implements Callable<Integer> {
         if (cfg.containsKey("schema")) opts.schema = (String) cfg.get("schema");
         if (cfg.containsKey("type_aware")) opts.typeAware = (Boolean) cfg.get("type_aware");
         if (cfg.containsKey("plugins")) opts.plugins = (List<String>) cfg.get("plugins");
+        // Performance options
+        if (cfg.containsKey("stream")) opts.streaming = (Boolean) cfg.get("stream");
+        if (cfg.containsKey("parallel")) opts.parallel = (Boolean) cfg.get("parallel");
+        if (cfg.containsKey("threads")) opts.parallelThreads = ((Number) cfg.get("threads")).intValue();
     }
 }

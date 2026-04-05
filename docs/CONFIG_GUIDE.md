@@ -63,7 +63,7 @@ Best for:
 ```json
 {
   "tolerance": 0.001,
-  "ignoreCase": false,
+  "ignore_case": false,
   "unordered": true
 }
 ```
@@ -85,9 +85,9 @@ Best for:
 
 ```yaml
 tolerance: 0.001
-ignoreCase: false
+ignore_case: false
 unordered: true
-skipKeys:
+skip_keys:
   - "//timestamp"
   - "//uuid"
 ```
@@ -111,14 +111,14 @@ Decide which options you need:
 ```json
 {
   "tolerance": 0.001,
-  "ignoreCase": false,
+  "ignore_case": false,
   "unordered": true,
-  "ignoreNamespaces": true,
-  "skipKeys": [
+  "ignore_namespaces": true,
+  "skip_keys": [
     "//timestamp",
     "//uuid"
   ],
-  "outputFormat": "json"
+  "output_format": "json"
 }
 ```
 
@@ -143,23 +143,23 @@ All available options (see also [config.json.example](../config.json.example)):
 | Option            | Type    | Default | Description                         |
 |-------------------|---------|---------|-------------------------------------|
 | `tolerance`       | number  | 0.0     | Numeric tolerance for comparisons   |
-| `ignoreCase`      | boolean | false   | Case-insensitive comparison         |
+| `ignore_case`      | boolean | false   | Case-insensitive comparison         |
 | `unordered`       | boolean | false   | Ignore element order                |
-| `ignoreNamespaces`| boolean | false   | Ignore namespace URIs               |
-| `ignoreAttributes`| boolean | false   | Ignore all attributes               |
-| `structureOnly`   | boolean | false   | Compare only structure              |
-| `maxDepth`        | integer | null    | Limit depth (null = unlimited)      |
-| `skipKeys`        | array   | []      | Elements to skip                    |
-| `skipPattern`     | string  | null    | Regex pattern for skipping          |
-| `filterXpath`     | string  | null    | XPath filter                        |
-| `outputFormat`    | string  | "text"  | Output format                       |
-| `outputFile`      | string  | null    | Output file path                    |
+| `ignore_namespaces`| boolean | false   | Ignore namespace URIs               |
+| `ignore_attributes`| boolean | false   | Ignore all attributes               |
+| `structure_only`   | boolean | false   | Compare only structure              |
+| `max_depth`        | integer | null    | Limit depth (null = unlimited)      |
+| `skip_keys`        | array   | []      | Elements to skip                    |
+| `skip_pattern`     | string  | null    | Regex pattern for skipping          |
+| `filter_xpath`     | string  | null    | XPath filter                        |
+| `output_format`    | string  | "text"  | Output format                       |
+| `output_file`      | string  | null    | Output file path                    |
 | `summary`         | boolean | false   | Print summary only                  |
 | `verbose`         | boolean | false   | Verbose output                      |
 | `quiet`           | boolean | false   | Suppress output                     |
-| `failFast`        | boolean | false   | Stop on first difference            |
+| `fail_fast`        | boolean | false   | Stop on first difference            |
 | `schema`          | string  | null    | XSD schema file path                |
-| `typeAware`       | boolean | false   | Type-aware comparison               |
+| `type_aware`       | boolean | false   | Type-aware comparison               |
 | `plugins`         | array   | []      | Plugin classes to load              |
 
 **Java-specific options:**
@@ -179,9 +179,9 @@ Create different profiles for different scenarios:
 ```json
 {
   "tolerance": 0.01,
-  "ignoreCase": true,
+  "ignore_case": true,
   "unordered": true,
-  "ignoreNamespaces": true,
+  "ignore_namespaces": true,
   "verbose": true
 }
 ```
@@ -191,11 +191,11 @@ Create different profiles for different scenarios:
 ```json
 {
   "tolerance": 0.0,
-  "ignoreCase": false,
+  "ignore_case": false,
   "unordered": false,
-  "ignoreNamespaces": false,
-  "failFast": false,
-  "outputFormat": "json"
+  "ignore_namespaces": false,
+  "fail_fast": false,
+  "output_format": "json"
 }
 ```
 
@@ -206,7 +206,7 @@ Create different profiles for different scenarios:
   "parallel": true,
   "threads": 8,
   "stream": true,
-  "failFast": true,
+  "fail_fast": true,
   "summary": true
 }
 ```
@@ -230,7 +230,7 @@ Command-line options always override config file values:
 ```json
 {
   "tolerance": 0.001,
-  "ignoreCase": false
+  "ignore_case": false
 }
 ```
 
@@ -244,7 +244,7 @@ python xmlcompare.py --files file1.xml file2.xml --config config.json --toleranc
 **Result:**
 
 - tolerance: 0.05 (overridden)
-- ignoreCase: false (from config)
+- ignore_case: false (from config)
 
 ## Advanced Patterns
 
@@ -283,8 +283,8 @@ Use multiple config files progressively:
 
 ```json
 {
-  "ignoreNamespaces": true,
-  "ignorCase": false
+  "ignore_namespaces": true,
+  "ignore_case": false
 }
 ```
 
@@ -292,10 +292,10 @@ Use multiple config files progressively:
 
 ```json
 {
-  "ignoreNamespaces": true,
-  "ignoreCase": false,
+  "ignore_namespaces": true,
+  "ignore_case": false,
   "tolerance": 0.0,
-  "failFast": true
+  "fail_fast": true
 }
 ```
 
@@ -410,7 +410,7 @@ python -c "import yaml; yaml.safe_load(open('config.yaml'))"
    {
      "description": "Production validation - strict matching",
      "tolerance": 0.0,
-     "ignoreCase": false
+     "ignore_case": false
    }
    ```
 
@@ -433,7 +433,7 @@ python -c "import yaml; yaml.safe_load(open('config.yaml'))"
    cat > config.json <<EOF
    {
      "tolerance": $TOLERANCE,
-     "outputFormat": "$OUTPUT_FORMAT"
+     "output_format": "$OUTPUT_FORMAT"
    }
    EOF
    ```

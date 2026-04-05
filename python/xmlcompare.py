@@ -604,7 +604,7 @@ def _opts_from_dict(config):
     opts.ignore_attributes = bool(config.get('ignore_attributes', False))
     opts.skip_keys = list(config.get('skip_keys', []))
     opts.skip_pattern = config.get('skip_pattern') or None
-    opts.filter_xpath = config.get('filter') or None
+    opts.filter_xpath = config.get('filter_xpath') or config.get('filter') or None
     opts.output_format = config.get('output_format', 'text')
     opts.output_file = config.get('output_file') or None
     opts.summary = bool(config.get('summary', False))

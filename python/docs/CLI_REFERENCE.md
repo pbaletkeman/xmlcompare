@@ -18,24 +18,36 @@ python xmlcompare.py --files file1.xml file2.xml [options]
 
 ## Options
 
-| Option                            | Description                      |
-| --------------------------------- | -------------------------------- |
-| --files file1 file2               | Compare two XML files            |
-| --dir dir1 dir2                   | Compare two directories          |
-| --config config.json              | Use configuration file           |
-| --output [text\|json\|html\|diff] | Output format                    |
-| --parallel                        | Enable parallel processing       |
-| --stream                          | Use streaming parser             |
-| --schema schema.xsd               | Validate with XSD schema         |
-| --plugin myplugin.py              | Use custom plugin                |
-| --xpath "//item"                  | Filter by XPath                  |
-| --type-aware                      | Enable type-aware comparison     |
-| --structure-only                  | Compare only structure           |
-| --ignore-attributes attr1 attr2   | Ignore specific attributes       |
-| --skip-elements elem1 elem2       | Skip specific elements           |
-| --max-depth N                     | Limit comparison depth           |
-| --benchmark                       | Run performance benchmark        |
-| --help                            | Show help message                |
+| Flag                              | Default     | Description                                             |
+| --------------------------------- | ----------- | ------------------------------------------------------- |
+| `--files FILE1 FILE2`             |             | Compare two XML files                                   |
+| `--dirs DIR1 DIR2`                |             | Compare two directories                                 |
+| `--recursive`                     | false       | Recurse into subdirectories (with `--dirs`)             |
+| `--config FILE`                   |             | Load settings from JSON/YAML config file                |
+| `--tolerance FLOAT`               | 0.0         | Numeric tolerance ±δ for value comparison               |
+| `--ignore-case`                   | false       | Case-insensitive text comparison                        |
+| `--unordered`                     | false       | Ignore element order                                    |
+| `--ignore-namespaces`             | false       | Ignore XML namespace URIs                               |
+| `--ignore-attributes`             | false       | Ignore all XML attributes                               |
+| `--structure-only`                | false       | Compare structure only (ignore text values)             |
+| `--max-depth INT`                 | unlimited   | Limit traversal depth                                   |
+| `--skip-keys PATH [PATH...]`      |             | Skip elements by path or tag name                       |
+| `--skip-pattern REGEX`            |             | Skip elements whose tag matches regex                   |
+| `--filter XPATH`                  |             | Compare only nodes matching XPath expression            |
+| `--output-format FORMAT`          | text        | Output: `text`, `json`, `html`, `unified-diff`          |
+| `--output-file FILE`              | stdout      | Write output to file                                    |
+| `--summary`                       | false       | Print only difference count                             |
+| `--verbose`                       | false       | Detailed element-by-element trace                       |
+| `--quiet`                         | false       | Suppress all output (exit code only)                    |
+| `--fail-fast`                     | false       | Stop on first detected difference                       |
+| `--stream`                        | false       | Streaming parser (memory-efficient for large files)     |
+| `--parallel`                      | false       | Parallel subtree comparison                             |
+| `--threads INT`                   | CPU count-1 | Worker process count (with `--parallel`)                |
+| `--interactive`                   | false       | Menu-driven interactive mode                            |
+| `--schema FILE`                   |             | XSD schema file for pre-validation and type hints       |
+| `--type-aware`                    | false       | Schema type hints for smarter comparison (needs `--schema`) |
+| `--plugins MODULE [MODULE...]`    |             | Python module paths for custom plugins                  |
+| `--help`                          |             | Show help message                                       |
 
 ## Examples
 
@@ -48,7 +60,13 @@ python xmlcompare.py --files a.xml b.xml
 ### Compare directories
 
 ```bash
-python xmlcompare.py --dir old/ new/
+python xmlcompare.py --dirs old/ new/
+```
+
+### Compare directories recursively
+
+```bash
+python xmlcompare.py --dirs old/ new/ --recursive
 ```
 
 ### Use a config file
@@ -60,13 +78,19 @@ python xmlcompare.py --files a.xml b.xml --config config.json
 ### Output as JSON
 
 ```bash
-python xmlcompare.py --files a.xml b.xml --output json
+python xmlcompare.py --files a.xml b.xml --output-format json
+```
+
+### Output as HTML report
+
+```bash
+python xmlcompare.py --files a.xml b.xml --output-format html --output-file report.html
 ```
 
 ### Parallel processing
 
 ```bash
-python xmlcompare.py --files a.xml b.xml --parallel
+python xmlcompare.py --files a.xml b.xml --parallel --threads 4
 ```
 
 ### Streaming parser
@@ -81,22 +105,34 @@ python xmlcompare.py --files a.xml b.xml --stream
 python xmlcompare.py --files a.xml b.xml --schema schema.xsd
 ```
 
-### Plugin system
+### Custom plugins
 
 ```bash
-python xmlcompare.py --files a.xml b.xml --plugin myplugin.py
+python xmlcompare.py --files a.xml b.xml --plugins mypkg.myplugin
 ```
 
-### XPath filtering
+### XPath filter
 
 ```bash
-python xmlcompare.py --files a.xml b.xml --xpath "/root/item"
+python xmlcompare.py --files a.xml b.xml --filter "//orders/order[status='active']"
 ```
 
-### Type-aware comparison
+### Skip elements
 
 ```bash
-python xmlcompare.py --files a.xml b.xml --type-aware
+python xmlcompare.py --files a.xml b.xml --skip-keys "//timestamp" "//uuid"
+```
+
+### Skip by regex pattern
+
+```bash
+python xmlcompare.py --files a.xml b.xml --skip-pattern "^(temp|debug).*$"
+```
+
+### Ignore attributes
+
+```bash
+python xmlcompare.py --files a.xml b.xml --ignore-attributes
 ```
 
 ### Structure-only mode
@@ -105,28 +141,16 @@ python xmlcompare.py --files a.xml b.xml --type-aware
 python xmlcompare.py --files a.xml b.xml --structure-only
 ```
 
-### Ignore attributes
-
-```bash
-python xmlcompare.py --files a.xml b.xml --ignore-attributes timestamp id
-```
-
-### Skip elements
-
-```bash
-python xmlcompare.py --files a.xml b.xml --skip-elements meta debug
-```
-
 ### Limit depth
 
 ```bash
 python xmlcompare.py --files a.xml b.xml --max-depth 3
 ```
 
-### Benchmark
+### Interactive mode
 
 ```bash
-python xmlcompare.py --benchmark --files a.xml b.xml
+python xmlcompare.py --interactive
 ```
 
 ---

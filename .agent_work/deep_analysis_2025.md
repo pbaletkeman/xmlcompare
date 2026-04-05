@@ -409,3 +409,100 @@ The codebase is in **good shape** overall. All 5 enhancement phases are fully im
 3. **One design issue** (streaming Difference kind names) causes wrong HTML coloring when using `--stream --output-format html-diff`
 4. **One orphaned file** (`interactive_cli_enhanced.py`) should be merged and removed
 5. **Enhancement opportunities** are plentiful — key-attribute unordered matching and colorized output would provide the most immediate user value
+
+---
+
+## 10. Second Deep Analysis Session — Additional Fixes Applied
+
+**Date:** 2025 (session 2)
+**Commit prior to this session:** `92e6a86`
+
+All issues from §3.1–3.8 and §7 (Quick Wins 1–8) were fixed in commit `92e6a86`.
+This session found and fixed 6 new issues:
+
+### 10.1 Python `_opts_from_dict()` — Wrong Config Key for XPath Filter (BUG — FIXED)
+
+**File:** `python/xmlcompare.py`, function `_opts_from_dict()`
+**Old:** `opts.filter_xpath = config.get('filter') or None`
+**Problem:** Reads JSON key `'filter'` but `config.json.example` uses `'filter_xpath'`
+and Java's `loadConfig()` also reads `'filter_xpath'`. XPath filters set via config
+file were silently ignored in Python.
+**Fix applied:** `opts.filter_xpath = config.get('filter_xpath') or config.get('filter') or None`
+(backward-compatible: accepts both `filter_xpath` and legacy `filter` key)
+
+### 10.2 Java `loadConfig()` — Missing `stream`/`parallel`/`threads`/`output_file`/`summary`/`verbose`/`quiet` (BUG — FIXED)
+
+**File:** `java/src/main/java/com/xmlcompare/Main.java`, method `loadConfig()`
+**Problem:** `loadConfig()` did not read `stream`, `parallel`, `threads`, `output_file`,
+`summary`, `verbose`, or `quiet` keys. These could only be set via CLI in Java, not via
+config file, contradicting `docs/CONFIG_GUIDE.md`.
+**Fix applied:** Added all 7 missing config keys to `loadConfig()`.
+
+### 10.3 `python/docs/CLI_REFERENCE.md` — 7+ Wrong Flags (DOC BUG — FIXED)
+
+**File:** `python/docs/CLI_REFERENCE.md`
+**Old Options table had:**
+
+| Wrong | Correct |
+|-------|---------|
+| `--dir dir1 dir2` | `--dirs DIR1 DIR2` |
+| `--output [text\|json\|html\|diff]` | `--output-format FORMAT` |
+| `--plugin myplugin.py` | `--plugins MODULE [MODULE...]` |
+| `--xpath "//item"` | `--filter XPATH` |
+| `--ignore-attributes attr1 attr2` | `--ignore-attributes` (boolean) |
+| `--skip-elements elem1 elem2` | `--skip-keys PATH [PATH...]` |
+| `--benchmark` | **does not exist** |
+
+Also missing from table: `--interactive`, `--dirs`, `--recursive`, `--tolerance`,
+`--ignore-case`, `--unordered`, `--ignore-namespaces`, `--skip-pattern`,
+`--output-file`, `--fail-fast`, `--threads`, `--summary`, `--verbose`, `--quiet`.
+
+**Fix applied:** Completely rewrote Options table and Examples section with all 30
+correct flags. Detailed per-flag documentation sections (below the table) were
+already correct and retained.
+
+### 10.4 `docs/CONFIG_GUIDE.md` — All Examples Used camelCase Key Names (DOC BUG — FIXED)
+
+**File:** `docs/CONFIG_GUIDE.md`
+**Problem:** All JSON/YAML examples and the Options table used camelCase keys
+(`ignoreCase`, `filterXpath`, `skipKeys`, `outputFormat`, `failFast`, etc.) which
+are silently ignored by both Python and Java (both implementations use snake_case).
+**Replacements made:**
+- 10× `ignoreCase` → `ignore_case`
+- 6× `ignoreNamespaces` → `ignore_namespaces`
+- 1× `ignoreAttributes` → `ignore_attributes`
+- 1× `structureOnly` → `structure_only`
+- 1× `maxDepth` → `max_depth`
+- 3× `skipKeys` → `skip_keys`
+- 1× `skipPattern` → `skip_pattern`
+- 1× `filterXpath` → `filter_xpath`
+- 4× `outputFormat` → `output_format`
+- 1× `outputFile` → `output_file`
+- 4× `failFast` → `fail_fast`
+- 1× `typeAware` → `type_aware`
+- 1× `ignorCase` (typo) → `ignore_case`
+
+### 10.5 `python/README.md` — Duplicate Embedded Second README (DOC BUG — FIXED)
+
+**Problem:** Quick Start section opened a ```` ```bash ```` fence that was never
+closed. Starting at line ~47, a second (shorter) README was embedded:
+`# xmlcompare (Python)` through `## License MIT`, followed by a camelCase JSON
+config example. This caused most of the Quick Start section to render as raw bash
+code in markdown viewers.
+**Fix applied:** Removed the embedded second README (lines 47–161) and properly
+closed the code block with `./build.bat # Windows` + ` ``` `.
+
+### 10.6 `java/README.md` — Duplicate Embedded Second README (DOC BUG — FIXED)
+
+**Problem:** Same pattern — `## Building > With the build script (both Gradle and Maven)`
+section opened a ```` ```bash ```` fence containing `# xmlcompare (Java)` through
+`## License MIT` as an embedded second README.
+**Fix applied:** Removed the embedded second README (lines 70–164) and closed the
+code block after `build.bat # Windows CMD`.
+
+### 10.7 Post-fix Test Status
+
+| Component | Tests | Status |
+|-----------|-------|--------|
+| Python (pytest) | 167/167 | ✅ All pass |
+| Java (Maven/JUnit) | 93/93 | ✅ All pass |
