@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.xmlcompare.format.HtmlSideBySideFormatter;
 import com.xmlcompare.format.UnifiedDiffFormatter;
+import com.xmlcompare.interactive.InteractiveMode;
 import com.xmlcompare.parse.StreamingXmlParser;
 import com.xmlcompare.parallel.ParallelComparison;
 import com.xmlcompare.plugin.PluginRegistry;
@@ -104,6 +105,9 @@ public class Main implements Callable<Integer> {
     @Option(names = "--type-aware", description = "Use schema type hints for smarter comparison (requires --schema)")
     private boolean typeAware;
 
+    @Option(names = "--interactive", description = "Launch interactive menu mode")
+    private boolean interactive;
+
     public static void main(String[] args) {
         int exitCode = new CommandLine(new Main()).execute(args);
         System.exit(exitCode);
@@ -111,6 +115,11 @@ public class Main implements Callable<Integer> {
 
     @Override
     public Integer call() {
+        if (interactive) {
+            InteractiveMode.run();
+            return 0;
+        }
+
         CompareOptions opts = new CompareOptions();
 
         // Load config file first, then override with CLI options
@@ -175,20 +184,44 @@ public class Main implements Callable<Integer> {
 
     private int compareFiles(String file1, String file2, CompareOptions opts, PluginRegistry registry) {
         try {
-            List<Difference> diffs = XmlCompare.compareXmlFiles(file1, file2, opts);
+            List<Difference> diffs;
+            if (opts.streaming && !opts.unordered && opts.schema == null) {
+                diffs = com.xmlcompare.parse.StreamingXmlParser.compareXmlFilesStreaming(
+                        new java.io.File(file1), new java.io.File(file2), opts);
+            } else if (opts.parallel) {
+                int threadCount = (opts.parallelThreads != null && opts.parallelThreads > 0)
+                        ? opts.parallelThreads : 0;
+                diffs = com.xmlcompare.parallel.ParallelComparison.compareXmlFilesParallel(
+                        new java.io.File(file1), new java.io.File(file2), opts, threadCount);
+            } else {
+                diffs = XmlCompare.compareXmlFiles(file1, file2, opts);
+            }
             Map<String, Object> allResults = new LinkedHashMap<>();
             allResults.put(file1 + " vs " + file2, diffs);
             String report = generateReport(allResults, opts, file1, file2, registry);
             writeOutput(report, opts);
             return diffs.isEmpty() ? 0 : 1;
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("Error: " + e.getMessage());
             return 2;
         }
     }
 
     private int compareDirs(String dir1, String dir2, CompareOptions opts, PluginRegistry registry) {
-        Map<String, Object> results = XmlCompare.compareDirs(dir1, dir2, opts, recursive);
+        Map<String, Object> results;
+        if (opts.parallel) {
+            try {
+                int threadCount = (opts.parallelThreads != null && opts.parallelThreads > 0)
+                        ? opts.parallelThreads : 0;
+                results = com.xmlcompare.parallel.ParallelComparison.compareDirsParallel(
+                        dir1, dir2, opts, threadCount, recursive);
+            } catch (Exception e) {
+                System.err.println("Parallel dir comparison failed, falling back to serial: " + e.getMessage());
+                results = XmlCompare.compareDirs(dir1, dir2, opts, recursive);
+            }
+        } else {
+            results = XmlCompare.compareDirs(dir1, dir2, opts, recursive);
+        }
         String report = generateReport(results, opts, null, null, registry);
         writeOutput(report, opts);
         boolean hasDiffs = results.values().stream().anyMatch(v -> {
