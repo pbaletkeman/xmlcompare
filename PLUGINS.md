@@ -606,20 +606,31 @@ mvn clean deploy
 ### Do
 
 ✅ Keep formatting logic separate from comparison logic
+
 ✅ Handle null/empty results gracefully
+
 ✅ Use descriptive plugin names (lowercase, hyphenated)
+
 ✅ Document plugin parameters and output format
+
 ✅ Add comprehensive tests
+
 ✅ Handle escape/encoding properly
+
 ✅ Return consistent formatted output
 
 ### Don't
 
 ❌ Modify differences in-place (use copies)
+
 ❌ Make blocking/network calls in format()
+
 ❌ Use undocumented internal APIs
+
 ❌ Hardcode paths or configuration
+
 ❌ Assume input always valid (validate!)
+
 ❌ Return unstructured output
 
 ---
