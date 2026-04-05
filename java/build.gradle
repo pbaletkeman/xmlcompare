@@ -14,6 +14,9 @@ java {
     }
 }
 
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
+
 // Checkstyle plugin for Google Java Style (120 char lines)
 checkstyle {
     toolVersion = '10.12.4'
