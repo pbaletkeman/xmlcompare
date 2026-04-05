@@ -76,12 +76,13 @@ def benchmark_comparison(file1, file2, label=""):
         BenchmarkResult with timing and metrics
     """
     try:
+        opts = CompareOptions()
         # Warm up
-        compare_xml_files(str(file1), str(file2))
+        compare_xml_files(str(file1), str(file2), opts)
 
         # Actual benchmark
         start_time = time.time()
-        diffs = compare_xml_files(str(file1), str(file2))
+        diffs = compare_xml_files(str(file1), str(file2), opts)
         elapsed = time.time() - start_time
 
         file1_size_mb = file1.stat().st_size / (1024 * 1024)

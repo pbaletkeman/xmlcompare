@@ -48,14 +48,14 @@ xmlcompare/
 ├── python/              # Python 3.8+ implementation
 │   ├── xmlcompare.py   # Main comparison engine
 │   ├── docs/           # Python-specific documentation
-│   ├── tests/          # 189 pytest tests
+│   ├── tests/          # 333 pytest tests
 │   ├── README.md       # Python setup guide
 │   └── build.sh|.bat|.ps1
 │
 ├── java/                # Java 25 implementation
 │   ├── src/            # picocli-based CLI
 │   ├── docs/           # Java-specific documentation
-│   ├── tests/          # 93 JUnit5 tests
+│   ├── tests/          # 154 JUnit5 tests
 │   ├── README.md       # Java setup guide
 │   └── build.sh|.bat|.ps1
 │
@@ -352,9 +352,9 @@ cd java && ./gradlew checkstyle
 
 ## Testing
 
-**Python:** 189 passing tests
-**Java:** 93 passing tests
-**Total:** 282 test cases
+**Python:** 333 passing tests (91% coverage)
+**Java:** 154 passing tests
+**Total:** 487 test cases
 
 Run tests:
 

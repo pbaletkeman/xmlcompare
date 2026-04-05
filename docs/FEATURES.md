@@ -679,6 +679,233 @@ java -jar xmlcompare.jar --files test1.xml test2.xml \
 
 ---
 
+## Phase-4 Features
+
+### --swap (Swap Expected/Actual)
+
+Reverse the role of the two files — file2 becomes "expected" and file1 becomes "actual". Useful when tests are written with a reference file that should be compared against newly generated output.
+
+```bash
+# Python
+python xmlcompare.py --files generated.xml reference.xml --swap
+
+# Java
+java -jar xmlcompare.jar --files generated.xml reference.xml --swap
+```
+
+---
+
+### --no-color (Disable ANSI Color)
+
+Force plain text output with no ANSI escape codes. Useful when piping output to a file or CI systems that strip escape sequences.
+
+```bash
+# Python
+python xmlcompare.py --files file1.xml file2.xml --no-color > diff.txt
+
+# Java
+java -jar xmlcompare.jar --files file1.xml file2.xml --no-color > diff.txt
+```
+
+---
+
+### --diff-only (Suppress Equal Pairs)
+
+When comparing directories, only print file pairs that have differences. Equal pairs are silently skipped.
+
+```bash
+# Python
+python xmlcompare.py --dirs dir1/ dir2/ --diff-only
+
+# Java
+java -jar xmlcompare.jar --dirs dir1/ dir2/ --diff-only
+```
+
+---
+
+### --canonicalize (XML Canonicalization)
+
+Strip XML comments and processing instructions before comparison so they don't show as spurious differences.
+
+```bash
+# Python
+python xmlcompare.py --files file1.xml file2.xml --canonicalize
+
+# Java
+java -jar xmlcompare.jar --files file1.xml file2.xml --canonicalize
+```
+
+---
+
+### --xslt (XSLT Preprocessing)
+
+Apply an XSLT stylesheet to both XML files before comparison. Use `--xslt2` for XSLT 2.0 stylesheets (Python; requires `lxml`).
+
+```bash
+# Python — apply XSLT 1.0
+python xmlcompare.py --files file1.xml file2.xml --xslt normalize.xslt
+
+# Python — apply XSLT 2.0
+python xmlcompare.py --files file1.xml file2.xml --xslt2 normalize.xslt
+
+# Java
+java -jar xmlcompare.jar --files file1.xml file2.xml --xslt normalize.xslt
+```
+
+The XSLT is applied to each file independently before the comparison engine sees them — convenient for normalizing vendor-specific fields, stripping timestamps, etc.
+
+---
+
+### --cache (Incremental Comparison)
+
+Cache the hash of each file after comparison. On subsequent runs, unchanged pairs are skipped automatically, making large directory comparisons much faster.
+
+```bash
+# Python
+python xmlcompare.py --dirs dir1/ dir2/ --cache
+
+# Python — custom cache filename
+python xmlcompare.py --dirs dir1/ dir2/ --cache --cache-file .my_cache.json
+
+# Java
+java -jar xmlcompare.jar --dirs dir1/ dir2/ --cache
+```
+
+Cache files are stored as JSON beside the working directory by default (`.xmlcompare_cache.json`).
+
+---
+
+### --match-attr (Attribute Key for Unordered Comparison)
+
+When comparing unordered element lists (`--unordered`), use a specific attribute as the identity key to match corresponding elements.
+
+```bash
+# Python — match <item> elements by their "id" attribute
+python xmlcompare.py --files file1.xml file2.xml --unordered --match-attr id
+
+# Java
+java -jar xmlcompare.jar --files file1.xml file2.xml --unordered --match-attr id
+```
+
+Without `--match-attr`, unordered matching falls back to position or text content similarity.
+
+---
+
+### .xmlignore (Automatic Skip Patterns)
+
+Place a `.xmlignore` file in the comparison directory (or working directory) to automatically skip elements matching listed patterns. The format mirrors `.gitignore`.
+
+**Example `.xmlignore`:**
+
+```
+# Timestamps and audit fields
+timestamp
+lastModified
+auditDate
+
+# Internal ids
+internalId
+_uuid
+
+# Environment-specific
+serverName
+hostname
+```
+
+```bash
+# The .xmlignore is loaded automatically — no flag needed
+python xmlcompare.py --files file1.xml file2.xml
+
+# Java
+java -jar xmlcompare.jar --files file1.xml file2.xml
+```
+
+Each line becomes a skip pattern checked against element tag names and XPath paths. Blank lines and lines starting with `#` are ignored.
+
+---
+
+### REST API Server (Python only)
+
+`api_server.py` exposes xmlcompare as an HTTP service using Flask. Integrate with other tools or build web UIs on top.
+
+**Start the server:**
+
+```bash
+cd python
+python api_server.py              # default port 5000 (production)
+python api_server.py --debug      # debug mode with auto-reload
+python api_server.py --port 8080  # custom port
+```
+
+**Endpoints:**
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET`  | `/health` | Health check |
+| `POST` | `/compare/files` | Compare two files by path |
+| `POST` | `/compare/content` | Compare XML provided as strings |
+
+**`POST /compare/files` — request body (JSON):**
+
+```json
+{
+  "file1": "/data/expected.xml",
+  "file2": "/data/actual.xml",
+  "options": {
+    "ignore_case": false,
+    "tolerance": 0.001,
+    "unordered": false,
+    "output_format": "json"
+  }
+}
+```
+
+**`POST /compare/content` — request body (JSON):**
+
+```json
+{
+  "xml1": "<root><a>1</a></root>",
+  "xml2": "<root><a>2</a></root>",
+  "options": {}
+}
+```
+
+**Response (both endpoints):**
+
+```json
+{
+  "equal": false,
+  "differences": [
+    {
+      "path": "/root/a",
+      "kind": "text",
+      "msg": "text value mismatch",
+      "expected": "1",
+      "actual": "2"
+    }
+  ]
+}
+```
+
+**cURL examples:**
+
+```bash
+# Health check
+curl http://localhost:5000/health
+
+# Compare two files
+curl -s -X POST http://localhost:5000/compare/files \
+  -H "Content-Type: application/json" \
+  -d '{"file1":"a.xml","file2":"b.xml","options":{"ignore_case":true}}'
+
+# Compare XML content directly
+curl -s -X POST http://localhost:5000/compare/content \
+  -H "Content-Type: application/json" \
+  -d '{"xml1":"<r><a>1</a></r>","xml2":"<r><a>2</a></r>"}'
+```
+
+---
+
 ## Integration Examples
 
 ### Shell Scripting

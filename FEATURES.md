@@ -338,18 +338,139 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --plugins com.example.Custo
 
 ---
 
-## Combining Features
+## Phase-4 Features
 
-### Example: Large File with HTML Output and Filtering
+### --swap
+
+Reverse the direction of comparison so that file2 is treated as "expected" and file1 as "actual". Useful when tests are structured with a reference file as the second argument.
 
 ```bash
-# Compare large files with streaming, filter by element, output as HTML
-xmlcompare --files large_1.xml large_2.xml \
-           --stream \
-           --output-format html-diff \
-           --output-file large_comparison.html \
-           --skip-keys "timestamp" "revision" \   # Skip these elements
-           --ignore-attributes  # Ignore all attributes
+python xmlcompare.py --files generated.xml reference.xml --swap
+java -jar xmlcompare.jar --files generated.xml reference.xml --swap
+```
+
+### --no-color
+
+Disable ANSI color codes in the text report. Use when piping output to a file or CI logs.
+
+```bash
+python xmlcompare.py --files file1.xml file2.xml --no-color > diff.txt
+java -jar xmlcompare.jar --files file1.xml file2.xml --no-color > diff.txt
+```
+
+### --diff-only
+
+When comparing directories, print only file pairs that differ. Equal pairs are silently skipped.
+
+```bash
+python xmlcompare.py --dirs dir1/ dir2/ --diff-only
+java -jar xmlcompare.jar --dirs dir1/ dir2/ --diff-only
+```
+
+### --canonicalize
+
+Strip XML comments and processing instructions from both files before comparison, eliminating spurious diffs caused by comment changes.
+
+```bash
+python xmlcompare.py --files file1.xml file2.xml --canonicalize
+java -jar xmlcompare.jar --files file1.xml file2.xml --canonicalize
+```
+
+### --xslt / --xslt2
+
+Apply an XSLT stylesheet to both files before comparing. Useful for normalizing vendor-specific extensions, stripping timestamps, etc. `--xslt2` uses XSLT 2.0 (Python, requires `lxml`).
+
+```bash
+# XSLT 1.0
+python xmlcompare.py --files file1.xml file2.xml --xslt normalize.xslt
+java -jar xmlcompare.jar --files file1.xml file2.xml --xslt normalize.xslt
+
+# XSLT 2.0 (Python only)
+python xmlcompare.py --files file1.xml file2.xml --xslt2 normalize.xslt
+```
+
+### --cache (Incremental Comparison)
+
+Cache file hashes after the first comparison run. Subsequent runs skip unchanged pairs, making large directory comparisons dramatically faster.
+
+```bash
+python xmlcompare.py --dirs dir1/ dir2/ --cache
+python xmlcompare.py --dirs dir1/ dir2/ --cache --cache-file .my_cache.json
+java -jar xmlcompare.jar --dirs dir1/ dir2/ --cache
+```
+
+### --match-attr (Attribute Key for Unordered Lists)
+
+When using `--unordered`, identify the attribute to use as an identity key when matching repeated elements. Without this, matching falls back to text/position similarity.
+
+```bash
+# Match <item> elements by their "id" attribute
+python xmlcompare.py --files file1.xml file2.xml --unordered --match-attr id
+java -jar xmlcompare.jar --files file1.xml file2.xml --unordered --match-attr id
+```
+
+### .xmlignore File
+
+Place a `.xmlignore` file in the working directory to automatically skip element tag names or XPath patterns — no flag needed.
+
+**Example `.xmlignore`:**
+
+```
+# Timestamps
+timestamp
+lastModified
+
+# Audit fields
+createdBy
+updatedBy
+
+# Environment
+serverName
+```
+
+```bash
+# .xmlignore is loaded automatically
+python xmlcompare.py --files file1.xml file2.xml
+java -jar xmlcompare.jar --files file1.xml file2.xml
+```
+
+### REST API (Python only)
+
+Run xmlcompare as an HTTP service:
+
+```bash
+python api_server.py              # port 5000
+python api_server.py --debug      # auto-reload
+python api_server.py --port 8080
+```
+
+```bash
+# Compare two files via API
+curl -s -X POST http://localhost:5000/compare/files \
+  -H "Content-Type: application/json" \
+  -d '{"file1":"a.xml","file2":"b.xml","options":{}}'
+
+# Compare XML content directly
+curl -s -X POST http://localhost:5000/compare/content \
+  -H "Content-Type: application/json" \
+  -d '{"xml1":"<r><a>1</a></r>","xml2":"<r><a>2</a></r>"}'
+```
+
+---
+
+## Combining Features
+
+### Example: Large File with Caching, XSLT, and HTML Output
+
+```bash
+# Compare large files with caching, XSLT normalization, and HTML output
+python xmlcompare.py --files large_1.xml large_2.xml \
+  --stream \
+  --cache \
+  --xslt normalize.xslt \
+  --output-format html-diff \
+  --output-file report.html \
+  --skip-keys "timestamp" "revision"
 ```
 
 ### Example: Interactive Exploration with Schema Validation
@@ -364,10 +485,13 @@ xmlcompare --interactive --schema schema.xsd --type-aware
 ## Performance Tips
 
 1. **Use `--stream` for files > 10MB** — Reduces memory up to 100x
-2. **Use `--ignore-case` sparingly** — Adds 5-10% overhead
-3. **Use `--structure-only` for quick validation** — Skip text/attribute comparison
-4. **Combine filters**  — `--skip-keys` and `--ignore-attributes` reduce processing
-5. **Use `--fail-fast`** — Stop on first difference for quick validation
+2. **Use `--cache` for directory comparisons** — Skips unchanged pairs automatically
+3. **Use `--diff-only` for large directories** — Reduces output noise
+4. **Use `--ignore-case` sparingly** — Adds 5-10% overhead
+5. **Use `--structure-only` for quick validation** — Skip text/attribute comparison
+6. **Combine filters** — `--skip-keys` and `--ignore-attributes` reduce processing
+7. **Use `--fail-fast`** — Stop on first difference for quick validation
+8. **Use `--xslt` to normalize before comparing** — Eliminates vendor-specific diff noise
 
 ---
 

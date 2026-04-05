@@ -74,52 +74,146 @@ build.bat         # Windows CMD
 
 ## Sample Commands
 
+Define `JAR=build/libs/xmlcompare-1.0.0.jar` for brevity.
+
 ```bash
-# Compare two XML files
-java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml
+# Basic file comparison
+java -jar $JAR --files a.xml b.xml
 
-# Structure-only comparison
-java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --structure-only
+# Numeric tolerance
+java -jar $JAR --files a.xml b.xml --tolerance 0.001
 
-# Max-depth limiting
-java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --max-depth 2
+# Case-insensitive, unordered children
+java -jar $JAR --files a.xml b.xml --ignore-case --unordered
 
-# Combine both
-java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --structure-only --max-depth 1
+# Unordered with attribute identity key
+java -jar $JAR --files a.xml b.xml --unordered --match-attr id
 
-# Compare with numeric tolerance
-java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --tolerance 0.001
+# Structure only (ignore text/attrs)
+java -jar $JAR --files a.xml b.xml --structure-only
 
-# Compare directories, ignoring element order
-java -jar build/libs/xmlcompare-1.0.0.jar --dirs dir1/ dir2/ --unordered
+# Ignore namespaces
+java -jar $JAR --files a.xml b.xml --ignore-namespaces
 
-# Unordered with max-depth
-java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --unordered --max-depth 2
+# Max depth
+java -jar $JAR --files a.xml b.xml --max-depth 2
+
+# Skip elements by XPath
+java -jar $JAR --files a.xml b.xml --skip-keys //timestamp,//version
+
+# Fail fast
+java -jar $JAR --files a.xml b.xml --fail-fast
+
+# Directory comparison
+java -jar $JAR --dirs dir1/ dir2/
 
 # Recursive directory comparison
-java -jar build/libs/xmlcompare-1.0.0.jar --dirs dir1/ dir2/ --recursive
+java -jar $JAR --dirs dir1/ dir2/ --recursive
+
+# Parallel directory scan
+java -jar $JAR --dirs dir1/ dir2/ --recursive --parallel
+
+# Diff-only (suppress equal pairs)
+java -jar $JAR --dirs dir1/ dir2/ --diff-only
+
+# Swap expected/actual direction
+java -jar $JAR --files a.xml b.xml --swap
+
+# Canonicalize before compare
+java -jar $JAR --files a.xml b.xml --canonicalize
+
+# Disable ANSI colour
+java -jar $JAR --files a.xml b.xml --no-color
+
+# Cache for incremental directory runs
+java -jar $JAR --dirs dir1/ dir2/ --cache .xmlcache.json
 
 # JSON output
-java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --output-format json
+java -jar $JAR --files a.xml b.xml --output-format json
 
-# HTML report
-java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --output-format html --output-file report.html
+# HTML side-by-side report
+java -jar $JAR --files a.xml b.xml --output-format html --output-file report.html
 
-# Skip specific elements
-java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --skip-keys //timestamp,//version
+# Unified diff format
+java -jar $JAR --files a.xml b.xml --output-format unified
 
-# Case-insensitive, ignore namespaces
-java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --ignore-case --ignore-namespaces
+# Summary counts only
+java -jar $JAR --dirs dir1/ dir2/ --summary
+
+# XSD schema validation
+java -jar $JAR --files doc.xml doc2.xml --schema schema.xsd
 
 # Load from config file
-java -jar build/libs/xmlcompare-1.0.0.jar --files a.xml b.xml --config myconfig.json
+java -jar $JAR --files a.xml b.xml --config myconfig.json
 ```
 
+## Command-Line Reference
+
+```
+usage: java -jar xmlcompare.jar [--files FILE1 FILE2 | --dirs DIR1 DIR2] [OPTIONS]
+```
+
+### Input selection
+
+| Flag | Description |
+|------|-------------|
+| `--files FILE1 FILE2` | Compare two XML files |
+| `--dirs DIR1 DIR2` | Compare matching XML files in two directories |
+| `--recursive` | Recurse into subdirectories (with `--dirs`) |
+| `--config FILE` | Load options from JSON or YAML config file |
+
+### Comparison behaviour
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--tolerance N` | `0.0` | Allow numeric differences up to N |
+| `--ignore-case` | off | Case-insensitive text comparison |
+| `--unordered` | off | Allow child elements in any order |
+| `--ignore-namespaces` | off | Strip namespace prefixes |
+| `--ignore-attributes` | off | Ignore all attribute differences |
+| `--skip-keys XPATHS` | — | Comma-separated XPath keys to skip |
+| `--skip-pattern REGEX` | — | Skip elements matching this regex |
+| `--filter-xpath XPATH` | — | Compare only elements matching this XPath |
+| `--structure-only` | off | Compare tag names only |
+| `--type-aware` | off | Coerce types before comparing |
+| `--fail-fast` | off | Stop at first difference |
+| `--max-depth N` | unlimited | Limit comparison depth |
+| `--match-attr ATTR` | — | Attribute used as identity key for unordered matching |
+| `--schema FILE` | — | Validate each file against this XSD schema |
+| `--canonicalize` | off | Canonicalize XML before comparing |
+| `--swap` | off | Swap file1/file2 direction |
+
+### Output control
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--output-format FMT` | `text` | One of: `text`, `json`, `html`, `unified` |
+| `--output-file FILE` | — | Write output to file |
+| `--verbose` | off | Detailed per-element information |
+| `--quiet` | off | Suppress progress messages |
+| `--summary` | off | Print summary counts only |
+| `--diff-only` | off | Only show files/pairs with differences |
+| `--no-color` | off | Disable ANSI colour |
+
+### Performance
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--stream` | off | Streaming StAX parser for large files |
+| `--parallel` | off | Parallel directory scan |
+| `--cache FILE` | — | JSON cache; skip unchanged pairs |
+
+### Exit codes
+
+| Code | Meaning |
+|------|---------|
+| `0` | Equal (no differences) |
+| `1` | Differences found |
+| `2` | Error (file not found, invalid XML, etc.) |
+
+---
+
 ## Config File Format
-
-All options (including `structure_only` and `max_depth`) are standard and can be set in JSON or YAML config files:
-
-**JSON Example:**
 
 ```json
 {
@@ -130,45 +224,76 @@ All options (including `structure_only` and `max_depth`) are standard and can be
   "ignore_case": true,
   "skip_keys": ["//timestamp", "root/version"],
   "skip_pattern": "temp.*",
-  "output_format": "text",
+  "output_format": "html",
+  "diff_only": true,
+  "no_color": false,
+  "cache": ".xmlcache.json",
   "fail_fast": false
 }
 ```
 
-**YAML Example:**
+YAML is also supported:
 
 ```yaml
-structure_only: true
-max_depth: 2
-unordered: true
 tolerance: 0.001
-ignore_case: true
-skip_keys:
-  - //timestamp
-  - root/version
+unordered: true
+match_attr: id
+diff_only: true
+cache: .xmlcache.json
 ```
 
-## Exit Codes
+---
 
-| Code  | Meaning                                   |
-| ----- | ----------------------------------------- |
-| 0     | Files/directories are equal               |
-| 1     | Differences found                         |
-| 2     | Error (file not found, invalid XML, etc.) |
+## .xmlignore File
+
+When using `--dirs`, place a `.xmlignore` file in the directory to exclude files:
+
+```
+# Glob patterns
+*.bak
+temp_*.xml
+legacy/
+```
+
+---
+
+## Features
+
+| Feature | Flag(s) | Notes |
+|---------|---------|-------|
+| Text comparison | default | Tags, text, attributes |
+| Numeric tolerance | `--tolerance` | Absolute threshold |
+| Case-insensitive | `--ignore-case` | All text values |
+| Unordered children | `--unordered` | Order-independent |
+| Ignore namespaces | `--ignore-namespaces` | Strips `ns:` prefixes |
+| Skip elements | `--skip-keys`, `--skip-pattern` | XPath or regex |
+| Structure-only | `--structure-only` | Tag hierarchy only |
+| Type-aware | `--type-aware` | Coerce `"1"` == `1` |
+| Schema validation | `--schema` | XSD validation |
+| Depth limiting | `--max-depth` | Stop at depth N |
+| Streaming parser | `--stream` | StAX low-memory mode |
+| Parallel dirs | `--parallel` | Multi-thread directory scan |
+| Caching | `--cache` | Skip unchanged pairs |
+| Canonicalize | `--canonicalize` | Normalize XML first |
+| Match attribute | `--match-attr` | Identity key for sets |
+| Diff-only | `--diff-only` | Suppress equal pairs |
+| Swap direction | `--swap` | Flip expected/actual |
+| No colour | `--no-color` | Plain text output |
+| ANSI colours | automatic | Terminal-detected |
+
+---
 
 ## Running Tests
 
 ```bash
+# Gradle (154 JUnit5 tests)
 ./gradlew test
-```
 
-Test reports are generated in `build/reports/tests/test/index.html`.
-
-Maven tests run automatically during `mvn package`; to run tests only:
-
-```bash
+# Maven
 mvn test
 ```
+
+Test reports: `build/reports/tests/test/index.html`
 
 ---
 
