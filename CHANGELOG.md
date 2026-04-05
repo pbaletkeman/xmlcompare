@@ -5,6 +5,90 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-07-15
+
+### Added
+
+- **Python – Streaming Parser** (`--stream`)
+  - Memory-efficient iterparse-based comparison via `parse_streaming.py`
+  - `compare_xml_files_streaming()` function integrated into CLI dispatch
+  - Handles large XML files without loading the full tree into memory
+
+- **Python – Parallel Processing** (`--parallel`, `--threads`)
+  - `multiprocessing.Pool`-based concurrent element comparison via `parallel.py`
+  - `compare_xml_files_parallel()` function integrated into CLI dispatch
+  - Automatic load distribution across available CPU cores
+
+- **Python – Interactive CLI** (`--interactive`)
+  - Full-featured menu-driven interface in `interactive_cli.py`
+  - File selection, option configuration, XPath filter, skip keys
+  - Export results to text/JSON/HTML directly from the menu
+  - Show statistics and performance info (options 8 and 9)
+
+- **Python – Plugin System**
+  - `FormatterPlugin`, `DifferenceFilter` interfaces in `plugin_interface.py`
+  - `PluginRegistry` for entry-point-based discovery
+
+- **Python – Schema / Type-Aware Comparison**
+  - `schema_analyzer.py` with XSD pre-validation via `lxml`
+  - `--schema`, `--type-aware` flags using type hints from XSD
+
+- **Python – Performance Benchmarking**
+  - `benchmark.py` with timing comparisons across DOM, streaming, and parallel engines
+
+- **Python – HTML Side-by-Side & Unified Diff Output**
+  - `HtmlSideBySideFormatter` and `UnifiedDiffFormatter` in `xmlcompare.py`
+  - `--output-format html` and `--output-format unified-diff`
+
+- **Java – Streaming Parser** (`--stream`)
+  - StAX dual-file streaming comparison via `parse/StreamingXmlParser.java`
+  - Low memory footprint for files too large for DOM
+
+- **Java – Parallel Processing** (`--parallel`, `--threads`)
+  - Subtree-parallel comparison via `ForkJoinPool` in `parallel/ParallelComparison.java`
+  - Directory-level parallelism via `ExecutorService`
+
+- **Java – Interactive Mode** (`--interactive`)
+  - Console `Scanner`-based menu in `interactive/InteractiveMode.java`
+  - 7 configuration options including streaming, parallel, XPath filter, skip keys, thread count
+
+- **Java – Schema / Type-Aware Comparison**
+  - `schema/SchemaAnalyzer.java` — XSD validation + type-hint extraction
+  - `--schema FILE` and `--type-aware` flags
+
+- **Java – Plugin System (SPI)**
+  - `plugin/FormatterPlugin.java`, `plugin/DifferenceFilter.java` interfaces
+  - `--plugins com.example.MyPlugin` flag
+
+- **Java – Performance Benchmarking**
+  - `benchmark/BenchmarkSuite.java` — DOM vs streaming vs parallel timing
+  - Run via `java -cp xmlcompare.jar com.xmlcompare.benchmark.BenchmarkSuite`
+
+- **Java – HTML Side-by-Side & Unified Diff Output**
+  - `format/HtmlSideBySideFormatter.java` — colour-coded side-by-side diff
+  - `format/UnifiedDiffFormatter.java` — standard `@@` hunk format
+  - `--output-format html` and `--output-format unified-diff`
+
+### Fixed
+
+- **Python** – `interactive_cli.py` `_rerun_comparison()` now correctly dispatches to
+  `compare_xml_files_streaming()` / `compare_xml_files_parallel()` when those modes
+  are enabled (previously always called the plain DOM function, silently ignoring flags)
+- **Java** – `InteractiveMode.java` XPath filter option double-called `readLine()`,
+  discarding the first value; now reads into a variable correctly
+- **Java** – `StreamingXmlParser.java` Difference `kind` names normalised to match
+  formatter switch cases (`"tag"`, `"text"`, `"missing"`, `"extra"`, `"attr"`) — previously
+  used long forms like `"tag_mismatch"` that fell through to unstyled `"context"` in HTML
+- **Java** – `ParallelComparison.java` same Difference `kind` normalisation applied
+
+### Technical Details
+
+- Python test suite: 167 tests, all passing
+- Java test suite: 93 tests, all passing
+- Java target: JDK 25 (Amazon Corretto), picocli 4.7.5, Jackson 2.17.0
+
+---
+
 ## [1.0.0] - 2026-04-02
 
 ### Added

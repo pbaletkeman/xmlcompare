@@ -59,13 +59,13 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --schema schema.xsd
 ## Example: Plugin System
 
 ```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --plugin myplugin.jar
+java -jar xmlcompare.jar --files file1.xml file2.xml --plugins com.example.MyPlugin
 ```
 
 ## Example: XPath Filtering
 
 ```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --xpath "/root/item"
+java -jar xmlcompare.jar --files file1.xml file2.xml --filter "/root/item"
 ```
 
 ## Example: Type-Aware Comparison
@@ -77,9 +77,9 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --type-aware
 ## Example: Output Formats
 
 ```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --output json
-java -jar xmlcompare.jar --files file1.xml file2.xml --output html
-java -jar xmlcompare.jar --files file1.xml file2.xml --output diff
+java -jar xmlcompare.jar --files file1.xml file2.xml --output-format json
+java -jar xmlcompare.jar --files file1.xml file2.xml --output-format html
+java -jar xmlcompare.jar --files file1.xml file2.xml --output-format unified-diff
 ```
 
 ## Example: Config File
@@ -91,7 +91,7 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --config config.json
 ## Example: Directory Comparison
 
 ```bash
-java -jar xmlcompare.jar --dir dir1 dir2
+java -jar xmlcompare.jar --dirs dir1 dir2
 ```
 
 ## Example: Structure-Only Mode
@@ -103,13 +103,13 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --structure-only
 ## Example: Attribute Filtering
 
 ```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --ignore-attributes timestamp id
+java -jar xmlcompare.jar --files file1.xml file2.xml --ignore-attributes
 ```
 
 ## Example: Element Filtering
 
 ```bash
-java -jar xmlcompare.jar --files file1.xml file2.xml --skip-elements meta debug
+java -jar xmlcompare.jar --files file1.xml file2.xml --skip-keys meta,debug
 ```
 
 ## Example: Depth Limiting
@@ -120,8 +120,13 @@ java -jar xmlcompare.jar --files file1.xml file2.xml --max-depth 3
 
 ## Example: Performance Benchmarks
 
+Run the built-in benchmark suite as a standalone program:
+
 ```bash
-java -jar xmlcompare.jar --benchmark --files file1.xml file2.xml
+java -cp xmlcompare.jar com.xmlcompare.benchmark.BenchmarkSuite
+```
+
+## Example: Unified Diff Output
 
 ```shell
 @@ /root/item @@

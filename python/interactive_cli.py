@@ -123,8 +123,9 @@ class InteractiveCli:
         print("5. Export results")
         print("6. Toggle streaming mode")
         print("7. Toggle parallel mode")
-        print("8. Select new files")
-        print("0. Exit")
+        print("8. Show statistics")
+        print("9. Show performance info")
+        print("0. Select new files / Exit")
         print("-" * 60)
 
         choice = input("Choose option: ").strip()
@@ -144,9 +145,12 @@ class InteractiveCli:
         elif choice == '7':
             self._toggle_parallel()
         elif choice == '8':
+            self._show_statistics()
+        elif choice == '9':
+            self._show_performance_info()
+        elif choice == '0':
             self.file1 = None
             self.file2 = None
-        elif choice == '0':
             print("\nGoodbye!")
             exit(0)
 
@@ -222,7 +226,14 @@ class InteractiveCli:
             opts = CompareOptions()
             opts.stream = self.use_streaming
             opts.parallel = self.use_parallel
-            self.diffs = compare_xml_files(self.file1, self.file2, opts)
+            if self.use_streaming:
+                from parse_streaming import compare_xml_files_streaming
+                self.diffs = compare_xml_files_streaming(self.file1, self.file2, opts)
+            elif self.use_parallel:
+                from parallel import compare_xml_files_parallel
+                self.diffs = compare_xml_files_parallel(self.file1, self.file2, opts)
+            else:
+                self.diffs = compare_xml_files(self.file1, self.file2, opts)
             self.filtered_diffs = list(self.diffs)
             elapsed = time.time() - start_time
             print(f"✓ Done in {elapsed:.2f}s — {len(self.diffs)} difference(s)")
@@ -242,6 +253,46 @@ class InteractiveCli:
             self._export_json(filename)
         else:
             self._export_text(filename)
+
+    def _show_statistics(self) -> None:
+        """Show difference statistics broken down by kind."""
+        if not self.diffs:
+            print("\nNo differences to analyze.")
+            return
+
+        print("\nDifference Statistics:")
+        print("-" * 60)
+        type_counts: Dict[str, int] = {}
+        for d in self.diffs:
+            type_counts[d.kind] = type_counts.get(d.kind, 0) + 1
+        for kind, count in sorted(type_counts.items()):
+            pct = (count / len(self.diffs)) * 100
+            print(f"  {kind:20s}: {count:4d}  ({pct:5.1f}%)")
+        print(f"  {'Total':20s}: {len(self.diffs):4d}  (100.0%)")
+        print(f"\nComparison time: {self.comparison_time:.3f}s")
+
+    def _show_performance_info(self) -> None:
+        """Show streaming and parallel performance diagnostics."""
+        print("\nPerformance Information:")
+        print("-" * 60)
+        if STREAMING_AVAILABLE and self.file1:
+            try:
+                stats = get_stream_stats(self.file1)
+                print(f"  File 1 streaming analysis: {stats}")
+            except Exception:
+                pass
+        if PARALLEL_AVAILABLE:
+            try:
+                pstats = get_parallel_stats()
+                print(f"  Parallel processing:       {pstats}")
+            except Exception:
+                pass
+        mode = []
+        if self.use_streaming:
+            mode.append("streaming")
+        if self.use_parallel:
+            mode.append("parallel")
+        print(f"  Current mode:              {', '.join(mode) or 'standard DOM'}")
 
     def _export_text(self, basename: str) -> None:
         """Export results as text."""

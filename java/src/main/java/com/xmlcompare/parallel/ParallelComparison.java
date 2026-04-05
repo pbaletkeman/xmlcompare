@@ -76,7 +76,7 @@ public class ParallelComparison {
             String rootTag1 = XmlCompare.getTag(root1, options);
             String rootTag2 = XmlCompare.getTag(root2, options);
             if (!rootTag1.equals(rootTag2)) {
-                allDiffs.add(new Difference("", "tag_mismatch",
+                allDiffs.add(new Difference("", "tag",
                         "Root tag mismatch: <" + rootTag1 + "> vs <" + rootTag2 + ">",
                         rootTag1, rootTag2));
             }
@@ -84,13 +84,13 @@ public class ParallelComparison {
             // Elements present in file1 but not in file2
             for (int i = pairCount; i < children1.size(); i++) {
                 String tag = XmlCompare.getTag(children1.get(i), options);
-                allDiffs.add(new Difference(rootTag1 + "/" + tag, "missing_in_actual",
+                allDiffs.add(new Difference(rootTag1 + "/" + tag, "missing",
                         "Child <" + tag + "> present in file1 but not in file2"));
             }
             // Elements present in file2 but not in file1
             for (int i = pairCount; i < children2.size(); i++) {
                 String tag = XmlCompare.getTag(children2.get(i), options);
-                allDiffs.add(new Difference(rootTag1 + "/" + tag, "extra_in_actual",
+                allDiffs.add(new Difference(rootTag1 + "/" + tag, "extra",
                         "Child <" + tag + "> present in file2 but not in file1"));
             }
 

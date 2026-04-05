@@ -133,8 +133,10 @@ public class InteractiveMode {
                     println("Invalid number.");
                 }
             }
-            case "10" -> opts.filterXpath = readLine("XPath filter (blank to clear)").trim().isEmpty()
-                    ? null : readLine("XPath filter");
+            case "10" -> {
+                String val = readLine("XPath filter (blank to clear)").trim();
+                opts.filterXpath = val.isEmpty() ? null : val;
+            }
             case "11" -> {
                 String keys = readLine("Skip keys (comma-separated, blank to clear)");
                 opts.skipKeys = keys.isBlank() ? new java.util.ArrayList<>()

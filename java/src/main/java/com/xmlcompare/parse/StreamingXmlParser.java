@@ -111,7 +111,7 @@ public class StreamingXmlParser {
                 }
 
                 if (!tag1.equals(tag2)) {
-                    diffs.add(new Difference(currentPath, "tag_mismatch",
+                    diffs.add(new Difference(currentPath, "tag",
                             "Tag mismatch: expected <" + tag1 + "> but found <" + tag2 + ">",
                             tag1, tag2));
                     if (opts.failFast) return diffs;
@@ -135,7 +135,7 @@ public class StreamingXmlParser {
 
                 if (!opts.structureOnly && !normText1.equals(normText2)) {
                     if (!XmlCompare.valuesEqual(normText1, normText2, opts)) {
-                        diffs.add(new Difference(currentPath, "text_mismatch",
+                        diffs.add(new Difference(currentPath, "text",
                                 "Text mismatch at <" + r1.getLocalName() + ">",
                                 normText1, normText2));
                         if (opts.failFast) return diffs;
@@ -170,7 +170,7 @@ public class StreamingXmlParser {
         // If one file has more elements than the other
         while (r1.hasNext() && r1.getEventType() != XMLStreamConstants.END_DOCUMENT) {
             if (r1.getEventType() == XMLStreamConstants.START_ELEMENT) {
-                diffs.add(new Difference(currentPath(pathStack), "missing_in_actual",
+                diffs.add(new Difference(currentPath(pathStack), "missing",
                         "Element <" + resolveTag(r1, opts) + "> present in file1 but not in file2"));
                 if (opts.failFast) return diffs;
             }
@@ -178,7 +178,7 @@ public class StreamingXmlParser {
         }
         while (r2.hasNext() && r2.getEventType() != XMLStreamConstants.END_DOCUMENT) {
             if (r2.getEventType() == XMLStreamConstants.START_ELEMENT) {
-                diffs.add(new Difference(currentPath(pathStack), "extra_in_actual",
+                diffs.add(new Difference(currentPath(pathStack), "extra",
                         "Element <" + resolveTag(r2, opts) + "> present in file2 but not in file1"));
                 if (opts.failFast) return diffs;
             }
@@ -220,17 +220,17 @@ public class StreamingXmlParser {
             String key = entry.getKey();
             String val1 = entry.getValue();
             if (!attrs2.containsKey(key)) {
-                diffs.add(new Difference(path + "/@" + key, "missing_attribute",
+                diffs.add(new Difference(path + "/@" + key, "attr",
                         "Attribute '" + key + "' missing in file2", val1, null));
             } else if (!XmlCompare.valuesEqual(val1, attrs2.get(key), opts)) {
-                diffs.add(new Difference(path + "/@" + key, "attribute_value_mismatch",
+                diffs.add(new Difference(path + "/@" + key, "attr",
                         "Attribute '" + key + "' differs",
                         val1, attrs2.get(key)));
             }
         }
         for (String key : attrs2.keySet()) {
             if (!attrs1.containsKey(key)) {
-                diffs.add(new Difference(path + "/@" + key, "extra_attribute",
+                diffs.add(new Difference(path + "/@" + key, "attr",
                         "Attribute '" + key + "' extra in file2", null, attrs2.get(key)));
             }
         }

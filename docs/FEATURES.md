@@ -103,15 +103,15 @@ Master features guide covering both Python and Java implementations of xmlcompar
 
 | Feature                | Python | Java | Notes                        |
 |------------------------|--------|------|----------------------------- |
-| Interactive CLI        | ✅     | ⏳   | Menu-driven interface        |
-| Streaming parser       | ⏳     | ⏳   | Large file optimization      |
-| Parallel processing    | ⏳     | ⏳   | Multi-threaded comparison    |
+| Interactive CLI        | ✅     | ✅   | Menu-driven interface        |
+| Streaming parser       | ✅     | ✅   | Large file optimization      |
+| Parallel processing    | ✅     | ✅   | Multi-threaded comparison    |
 | Schema validation      | ✅     | ✅   | XSD schema support           |
 | Type-aware comparison  | ✅     | ✅   | Date/numeric type hints      |
 | Plugin system          | ✅     | ✅   | Extend via plugins/SPI       |
 | Performance benchmarks | ✅     | ✅   | Built-in benchmarking        |
 
-**Legend:** ✅ = Implemented, ⏳ = Experimental/In Progress
+**Legend:** ✅ = Implemented
 
 ---
 

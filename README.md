@@ -139,12 +139,15 @@ See [Java README](java/README.md) for full documentation.
 | Namespace handling        | ✅     | ✅   | Ignore or normalize namespaces     |
 | Skip elements             | ✅     | ✅   | Skip by tag, pattern, or XPath     |
 | Text / JSON / HTML output | ✅     | ✅   | Multiple output formats            |
+| Unified diff / HTML diff  | ✅     | ✅   | Standard and side-by-side diff     |
 | Config file support       | ✅     | ✅   | JSON/YAML configuration            |
-| Schema validation         | ✅     | ✅   | XSD schema support                 |
-| Interactive CLI           | ✅     | -    | Menu-driven interface              |
-| Parallel processing       | -      | ✅   | Multi-threaded (2-3x faster)       |
-| Streaming parser          | ⏳     | ⏳   | Large file optimization            |
-| Plugin system             | ✅     | ✅   | Extend functionality               |
+| Schema validation         | ✅     | ✅   | XSD pre-validation + type hints    |
+| Type-aware comparison     | ✅     | ✅   | Date/numeric type matching         |
+| Interactive CLI           | ✅     | ✅   | Menu-driven interface              |
+| Parallel processing       | ✅     | ✅   | Multi-process/threaded comparison  |
+| Streaming parser          | ✅     | ✅   | Memory-efficient large file mode   |
+| Plugin system             | ✅     | ✅   | Extend via entry-points / SPI      |
+| Performance benchmarks    | ✅     | ✅   | Built-in benchmarking suite        |
 
 ---
 
