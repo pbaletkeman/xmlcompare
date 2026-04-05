@@ -89,6 +89,47 @@ public class BenchmarkSuite {
   }
 
   /**
+   * Benchmark a streaming comparison.
+   */
+  public static BenchmarkResult benchmarkStreamingComparison(
+      File file1, File file2, String label) {
+    try {
+      CompareOptions opts = new CompareOptions();
+      // Warm up
+      com.xmlcompare.parse.StreamingXmlParser.compareXmlFilesStreaming(file1, file2, opts);
+      long startTime = System.currentTimeMillis();
+      List<Difference> diffs =
+          com.xmlcompare.parse.StreamingXmlParser.compareXmlFilesStreaming(file1, file2, opts);
+      long elapsed = System.currentTimeMillis() - startTime;
+      double sizeMb = file1.length() / (1024.0 * 1024.0);
+      return new BenchmarkResult(label, sizeMb, sizeMb, elapsed / 1000.0, diffs.size(), "OK");
+    } catch (Exception e) {
+      return new BenchmarkResult(label, 0, 0, 0, 0, "ERROR: " + e.getMessage());
+    }
+  }
+
+  /**
+   * Benchmark a parallel comparison.
+   */
+  public static BenchmarkResult benchmarkParallelComparison(
+      File file1, File file2, String label) {
+    try {
+      CompareOptions opts = new CompareOptions();
+      int threads = Runtime.getRuntime().availableProcessors();
+      // Warm up
+      com.xmlcompare.parallel.ParallelComparison.compareXmlFilesParallel(file1, file2, opts, threads);
+      long startTime = System.currentTimeMillis();
+      List<Difference> diffs =
+          com.xmlcompare.parallel.ParallelComparison.compareXmlFilesParallel(file1, file2, opts, threads);
+      long elapsed = System.currentTimeMillis() - startTime;
+      double sizeMb = file1.length() / (1024.0 * 1024.0);
+      return new BenchmarkResult(label, sizeMb, sizeMb, elapsed / 1000.0, diffs.size(), "OK");
+    } catch (Exception e) {
+      return new BenchmarkResult(label, 0, 0, 0, 0, "ERROR: " + e.getMessage());
+    }
+  }
+
+  /**
    * Run full benchmarking suite.
    */
   public static void runBenchmarkSuite() throws Exception {
@@ -112,17 +153,25 @@ public class BenchmarkSuite {
     System.out.println("\nRunning benchmarks...");
     System.out.println("-".repeat(70));
 
-    // Run benchmarks
+    // Run benchmarks: DOM, streaming, and parallel for each size
     for (int sizeMb : sizes) {
       Path filePath = testFiles.get(sizeMb);
       File file = filePath.toFile();
 
       BenchmarkResult result = benchmarkComparison(
-          file, file,
-          String.format("Compare %dMB file to itself", sizeMb));
-
+          file, file, String.format("%3dMB DOM", sizeMb));
       results.add(result);
       System.out.println(result);
+
+      BenchmarkResult resultStream = benchmarkStreamingComparison(
+          file, file, String.format("%3dMB STREAM", sizeMb));
+      results.add(resultStream);
+      System.out.println(resultStream);
+
+      BenchmarkResult resultParallel = benchmarkParallelComparison(
+          file, file, String.format("%3dMB PARALLEL", sizeMb));
+      results.add(resultParallel);
+      System.out.println(resultParallel);
     }
 
     System.out.println("-".repeat(70));

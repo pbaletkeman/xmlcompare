@@ -62,6 +62,12 @@ class CompareOptions:
         self.stream = False         # Use iterparse-based streaming
         self.parallel = False       # Use multiprocessing
         self.threads = 0            # Worker count (0 = auto)
+        # Advanced comparison options
+        self.match_attr = None      # Attribute to use as match key for --unordered
+        self.diff_only = False      # Suppress "equal" output; only print differences
+        self.canonicalize = False   # Strip XML comments/PIs before comparing
+        self.xslt = None            # XSLT transform file path (requires lxml)
+        self.cache_file = None      # Incremental cache file path (for --dirs)
 
 
 class Difference:
@@ -326,18 +332,33 @@ def _compare_ordered(children1, children2, opts, path, diffs, depth=0,
 
 def _compare_unordered(children1, children2, opts, path, diffs, depth=0,
                        schema_meta=None):
+    match_attr = getattr(opts, 'match_attr', None)
+
+    def _group_key(elem):
+        tag = get_tag(elem, opts)
+        if match_attr:
+            return (tag, elem.get(match_attr, ''))
+        return tag
+
+    def _key_to_path(key):
+        if match_attr and isinstance(key, tuple):
+            tag_part, attr_val = key
+            return build_path(path, f"{tag_part}[@{match_attr}='{attr_val}']")
+        return build_path(path, key)
+
     groups1 = defaultdict(list)
     groups2 = defaultdict(list)
     for c in children1:
-        groups1[get_tag(c, opts)].append(c)
+        groups1[_group_key(c)].append(c)
     for c in children2:
-        groups2[get_tag(c, opts)].append(c)
+        groups2[_group_key(c)].append(c)
 
-    all_tags = sorted(set(groups1) | set(groups2))
-    for tag in all_tags:
-        elems1 = groups1.get(tag, [])
-        elems2 = groups2.get(tag, [])
-        child_path = build_path(path, tag)
+    all_keys = sorted(set(groups1) | set(groups2))
+    for key in all_keys:
+        elems1 = groups1.get(key, [])
+        elems2 = groups2.get(key, [])
+        child_path = _key_to_path(key)
+        tag = key[0] if match_attr and isinstance(key, tuple) else key
         max_len = max(len(elems1), len(elems2))
         for i in range(max_len):
             if i >= len(elems1):
@@ -444,6 +465,30 @@ def _apply_xpath_filter(root, xpath_str: str):
         raise ValueError(f"Invalid XPath expression {xpath_str!r}: {exc}") from exc
 
 
+def _canonicalize_root(root):
+    """Remove XML comment and processing-instruction nodes from an element tree in-place."""
+    to_remove = [c for c in root if callable(c.tag)]
+    for child in to_remove:
+        root.remove(child)
+    for child in root:
+        _canonicalize_root(child)
+    return root
+
+
+def _apply_xslt(root, xslt_path):
+    """Apply an XSLT transform to *root* and return the result root element. Requires lxml."""
+    try:
+        from lxml import etree as lxmletree
+    except ImportError:
+        raise ImportError("--xslt requires lxml: pip install lxml") from None
+    xml_bytes = ET.tostring(root, encoding='unicode').encode('utf-8')
+    lxml_root = lxmletree.fromstring(xml_bytes)
+    xslt_doc = lxmletree.parse(xslt_path)
+    transform = lxmletree.XSLT(xslt_doc)
+    result = transform(lxml_root)
+    return ET.fromstring(str(result))
+
+
 def compare_xml_files(file1, file2, opts):
     """Parse and compare two XML files. Returns a list of Difference objects.
 
@@ -457,6 +502,16 @@ def compare_xml_files(file1, file2, opts):
 
     root1 = _parse_xml(file1)
     root2 = _parse_xml(file2)
+
+    # Pre-processing: XSLT transform
+    if getattr(opts, 'xslt', None):
+        root1 = _apply_xslt(root1, opts.xslt)
+        root2 = _apply_xslt(root2, opts.xslt)
+
+    # Pre-processing: canonicalize (strip comments and processing instructions)
+    if getattr(opts, 'canonicalize', False):
+        _canonicalize_root(root1)
+        _canonicalize_root(root2)
 
     if opts.filter_xpath:
         elems1 = _apply_xpath_filter(root1, opts.filter_xpath)
@@ -498,21 +553,43 @@ def compare_dirs(dir1, dir2, opts, recursive=False):
         files1 = {p.name for p in dir1_path.glob('*.xml')}
         files2 = {p.name for p in dir2_path.glob('*.xml')}
 
+    # Load incremental cache if requested
+    _cache_file = getattr(opts, 'cache_file', None)
+    _cache = {}
+    _cache_mod = None
+    if _cache_file:
+        try:
+            import cache as _cache_mod
+            _cache = _cache_mod.load_cache(_cache_file)
+        except ImportError:
+            _cache_file = None
+
     for fname in sorted(files1 | files2):
         if fname not in files1:
             results[fname] = [Difference(fname, 'missing', f"File {fname!r} missing in {dir1}")]
         elif fname not in files2:
             results[fname] = [Difference(fname, 'missing', f"File {fname!r} missing in {dir2}")]
         else:
+            f1_path = str(dir1_path / fname)
+            f2_path = str(dir2_path / fname)
+            if _cache_mod and _cache_mod.is_cached_equal(f1_path, f2_path, _cache):
+                results[fname] = []
+                if opts.fail_fast:
+                    break
+                continue
             try:
-                results[fname] = compare_xml_files(
-                    str(dir1_path / fname), str(dir2_path / fname), opts
-                )
+                diffs = compare_xml_files(f1_path, f2_path, opts)
+                results[fname] = diffs
+                if _cache_mod:
+                    _cache_mod.update_cache_entry(f1_path, f2_path, _cache, diffs)
             except (ValueError, FileNotFoundError) as exc:
                 results[fname] = str(exc)
 
         if opts.fail_fast and results.get(fname):
             break
+
+    if _cache_mod and _cache_file:
+        _cache_mod.save_cache(_cache_file, _cache)
 
     return results
 
@@ -622,6 +699,11 @@ def _opts_from_dict(config):
     opts.stream = bool(config.get('stream', False))
     opts.parallel = bool(config.get('parallel', False))
     opts.threads = int(config.get('threads', 0))
+    opts.match_attr = config.get('match_attr') or None
+    opts.diff_only = bool(config.get('diff_only', False))
+    opts.canonicalize = bool(config.get('canonicalize', False))
+    opts.xslt = config.get('xslt') or None
+    opts.cache_file = config.get('cache_file') or None
     return opts
 
 
@@ -650,6 +732,11 @@ def _opts_from_args(args):
     opts.stream = getattr(args, 'stream', False)
     opts.parallel = getattr(args, 'parallel', False)
     opts.threads = getattr(args, 'threads', 0) or 0
+    opts.match_attr = getattr(args, 'match_attr', None) or None
+    opts.diff_only = getattr(args, 'diff_only', False)
+    opts.canonicalize = getattr(args, 'canonicalize', False)
+    opts.xslt = getattr(args, 'xslt', None) or None
+    opts.cache_file = getattr(args, 'cache_file', None) or None
     return opts
 
 
@@ -720,6 +807,17 @@ def build_parser():
                         help='Number of parallel worker processes (default: CPU count - 1)')
     parser.add_argument('--interactive', action='store_true',
                         help='Interactive mode: menu-based file selection and filtering')
+    # New feature options
+    parser.add_argument('--match-attr', metavar='ATTR',
+                        help='Attribute to use as match key for --unordered (e.g. id, key)')
+    parser.add_argument('--diff-only', action='store_true',
+                        help='Suppress "equal" output; only print when differences exist')
+    parser.add_argument('--canonicalize', action='store_true',
+                        help='Strip XML comments and processing instructions before comparing')
+    parser.add_argument('--xslt', metavar='FILE',
+                        help='Apply XSLT transform to both documents before comparing (requires lxml)')
+    parser.add_argument('--cache', metavar='FILE', dest='cache_file',
+                        help='Incremental cache file: skip unchanged equal pairs in --dirs mode')
     return parser
 
 
@@ -833,13 +931,18 @@ def _format_output(all_results, opts, files):
     if opts.output_format == 'html':
         return format_html_report(all_results)
     parts = []
+    diff_only = getattr(opts, 'diff_only', False)
     for key, val in all_results.items():
         if isinstance(val, str):
             msg = f"ERROR: {key}: {val}"
             parts.append(_colorize(msg, YELLOW) if _use_color() else msg)
         elif files:
+            if diff_only and not val:
+                continue
             parts.append(format_text_report(val, files[0], files[1]))
         else:
+            if diff_only and not val:
+                continue
             parts.append(format_text_report(val, key, ''))
     return '\n'.join(parts)
 

@@ -59,6 +59,7 @@ def _options_to_dict(options) -> dict:
         'summary': False,
         'schema': getattr(options, 'schema', None),
         'type_aware': getattr(options, 'type_aware', False),
+        'match_attr': getattr(options, 'match_attr', None),
         # Plugins are not passed - they may not be importable in workers
         'plugins': [],
     }

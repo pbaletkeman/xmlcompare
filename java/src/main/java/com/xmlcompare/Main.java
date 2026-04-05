@@ -108,6 +108,21 @@ public class Main implements Callable<Integer> {
     @Option(names = "--interactive", description = "Launch interactive menu mode")
     private boolean interactive;
 
+    @Option(names = "--match-attr", description = "Attribute used as match key for --unordered comparison", paramLabel = "ATTR")
+    private String matchAttr;
+
+    @Option(names = "--diff-only", description = "Only print output when differences exist")
+    private boolean diffOnly;
+
+    @Option(names = "--canonicalize", description = "Strip XML comments and processing instructions before comparing")
+    private boolean canonicalize;
+
+    @Option(names = "--xslt", description = "Apply XSLT transform to both documents before comparing", paramLabel = "FILE")
+    private String xslt;
+
+    @Option(names = "--cache", description = "Incremental cache file for --dirs mode", paramLabel = "FILE")
+    private String cache;
+
     public static void main(String[] args) {
         int exitCode = new CommandLine(new Main()).execute(args);
         System.exit(exitCode);
@@ -155,6 +170,11 @@ public class Main implements Callable<Integer> {
         if (stream) opts.streaming = true;
         if (parallel) opts.parallel = true;
         if (threads != null) opts.parallelThreads = threads;
+        if (matchAttr != null) opts.matchAttr = matchAttr;
+        if (diffOnly) opts.diffOnly = true;
+        if (canonicalize) opts.canonicalize = true;
+        if (xslt != null) opts.xsltPath = xslt;
+        if (cache != null) opts.cacheFile = cache;
 
         // Load plugins: register built-in formatters first, then customizations
         PluginRegistry registry = new PluginRegistry();
@@ -267,6 +287,7 @@ public class Main implements Callable<Integer> {
                 if (label1 != null && label2 != null && allResults.size() == 1) {
                     Object val = allResults.values().iterator().next();
                     List<Difference> diffs = val instanceof List ? (List<Difference>) val : Collections.emptyList();
+                    if (opts.diffOnly && diffs.isEmpty()) yield "";
                     yield XmlCompare.formatTextReport(diffs, label1, label2);
                 } else {
                     StringBuilder sb = new StringBuilder();
@@ -276,6 +297,7 @@ public class Main implements Callable<Integer> {
                             sb.append(entry.getKey()).append(": ERROR - ").append(val).append("\n");
                         } else {
                             List<Difference> diffs = (List<Difference>) val;
+                            if (opts.diffOnly && diffs.isEmpty()) continue;
                             sb.append(XmlCompare.formatTextReport(diffs, entry.getKey(), null)).append("\n");
                         }
                     }
@@ -286,7 +308,7 @@ public class Main implements Callable<Integer> {
     }
 
     private void writeOutput(String report, CompareOptions opts) {
-        if (opts.quiet) return;
+        if (opts.quiet || report.isEmpty()) return;
         if (opts.outputFile != null) {
             try {
                 Files.writeString(java.nio.file.Path.of(opts.outputFile), report + "\n");
@@ -332,5 +354,11 @@ public class Main implements Callable<Integer> {
         if (cfg.containsKey("stream")) opts.streaming = (Boolean) cfg.get("stream");
         if (cfg.containsKey("parallel")) opts.parallel = (Boolean) cfg.get("parallel");
         if (cfg.containsKey("threads")) opts.parallelThreads = ((Number) cfg.get("threads")).intValue();
+        // Phase 4 options
+        if (cfg.containsKey("match_attr")) opts.matchAttr = (String) cfg.get("match_attr");
+        if (cfg.containsKey("diff_only")) opts.diffOnly = (Boolean) cfg.get("diff_only");
+        if (cfg.containsKey("canonicalize")) opts.canonicalize = (Boolean) cfg.get("canonicalize");
+        if (cfg.containsKey("xslt")) opts.xsltPath = (String) cfg.get("xslt");
+        if (cfg.containsKey("cache_file")) opts.cacheFile = (String) cfg.get("cache_file");
     }
 }

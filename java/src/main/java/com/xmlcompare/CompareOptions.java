@@ -35,4 +35,16 @@ public class CompareOptions {
     public boolean parallel = false;
     /** Number of threads for parallel mode (0 = auto-detect). */
     public Integer parallelThreads = 0;
+
+    // Phase 4 additions
+    /** Attribute to use as match key for --unordered comparison (e.g. "id", "key"). */
+    public String matchAttr = null;
+    /** Suppress "equal" output in text mode; only print when differences exist. */
+    public boolean diffOnly = false;
+    /** Strip XML comments and processing instructions before comparing. */
+    public boolean canonicalize = false;
+    /** Path to XSLT stylesheet to apply to both documents before comparing. */
+    public String xsltPath = null;
+    /** Path to incremental cache file for --dirs mode. */
+    public String cacheFile = null;
 }

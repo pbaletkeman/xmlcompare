@@ -108,6 +108,36 @@ def benchmark_comparison(file1, file2, label=""):
         )
 
 
+def benchmark_streaming(file1, file2, label=""):
+    """Benchmark streaming (iterparse) comparison."""
+    from parse_streaming import compare_xml_files_streaming
+    opts = CompareOptions()
+    try:
+        compare_xml_files_streaming(str(file1), str(file2), opts)
+        start = time.time()
+        diffs = compare_xml_files_streaming(str(file1), str(file2), opts)
+        elapsed = time.time() - start
+        size_mb = file1.stat().st_size / (1024 * 1024)
+        return BenchmarkResult(label, size_mb, size_mb, elapsed, len(diffs), "OK")
+    except Exception as e:
+        return BenchmarkResult(label, 0, 0, 0, 0, f"ERROR: {e}")
+
+
+def benchmark_parallel(file1, file2, label="", threads=0):
+    """Benchmark parallel (multiprocessing) comparison."""
+    from parallel import compare_xml_files_parallel
+    opts = CompareOptions()
+    try:
+        compare_xml_files_parallel(str(file1), str(file2), opts, num_processes=threads)
+        start = time.time()
+        diffs = compare_xml_files_parallel(str(file1), str(file2), opts, num_processes=threads)
+        elapsed = time.time() - start
+        size_mb = file1.stat().st_size / (1024 * 1024)
+        return BenchmarkResult(label, size_mb, size_mb, elapsed, len(diffs), "OK")
+    except Exception as e:
+        return BenchmarkResult(label, 0, 0, 0, 0, f"ERROR: {e}")
+
+
 def run_benchmark_suite():
     """Run full benchmarking suite across multiple file sizes."""
     print("=" * 70)
@@ -134,17 +164,31 @@ def run_benchmark_suite():
         print("\nRunning benchmarks...")
         print("-" * 70)
 
-        # Run benchmarks
+        # Run benchmarks: DOM, streaming, and parallel for each size
         for size_mb in sizes:
             file1 = test_files[size_mb]
             file2 = test_files[size_mb]  # Same file (0 differences)
 
             result = benchmark_comparison(
                 file1, file2,
-                label=f"Compare {size_mb}MB file to itself"
+                label=f"{size_mb:3d}MB DOM"
             )
             results.append(result)
             print(result)
+
+            result_stream = benchmark_streaming(
+                file1, file2,
+                label=f"{size_mb:3d}MB STREAM"
+            )
+            results.append(result_stream)
+            print(result_stream)
+
+            result_parallel = benchmark_parallel(
+                file1, file2,
+                label=f"{size_mb:3d}MB PARALLEL"
+            )
+            results.append(result_parallel)
+            print(result_parallel)
 
         print("-" * 70)
 

@@ -21,9 +21,11 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -332,6 +334,14 @@ public class XmlCompare {
         compareUnordered(children1, children2, opts, path, diffs, depth, null);
     }
 
+    private static String groupKey(Element elem, CompareOptions opts) {
+        String tag = getTag(elem, opts);
+        if (opts.matchAttr != null && !opts.matchAttr.isEmpty()) {
+            return tag + "[@" + opts.matchAttr + "='" + elem.getAttribute(opts.matchAttr) + "']";
+        }
+        return tag;
+    }
+
     public static void compareUnordered(List<Element> children1, List<Element> children2,
             CompareOptions opts, String path, List<Difference> diffs, int depth,
             SchemaMetadata schemaMeta) {
@@ -339,10 +349,10 @@ public class XmlCompare {
         Map<String, List<Element>> groups2 = new LinkedHashMap<>();
 
         for (Element c : children1) {
-            groups1.computeIfAbsent(getTag(c, opts), k -> new ArrayList<>()).add(c);
+            groups1.computeIfAbsent(groupKey(c, opts), k -> new ArrayList<>()).add(c);
         }
         for (Element c : children2) {
-            groups2.computeIfAbsent(getTag(c, opts), k -> new ArrayList<>()).add(c);
+            groups2.computeIfAbsent(groupKey(c, opts), k -> new ArrayList<>()).add(c);
         }
 
         Set<String> allTags = new TreeSet<>();
@@ -388,6 +398,42 @@ public class XmlCompare {
         return builder.parse(new InputSource(new StringReader(xml)));
     }
 
+    private static void stripNonElements(Element elem) {
+        List<Node> toRemove = new ArrayList<>();
+        NodeList children = elem.getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            Node n = children.item(i);
+            if (n.getNodeType() == Node.COMMENT_NODE
+                    || n.getNodeType() == Node.PROCESSING_INSTRUCTION_NODE) {
+                toRemove.add(n);
+            } else if (n.getNodeType() == Node.ELEMENT_NODE) {
+                stripNonElements((Element) n);
+            }
+        }
+        for (Node n : toRemove) {
+            elem.removeChild(n);
+        }
+    }
+
+    private static Document applyXslt(Document doc, String xsltPath) throws Exception {
+        javax.xml.transform.TransformerFactory tf =
+            javax.xml.transform.TransformerFactory.newInstance();
+        javax.xml.transform.Transformer transformer =
+            tf.newTransformer(new javax.xml.transform.stream.StreamSource(new File(xsltPath)));
+        DocumentBuilder builder = newDocumentBuilder();
+        Document result = builder.newDocument();
+        transformer.transform(
+            new javax.xml.transform.dom.DOMSource(doc),
+            new javax.xml.transform.dom.DOMResult(result));
+        return result;
+    }
+
+    private static boolean useAnsiColor() {
+        return System.console() != null
+            && System.getenv("NO_COLOR") == null
+            && !"false".equalsIgnoreCase(System.getenv("XMLCOMPARE_COLOR"));
+    }
+
     public static List<Difference> compareXmlFiles(String file1, String file2, CompareOptions opts) throws IOException {
         // Load schema metadata if specified
         SchemaMetadata schemaMeta = null;
@@ -413,6 +459,24 @@ public class XmlCompare {
 
         Element root1 = doc1.getDocumentElement();
         Element root2 = doc2.getDocumentElement();
+
+        // Pre-processing: XSLT transform
+        if (opts.xsltPath != null && !opts.xsltPath.isEmpty()) {
+            try {
+                doc1 = applyXslt(doc1, opts.xsltPath);
+                doc2 = applyXslt(doc2, opts.xsltPath);
+                root1 = doc1.getDocumentElement();
+                root2 = doc2.getDocumentElement();
+            } catch (Exception e) {
+                throw new IOException("XSLT transform failed: " + e.getMessage(), e);
+            }
+        }
+
+        // Pre-processing: canonicalize (strip comments and processing instructions)
+        if (opts.canonicalize) {
+            stripNonElements(root1);
+            stripNonElements(root2);
+        }
 
         if (opts.filterXpath != null && !opts.filterXpath.isEmpty()) {
             try {
@@ -456,6 +520,11 @@ public class XmlCompare {
         allFiles.addAll(files1);
         allFiles.addAll(files2);
 
+        com.xmlcompare.cache.CacheManager cacheManager = null;
+        if (opts.cacheFile != null && !opts.cacheFile.isEmpty()) {
+            cacheManager = new com.xmlcompare.cache.CacheManager(opts.cacheFile);
+        }
+
         for (String fname : allFiles) {
             if (!files1.contains(fname)) {
                 results.put(fname, List.of(new Difference(fname, "missing",
@@ -464,12 +533,20 @@ public class XmlCompare {
                 results.put(fname, List.of(new Difference(fname, "missing",
                     "File '" + fname + "' missing in " + dir2)));
             } else {
-                try {
-                    results.put(fname, compareXmlFiles(
-                        dir1Path.resolve(fname).toString(),
-                        dir2Path.resolve(fname).toString(), opts));
-                } catch (IOException e) {
-                    results.put(fname, e.getMessage());
+                File f1 = dir1Path.resolve(fname).toFile();
+                File f2 = dir2Path.resolve(fname).toFile();
+                if (cacheManager != null && cacheManager.isCachedEqual(f1, f2)) {
+                    results.put(fname, new ArrayList<>());
+                } else {
+                    try {
+                        List<Difference> diffs = compareXmlFiles(f1.getAbsolutePath(), f2.getAbsolutePath(), opts);
+                        results.put(fname, diffs);
+                        if (cacheManager != null) {
+                            cacheManager.update(f1, f2, diffs.isEmpty());
+                        }
+                    } catch (IOException e) {
+                        results.put(fname, e.getMessage());
+                    }
                 }
             }
 
@@ -477,6 +554,14 @@ public class XmlCompare {
                 Object val = results.get(fname);
                 if (val instanceof List<?> list && !list.isEmpty()) break;
                 if (val instanceof String) break;
+            }
+        }
+
+        if (cacheManager != null) {
+            try {
+                cacheManager.save();
+            } catch (IOException ignored) {
+                // non-fatal: cache save failure does not affect comparison results
             }
         }
 
@@ -505,16 +590,19 @@ public class XmlCompare {
     }
 
     public static String formatTextReport(List<Difference> diffs, String label1, String label2) {
+        boolean color = useAnsiColor();
         StringBuilder sb = new StringBuilder();
         if (label1 != null && label2 != null) {
             sb.append("Comparing: ").append(label1).append(" vs ").append(label2).append("\n");
             sb.append("-".repeat(60)).append("\n");
         }
         if (diffs == null || diffs.isEmpty()) {
-            sb.append("Files are equal");
+            String msg = "Files are equal";
+            sb.append(color ? "\033[92m" + msg + "\033[0m" : msg);
         } else {
             for (Difference diff : diffs) {
-                sb.append("  [").append(diff.kind.toUpperCase()).append("] ").append(diff.msg).append("\n");
+                String line = "  [" + diff.kind.toUpperCase() + "] " + diff.msg;
+                sb.append(color ? "\033[91m" + line + "\033[0m" : line).append("\n");
                 if (diff.expected != null) {
                     sb.append("    Expected : ").append(diff.expected).append("\n");
                 }
