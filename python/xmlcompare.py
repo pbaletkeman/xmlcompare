@@ -58,6 +58,10 @@ class CompareOptions:
         self.schema = None          # Path to XSD schema file
         self.type_aware = False     # Enable type-aware comparison from schema
         self.plugins = []           # List of plugin module paths to load
+        # Performance options
+        self.stream = False         # Use iterparse-based streaming
+        self.parallel = False       # Use multiprocessing
+        self.threads = 0            # Worker count (0 = auto)
 
 
 class Difference:
@@ -395,6 +399,51 @@ def _parse_xml(path):
         raise FileNotFoundError(f"File not found: {path}") from exc
 
 
+def _apply_xpath_filter(root, xpath_str: str):
+    """
+    Evaluate an XPath expression against *root* and return matching elements.
+
+    Uses ``lxml`` when available for full XPath 1.0 support (predicates,
+    functions like ``contains()``, ``position()``, and boolean operators).
+    Falls back to :mod:`xml.etree.ElementTree`'s built-in XPath subset when
+    ``lxml`` is not installed.
+
+    Supported expressions with lxml:
+        ``//order[@status='active']``
+        ``//item[position() > 5]``
+        ``//error[contains(.,'timeout')]``
+        ``//transaction[@amount > 1000][@type='debit']``
+
+    Supported expressions without lxml (ET subset):
+        ``//tag``, ``[@attr]``, ``[@attr='value']``, ``[pos]``
+    """
+    try:
+        from lxml import etree as lxmletree
+        xml_bytes = ET.tostring(root, encoding='unicode').encode('utf-8')
+        lxml_root = lxmletree.fromstring(xml_bytes)
+        lxml_results = lxml_root.xpath(xpath_str)
+        if not lxml_results:
+            return []
+        # Convert lxml elements back to ET by serialising each match
+        converted = []
+        for lr in lxml_results:
+            try:
+                et_elem = ET.fromstring(lxmletree.tostring(lr))
+                converted.append(et_elem)
+            except ET.ParseError:
+                pass
+        return converted
+    except ImportError:
+        pass
+    except Exception as exc:  # noqa: BLE001
+        raise ValueError(f"Invalid XPath expression {xpath_str!r}: {exc}") from exc
+
+    try:
+        return root.findall(xpath_str)
+    except ET.ParseError as exc:
+        raise ValueError(f"Invalid XPath expression {xpath_str!r}: {exc}") from exc
+
+
 def compare_xml_files(file1, file2, opts):
     """Parse and compare two XML files. Returns a list of Difference objects.
 
@@ -410,11 +459,8 @@ def compare_xml_files(file1, file2, opts):
     root2 = _parse_xml(file2)
 
     if opts.filter_xpath:
-        try:
-            elems1 = root1.findall(opts.filter_xpath)
-            elems2 = root2.findall(opts.filter_xpath)
-        except ET.ParseError as exc:
-            raise ValueError(f"Invalid filter XPath {opts.filter_xpath!r}: {exc}") from exc
+        elems1 = _apply_xpath_filter(root1, opts.filter_xpath)
+        elems2 = _apply_xpath_filter(root2, opts.filter_xpath)
         diffs = []
         _compare_ordered(elems1, elems2, opts, '', diffs, schema_meta=schema_meta)
         return _apply_filters(diffs, opts)
@@ -573,6 +619,9 @@ def _opts_from_dict(config):
     opts.schema = config.get('schema') or None
     opts.type_aware = bool(config.get('type_aware', False))
     opts.plugins = list(config.get('plugins', []))
+    opts.stream = bool(config.get('stream', False))
+    opts.parallel = bool(config.get('parallel', False))
+    opts.threads = int(config.get('threads', 0))
     return opts
 
 
@@ -598,6 +647,9 @@ def _opts_from_args(args):
     opts.schema = args.schema
     opts.type_aware = args.type_aware
     opts.plugins = args.plugins or []
+    opts.stream = getattr(args, 'stream', False)
+    opts.parallel = getattr(args, 'parallel', False)
+    opts.threads = getattr(args, 'threads', 0) or 0
     return opts
 
 
@@ -661,7 +713,11 @@ def build_parser():
                         help='Use schema type hints for smarter comparison (requires --schema)')
     # Phase 3: Performance and Phase 4: Interactive
     parser.add_argument('--stream', action='store_true',
-                        help='Use streaming parser for large files (memory-efficient, slower)')
+                        help='Use streaming parser for large files (memory-efficient, slightly slower)')
+    parser.add_argument('--parallel', action='store_true',
+                        help='Compare subtrees in parallel using multiprocessing')
+    parser.add_argument('--threads', type=int, default=0, metavar='INT',
+                        help='Number of parallel worker processes (default: CPU count - 1)')
     parser.add_argument('--interactive', action='store_true',
                         help='Interactive mode: menu-based file selection and filtering')
     return parser
@@ -707,7 +763,17 @@ def _run_comparison(files, dirs, opts, recursive):
     try:
         if files:
             file1, file2 = files
-            diffs = compare_xml_files(file1, file2, opts)
+            if getattr(opts, 'stream', False):
+                from parse_streaming import compare_xml_files_streaming
+                diffs = compare_xml_files_streaming(file1, file2, opts)
+            elif getattr(opts, 'parallel', False):
+                from parallel import compare_xml_files_parallel
+                diffs = compare_xml_files_parallel(
+                    file1, file2, opts,
+                    num_processes=getattr(opts, 'threads', 0),
+                )
+            else:
+                diffs = compare_xml_files(file1, file2, opts)
             all_results[f"{file1} vs {file2}"] = diffs
         else:
             dir1, dir2 = dirs
@@ -717,7 +783,15 @@ def _run_comparison(files, dirs, opts, recursive):
             if not os.path.isdir(dir2):
                 print(f"Error: not a directory: {dir2}", file=sys.stderr)
                 sys.exit(2)
-            all_results = compare_dirs(dir1, dir2, opts, recursive=recursive)
+            if getattr(opts, 'parallel', False):
+                from parallel import compare_dirs_parallel
+                all_results = compare_dirs_parallel(
+                    dir1, dir2, opts,
+                    num_processes=getattr(opts, 'threads', 0),
+                    recursive=recursive,
+                )
+            else:
+                all_results = compare_dirs(dir1, dir2, opts, recursive=recursive)
     except FileNotFoundError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(2)

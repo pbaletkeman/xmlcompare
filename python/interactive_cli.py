@@ -82,7 +82,8 @@ class InteractiveCli:
 
         try:
             opts = CompareOptions()
-            opts.streaming = self.use_streaming
+            opts.stream = self.use_streaming
+            opts.parallel = self.use_parallel
             self.diffs = compare_xml_files(self.file1, self.file2, opts)
             self.filtered_diffs = list(self.diffs)
             self.comparison_time = time.time() - start_time
@@ -95,21 +96,6 @@ class InteractiveCli:
             self.file1 = None
             self.file2 = None
             return False
-            self.file2 = self._prompt_file("File 2")
-            if not self.file2:
-                return False
-
-        print(f"\nComparing:")
-        print(f"  {self.file1}")
-        print(f"  {self.file2}")
-
-        opts = CompareOptions()
-        print("\nPerforming comparison...")
-        self.diffs = compare_xml_files(self.file1, self.file2, opts)
-        self.filtered_diffs = list(self.diffs)
-
-        print(f"Found {len(self.diffs)} differences\n")
-        return True
 
     def _prompt_file(self, label: str) -> Optional[str]:
         """Prompt user for a file path."""
@@ -126,13 +112,18 @@ class InteractiveCli:
         print("\n" + "=" * 60)
         print(f"Files: {Path(self.file1).name} vs {Path(self.file2).name}")
         print(f"Differences: {len(self.filtered_diffs)} (filtered from {len(self.diffs)} total)")
+        stream_label = "ON" if self.use_streaming else "off"
+        parallel_label = "ON" if self.use_parallel else "off"
+        print(f"Mode: streaming={stream_label}  parallel={parallel_label}")
         print("=" * 60)
         print("1. View differences")
         print("2. Filter by type")
         print("3. Filter by path")
         print("4. Reset filters")
         print("5. Export results")
-        print("6. Select new files")
+        print("6. Toggle streaming mode")
+        print("7. Toggle parallel mode")
+        print("8. Select new files")
         print("0. Exit")
         print("-" * 60)
 
@@ -149,6 +140,10 @@ class InteractiveCli:
         elif choice == '5':
             self._export_results()
         elif choice == '6':
+            self._toggle_streaming()
+        elif choice == '7':
+            self._toggle_parallel()
+        elif choice == '8':
             self.file1 = None
             self.file2 = None
         elif choice == '0':
@@ -198,6 +193,41 @@ class InteractiveCli:
         self.filtered_diffs = list(self.diffs)
         self.current_filter = {}
         print(f"Filters reset. Showing all {len(self.filtered_diffs)} differences.")
+
+    def _toggle_streaming(self) -> None:
+        """Toggle streaming parser mode and re-run comparison."""
+        self.use_streaming = not self.use_streaming
+        status = "enabled" if self.use_streaming else "disabled"
+        print(f"\nStreaming mode {status}.")
+        if self.use_streaming and self.use_parallel:
+            print("  Note: streaming and parallel both active.")
+        # Re-run comparison with new mode
+        self._rerun_comparison()
+
+    def _toggle_parallel(self) -> None:
+        """Toggle parallel processing mode and re-run comparison."""
+        self.use_parallel = not self.use_parallel
+        status = "enabled" if self.use_parallel else "disabled"
+        print(f"\nParallel mode {status}.")
+        self._rerun_comparison()
+
+    def _rerun_comparison(self) -> None:
+        """Re-run comparison with current mode settings."""
+        if not self.file1 or not self.file2:
+            return
+        print("Re-running comparison...")
+        import time
+        start_time = time.time()
+        try:
+            opts = CompareOptions()
+            opts.stream = self.use_streaming
+            opts.parallel = self.use_parallel
+            self.diffs = compare_xml_files(self.file1, self.file2, opts)
+            self.filtered_diffs = list(self.diffs)
+            elapsed = time.time() - start_time
+            print(f"✓ Done in {elapsed:.2f}s — {len(self.diffs)} difference(s)")
+        except Exception as exc:
+            print(f"Error: {exc}")
 
     def _export_results(self) -> None:
         """Export filtered results to file."""
