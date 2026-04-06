@@ -390,10 +390,15 @@ cd java && ./gradlew test
 ## Common Use Cases
 
 ✅ **Test Automation** - Compare expected vs actual XML in test suites
+
 ✅ **Data Validation** - Verify XML data matches schema/expected format
+
 ✅ **ETL Verification** - Compare data before/after transformation
+
 ✅ **Config Management** - Detect changes in config files
+
 ✅ **Document Comparison** - Compare generated vs reference documents
+
 ✅ **CI/CD Integration** - Automated XML validation in pipelines
 
 ---

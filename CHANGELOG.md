@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.2.0] - 2026-04-05
+## [1.0.0] - 2026-04-05
 
 ### Added
 
@@ -62,12 +62,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Python test suite: 189 tests, all passing
 - Java test suite: 93 tests, all passing
 - Java target: JDK 25 (Amazon Corretto), picocli 4.7.5, Jackson 2.17.0
-
----
-
-## [1.1.0] - 2025-07-15
-
-### Added
 
 - **Python – Streaming Parser** (`--stream`)
   - Memory-efficient iterparse-based comparison via `parse_streaming.py`
@@ -146,12 +140,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Python test suite: 189 tests, all passing
 - Java test suite: 93 tests, all passing
 - Java target: JDK 25 (Amazon Corretto), picocli 4.7.5, Jackson 2.17.0
-
----
-
-## [1.0.0] - 2026-04-02
-
-### Added
 
 - **Python Implementation** (Python 3.8+)
   - XML file and directory comparison
